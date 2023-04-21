@@ -1,6 +1,6 @@
 /*
    This file is part of BAST.
-   Copyright © CLEARSY 2023
+   Copyright © CLEARSY 2022-2023
    BAST is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
    the Free Software Foundation, either version 3 of the License, or
@@ -22,7 +22,8 @@
 #include <vector>
 #include <cassert>
 #include <set>
-#include <QStringList>
+#include <list>
+
 #include <cctype> // isdigit
 #include "btype.h"
 #include "vars.h"
@@ -112,45 +113,45 @@ class Expr {
             int compare(const Decimal &other) const;
         };
 
-        static Expr makeInteger(const std::string &i, const QStringList &bxmlTag = {});
-        static Expr makeString(const std::string &s, const QStringList &bxmlTag = {});
-        static Expr makeReal(const Decimal &d, const QStringList &bxmlTag = {});
-        static Expr makeIdent(const VarName &s, const BType &type, const QStringList &bxmlTag = {});
-        static Expr makeEmptySet(const BType &ty, const QStringList &bxmlTag = {});
-        static Expr makePredecessor(const BType &ty, const QStringList &bxmlTag = {});
-        static Expr makeSuccessor(const BType &ty, const QStringList &bxmlTag = {});
-        static Expr makeMaxInt(const QStringList &bxmlTag = {});
-        static Expr makeMinInt(const QStringList &bxmlTag = {});
-        static Expr makeINTEGER(const QStringList &bxmlTag = {});
-        static Expr makeNATURAL(const QStringList &bxmlTag = {});
-        static Expr makeNATURAL1(const QStringList &bxmlTag = {});
-        static Expr makeINT(const QStringList &bxmlTag = {});
-        static Expr makeNAT(const QStringList &bxmlTag = {});
-        static Expr makeNAT1(const QStringList &bxmlTag = {});
-        static Expr makeSTRING(const QStringList &bxmlTag = {});
-        static Expr makeBOOL(const QStringList &bxmlTag = {});
-        static Expr makeTRUE(const QStringList &bxmlTag = {});
-        static Expr makeFALSE(const QStringList &bxmlTag = {});
-        static Expr makeREAL(const QStringList &bxmlTag = {});
-        static Expr makeFLOAT(const QStringList &bxmlTag = {});
-        static Expr makeBinaryExpr(BinaryOp op, Expr &&lhs, Expr &&rhs, const BType &type, const QStringList &bxmlTag = {});
-        static Expr makeUnaryExpr(UnaryOp op, Expr &&lhs, const BType &type, const QStringList &bxmlTag = {});
-        static Expr makeNaryExpr(NaryOp op, std::vector<Expr> &&vec, const BType &type, const QStringList &bxmlTag = {});
-        static Expr makeTernaryExpr(TernaryOp op, Expr &&fst, Expr &&snd, Expr &&thd, const BType &type, const QStringList &bxmlTag = {});
-        static Expr makeBooleanExpr(Pred &&p, const QStringList &bxmlTag = {});
-        static Expr makeRecord(std::vector<std::pair<std::string,Expr>> &&fds, const BType &type, const QStringList &bxmlTag = {}); // /!\ fields must be sorted alphabetically
-        static Expr makeStruct(std::vector<std::pair<std::string,Expr>> &&fds, const BType &type, const QStringList &bxmlTag = {}); // /!\ fields must be sorted alphabetically
+        static Expr makeInteger(const std::string &i, const std::vector<std::string> &bxmlTag = {});
+        static Expr makeString(const std::string &s, const std::vector<std::string> &bxmlTag = {});
+        static Expr makeReal(const Decimal &d, const std::vector<std::string> &bxmlTag = {});
+        static Expr makeIdent(const VarName &s, const BType &type, const std::vector<std::string> &bxmlTag = {});
+        static Expr makeEmptySet(const BType &ty, const std::vector<std::string> &bxmlTag = {});
+        static Expr makePredecessor(const BType &ty, const std::vector<std::string> &bxmlTag = {});
+        static Expr makeSuccessor(const BType &ty, const std::vector<std::string> &bxmlTag = {});
+        static Expr makeMaxInt(const std::vector<std::string> &bxmlTag = {});
+        static Expr makeMinInt(const std::vector<std::string> &bxmlTag = {});
+        static Expr makeINTEGER(const std::vector<std::string> &bxmlTag = {});
+        static Expr makeNATURAL(const std::vector<std::string> &bxmlTag = {});
+        static Expr makeNATURAL1(const std::vector<std::string> &bxmlTag = {});
+        static Expr makeINT(const std::vector<std::string> &bxmlTag = {});
+        static Expr makeNAT(const std::vector<std::string> &bxmlTag = {});
+        static Expr makeNAT1(const std::vector<std::string> &bxmlTag = {});
+        static Expr makeSTRING(const std::vector<std::string> &bxmlTag = {});
+        static Expr makeBOOL(const std::vector<std::string> &bxmlTag = {});
+        static Expr makeTRUE(const std::vector<std::string> &bxmlTag = {});
+        static Expr makeFALSE(const std::vector<std::string> &bxmlTag = {});
+        static Expr makeREAL(const std::vector<std::string> &bxmlTag = {});
+        static Expr makeFLOAT(const std::vector<std::string> &bxmlTag = {});
+        static Expr makeBinaryExpr(BinaryOp op, Expr &&lhs, Expr &&rhs, const BType &type, const std::vector<std::string> &bxmlTag = {});
+        static Expr makeUnaryExpr(UnaryOp op, Expr &&lhs, const BType &type, const std::vector<std::string> &bxmlTag = {});
+        static Expr makeNaryExpr(NaryOp op, std::vector<Expr> &&vec, const BType &type, const std::vector<std::string> &bxmlTag = {});
+        static Expr makeTernaryExpr(TernaryOp op, Expr &&fst, Expr &&snd, Expr &&thd, const BType &type, const std::vector<std::string> &bxmlTag = {});
+        static Expr makeBooleanExpr(Pred &&p, const std::vector<std::string> &bxmlTag = {});
+        static Expr makeRecord(std::vector<std::pair<std::string,Expr>> &&fds, const BType &type, const std::vector<std::string> &bxmlTag = {}); // /!\ fields must be sorted alphabetically
+        static Expr makeStruct(std::vector<std::pair<std::string,Expr>> &&fds, const BType &type, const std::vector<std::string> &bxmlTag = {}); // /!\ fields must be sorted alphabetically
         static Expr makeQuantifiedExpr(QuantifiedOp op,const std::vector<TypedVar> vars,
-                Pred &&cond, Expr &&body, const BType &type, const QStringList &bxmlTag = {});
-        static Expr makeQuantifiedSet(const std::vector<TypedVar> vars, Pred &&cond, const BType &type, const QStringList &bxmlTag = {});
-        static Expr makeRecordFieldUpdate(Expr &&rec, const std::string &label,Expr &&value, const BType &type, const QStringList &bxmlTag = {});
-        static Expr makeRecordFieldAccess(Expr &&rec, const std::string &label, const BType &type, const QStringList &bxmlTag = {});
+                Pred &&cond, Expr &&body, const BType &type, const std::vector<std::string> &bxmlTag = {});
+        static Expr makeQuantifiedSet(const std::vector<TypedVar> vars, Pred &&cond, const BType &type, const std::vector<std::string> &bxmlTag = {});
+        static Expr makeRecordFieldUpdate(Expr &&rec, const std::string &label,Expr &&value, const BType &type, const std::vector<std::string> &bxmlTag = {});
+        static Expr makeRecordFieldAccess(Expr &&rec, const std::string &label, const BType &type, const std::vector<std::string> &bxmlTag = {});
 
         EKind getTag() const { return tag; };
         const BType& getType() const { return type; };
-        const QStringList& getBxmlTag() const { return bxmlTag; };
+        const std::vector<std::string>& getBxmlTag() const { return bxmlTag; };
 
-        void addBxmlTags(const QStringList &bxmlTag);
+        void addBxmlTags(const std::vector<std::string> &bxmlTag);
         
         // Capture-avoiding substitution
         void subst(const std::map<VarName,Expr> &map);
@@ -288,10 +289,10 @@ class Expr {
         EKind tag;  // the 'kind' of the expression. Determine the class of desc.
         std::unique_ptr<ExprDesc> desc; // the content of the expression (if any)
         BType type; // the type of the expression
-        QStringList bxmlTag; // tracability tags
+        std::vector<std::string> bxmlTag; // tracability tags
 
         // Constructor
-        Expr(EKind tag,ExprDesc *desc,const BType &ty, const QStringList &bxmlTag):
+        Expr(EKind tag,ExprDesc *desc,const BType &ty, const std::vector<std::string> &bxmlTag):
             tag{tag}
         ,desc{desc}
         ,type{ty}
@@ -305,22 +306,22 @@ class Expr::Visitor {
             MaxInt, MinInt, INTEGER, NATURAL, NATURAL1, INT, NAT, NAT1, STRING,
             BOOL, REAL, FLOAT, TRUE, FALSE, EmptySet, Successor, Predecessor };
 
-        virtual void visitConstant(const BType &type, const QStringList &bxmlTag, EConstant c) = 0;
-        virtual void visitIdent(const BType &type, const QStringList &bxmlTag, const VarName &b) = 0;
-        virtual void visitIntegerLiteral(const BType &type, const QStringList &bxmlTag, const std::string & i) = 0;
-        virtual void visitStringLiteral(const BType &type, const QStringList &bxmlTag, const std::string &b) = 0;
-        virtual void visitRealLiteral(const BType &type, const QStringList &bxmlTag, const Decimal &d) = 0;
-        virtual void visitUnaryExpression(const BType &type, const QStringList &bxmlTag, Expr::UnaryOp op,const Expr &e) = 0;
-        virtual void visitBinaryExpression(const BType &type, const QStringList &bxmlTag, Expr::BinaryOp op, const Expr &lhs, const Expr &rhs) = 0;
-        virtual void visitTernaryExpression(const BType &type, const QStringList &bxmlTag, Expr::TernaryOp op, const Expr &fst, const Expr &snd, const Expr &thd) = 0;
-        virtual void visitNaryExpression(const BType &type, const QStringList &bxmlTag, Expr::NaryOp op, const std::vector<Expr> &vec) = 0;
-        virtual void visitBooleanExpression(const BType &type, const QStringList &bxmlTag, const Pred &p) = 0;
-        virtual void visitRecord(const BType &type, const QStringList &bxmlTag, const std::vector<std::pair<std::string,Expr>> &fds) = 0;
-        virtual void visitStruct(const BType &type, const QStringList &bxmlTag, const std::vector<std::pair<std::string,Expr>> &fds) = 0;
-        virtual void visitQuantifiedExpr(const BType &type, const QStringList &bxmlTag, Expr::QuantifiedOp op,const std::vector<TypedVar> vars,const Pred &cond, const Expr &body) = 0;
-        virtual void visitQuantifiedSet(const BType &type, const QStringList &bxmlTag, const std::vector<TypedVar> vars, const Pred &cond) = 0;
-        virtual void visitRecordUpdate(const BType &type, const QStringList &bxmlTag, const Expr &rec, const std::string &label, const Expr &value) = 0;
-        virtual void visitRecordAccess(const BType &type, const QStringList &bxmlTag, const Expr &rec, const std::string &label) = 0;
+        virtual void visitConstant(const BType &type, const std::vector<std::string> &bxmlTag, EConstant c) = 0;
+        virtual void visitIdent(const BType &type, const std::vector<std::string> &bxmlTag, const VarName &b) = 0;
+        virtual void visitIntegerLiteral(const BType &type, const std::vector<std::string> &bxmlTag, const std::string & i) = 0;
+        virtual void visitStringLiteral(const BType &type, const std::vector<std::string> &bxmlTag, const std::string &b) = 0;
+        virtual void visitRealLiteral(const BType &type, const std::vector<std::string> &bxmlTag, const Decimal &d) = 0;
+        virtual void visitUnaryExpression(const BType &type, const std::vector<std::string> &bxmlTag, Expr::UnaryOp op,const Expr &e) = 0;
+        virtual void visitBinaryExpression(const BType &type, const std::vector<std::string> &bxmlTag, Expr::BinaryOp op, const Expr &lhs, const Expr &rhs) = 0;
+        virtual void visitTernaryExpression(const BType &type, const std::vector<std::string> &bxmlTag, Expr::TernaryOp op, const Expr &fst, const Expr &snd, const Expr &thd) = 0;
+        virtual void visitNaryExpression(const BType &type, const std::vector<std::string> &bxmlTag, Expr::NaryOp op, const std::vector<Expr> &vec) = 0;
+        virtual void visitBooleanExpression(const BType &type, const std::vector<std::string> &bxmlTag, const Pred &p) = 0;
+        virtual void visitRecord(const BType &type, const std::vector<std::string> &bxmlTag, const std::vector<std::pair<std::string,Expr>> &fds) = 0;
+        virtual void visitStruct(const BType &type, const std::vector<std::string> &bxmlTag, const std::vector<std::pair<std::string,Expr>> &fds) = 0;
+        virtual void visitQuantifiedExpr(const BType &type, const std::vector<std::string> &bxmlTag, Expr::QuantifiedOp op,const std::vector<TypedVar> vars,const Pred &cond, const Expr &body) = 0;
+        virtual void visitQuantifiedSet(const BType &type, const std::vector<std::string> &bxmlTag, const std::vector<TypedVar> vars, const Pred &cond) = 0;
+        virtual void visitRecordUpdate(const BType &type, const std::vector<std::string> &bxmlTag, const Expr &rec, const std::string &label, const Expr &value) = 0;
+        virtual void visitRecordAccess(const BType &type, const std::vector<std::string> &bxmlTag, const Expr &rec, const std::string &label) = 0;
 };
 
 namespace std {

@@ -1,6 +1,6 @@
 /*
    This file is part of BAST.
-   Copyright © CLEARSY 2023
+   Copyright © CLEARSY 2022-2023
    BAST is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
    the Free Software Foundation, either version 3 of the License, or
@@ -45,121 +45,117 @@ namespace Xml {
         {"<=f",Pred::ComparisonOp::Fle},
     };
 
-    Pred readPredicate(const QDomElement &dom, const std::vector<BType> &typeInfos){
-        if (dom.isNull())
+    Pred readPredicate(const tinyxml2::XMLElement *dom, const std::vector<BType> &typeInfos){
+        if (nullptr == dom)
             throw PredReaderException("Null dom element.");
 
-        QString tagName = dom.tagName();
+        const auto &tagName {dom->Name()};
 
-        if(tagName == "Tag")
-            return readPredicate(dom.firstChildElement(),typeInfos);
+        if(0 == strcmp(tagName, "Tag"))
+            return readPredicate(dom->FirstChildElement(), typeInfos);
 
-        auto it = ptags.find(tagName.toStdString());
+        auto it = ptags.find(tagName);
         if(it == ptags.end())
-            throw PredReaderException("Unexpected tag '" + tagName.toStdString() + "'.");
+            throw PredReaderException("Unexpected tag '" + std::string(tagName) + "'.");
 
+        const auto &op {dom->Attribute("op")};
         switch(it->second){
             case Pred::PKind::Implication:
             case Pred::PKind::Equivalence:
                 {
-                    QString op = dom.attribute("op");
-                    QDomElement fst = dom.firstChildElement();
-                    QDomElement snd = fst.nextSiblingElement();
-                    if(op == "=>"){
+                    const tinyxml2::XMLElement *fst {dom->FirstChildElement()};
+                    const tinyxml2::XMLElement *snd {fst->NextSiblingElement()};
+                    if(0 == strcmp(op, "=>")){
                         return Pred::makeImplication(readPredicate(fst,typeInfos),readPredicate(snd,typeInfos));
-                    } else if(op == "<=>"){
+                    } else if(0 == strcmp(op, "<=>")){
                         return Pred::makeEquivalence(readPredicate(fst,typeInfos),readPredicate(snd,typeInfos));
                     } else {
                         throw PredReaderException
-                            ("Unknown binary predicate operator '" + op.toStdString() + "'.");
+                            ("Unknown binary predicate operator '" + std::string(op) + "'.");
                     }
                 }
             case Pred::PKind::ExprComparison:
                 {
-                    QString op = dom.attribute("op");
-                    auto it = comparisonOp.find(op.toStdString());
-                    QDomElement fst = dom.firstChildElement();
-                    QDomElement snd = fst.nextSiblingElement();
+                    auto it {comparisonOp.find(op)};
+                    const tinyxml2::XMLElement *fst {dom->FirstChildElement()};
+                    const tinyxml2::XMLElement *snd {fst->NextSiblingElement()};
                     if(it != comparisonOp.end())
                         return Pred::makeExprComparison
                             (it->second,readExpression(fst,typeInfos),readExpression(snd,typeInfos));
-                    if (op == "/:")
+                    if (0 == strcmp(op, "/:"))
                         return Pred::makeNegation (Pred::makeExprComparison
                                 (Pred::ComparisonOp::Membership,
                                  readExpression(fst,typeInfos),
                                  readExpression(snd,typeInfos)));
-                    if (op == "/<:")
+                    if (0 == strcmp(op, "/<:"))
                         return Pred::makeNegation (Pred::makeExprComparison
                                 (Pred::ComparisonOp::Subset,
                                  readExpression(fst,typeInfos),
                                  readExpression(snd,typeInfos)));
-                    if (op == "/<<:")
+                    if (0 == strcmp(op, "/<<:"))
                         return Pred::makeNegation (Pred::makeExprComparison
                                 (Pred::ComparisonOp::Strict_Subset,
                                  readExpression(fst,typeInfos),
                                  readExpression(snd,typeInfos)));
-                    if (op == "/=")
+                    if (0 == strcmp(op, "/="))
                         return Pred::makeNegation (Pred::makeExprComparison
                                 (Pred::ComparisonOp::Equality,
                                  readExpression(fst,typeInfos),
                                  readExpression(snd,typeInfos)));
                     throw PredReaderException
-                            ("Unknown comparison operator '" + op.toStdString() + "'.");
+                            ("Unknown comparison operator '" + std::string(op) + "'.");
                 }
             case Pred::PKind::Forall:
             case Pred::PKind::Exists:
                 {
-                    QString op = dom.attribute("type");
-                    QDomElement vars = dom.firstChildElement("Variables");
-                    if(vars.isNull())
+                    const tinyxml2::XMLElement * vars {dom->FirstChildElement("Variables")};
+                    if(nullptr == vars)
                         throw PredReaderException
                             ("The 'Quantified_Pred' element is missing some 'Variables' child.");
                     std::vector<TypedVar> vec;
-                    for(    QDomElement ce = vars.firstChildElement("Id");
-                            !ce.isNull();
-                            ce = ce.nextSiblingElement("Id") )
+                    for(    const tinyxml2::XMLElement *ce = vars->FirstChildElement("Id");
+                            nullptr != ce;
+                            ce = ce->NextSiblingElement("Id") )
                     {
                         vec.push_back(VarNameFromId(ce,typeInfos));
                     }
 
-                    if(op == "!"){
+                    if(0 == strcmp(op, "!")){
                         return Pred::makeForall(vec,
-                                readPredicate(dom.firstChildElement("Body").firstChildElement(),typeInfos));
-                    } else if (op == "#"){
+                                readPredicate(dom->FirstChildElement("Body")->FirstChildElement(),typeInfos));
+                    } else if (0 == strcmp(op, "#")){
                         return Pred::makeExists(vec,
-                                readPredicate(dom.firstChildElement("Body").firstChildElement(),typeInfos));
+                                readPredicate(dom->FirstChildElement("Body")->FirstChildElement(),typeInfos));
                     } else
                         throw PredReaderException
-                            ("Unknown type of quantified predicate '" + op.toStdString() + "'.");
+                            ("Unknown type of quantified predicate '" + std::string(op) + "'.");
                 }
             case Pred::PKind::Negation:
                 {
-                    QString op = dom.attribute("op");
-                    if(op != "not")
+                    if(0 != strcmp(op, "not"))
                         throw PredReaderException
-                            ("Unknown unary predicate operator '" + op.toStdString() + "'.");
+                            ("Unknown unary predicate operator '" + std::string(op) + "'.");
 
                     return Pred::makeNegation(
-                            readPredicate(dom.firstChildElement(),typeInfos));
+                            readPredicate(dom->FirstChildElement(),typeInfos));
                 }
             case Pred::PKind::Conjunction:
             case Pred::PKind::Disjunction:
                 {
-                    QString op = dom.attribute("op");
-                    QDomElement ce = dom.firstChildElement();
+                    const tinyxml2::XMLElement * ce = dom->FirstChildElement();
                     std::vector<Pred> vec;
-                    while (!ce.isNull()) {
+                    while (nullptr != ce) {
                         vec.push_back(readPredicate(ce,typeInfos));
-                        ce = ce.nextSiblingElement();
+                        ce = ce->NextSiblingElement();
                     }
 
-                    if(op == "&"){
+                    if(0 == strcmp(op, "&")){
                         return Pred::makeConjunction(std::move(vec));
-                    } else if (op == "or"){
+                    } else if (0 == strcmp(op, "or")){
                         return Pred::makeDisjunction(std::move(vec));
                     } else {
                         throw PredReaderException
-                            ("Unknown n-ary predicate operator '" + op.toStdString() + "'.");
+                            ("Unknown n-ary predicate operator '" + std::string(op) + "'.");
                     }
 
                 }

@@ -1,6 +1,6 @@
 /*
    This file is part of BAST.
-   Copyright © CLEARSY 2023
+   Copyright © CLEARSY 2022-2023
    BAST is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
    the Free Software Foundation, either version 3 of the License, or
@@ -13,52 +13,50 @@
    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+#include "/opt/homebrew/include/tinyxml2.h"
+
 #include "exprReader.h"
 #include "predReader.h"
 #include "exprDesc.h"
 #include <map>
 #include <utility>
+#include <cctype>
+
+static bool strEqCaseInsensitive(const char *str, const char* uppercase);
+
+static void splitDecimal(const char* string, std::string *integralPart, std::string *decimalPart);
 
 namespace Xml {
-    TypedVar VarNameFromId(const QDomElement &id, const std::vector<BType> &typeInfos){
-        if(id.tagName() == "Id"){
-            QString prefix = id.attribute("value","");
-            if(prefix == "")
-                throw ExprReaderException("value attribute is empty.",id.lineNumber());
-            QString typref_s = id.attribute("typref","");
-            if(typref_s == "")
-                throw ExprReaderException("value attribute is empty.",id.lineNumber());
-            bool ok = false;
-            unsigned int typref = typref_s.toInt(&ok);
-            if(!ok)
-                throw ExprReaderException("typref attribute is not an integer.",id.lineNumber());
+    TypedVar VarNameFromId(const tinyxml2::XMLElement *id, const std::vector<BType> &typeInfos){
+        if(0 == strcmp(id->Name(), "Id")){
+            const char * prefix {nullptr};
+            if(tinyxml2::XML_SUCCESS != id->QueryStringAttribute("value", &prefix))
+                throw ExprReaderException("value attribute is empty.",id->GetLineNum());
+            unsigned int typref;
+            if(tinyxml2::XML_SUCCESS != id->QueryUnsignedAttribute("typref", &typref))
+                throw ExprReaderException("typref attribute error.",id->GetLineNum());
 
-            if(!id.hasAttribute("suffix")){
-                return {VarName::makeVarWithoutSuffix(prefix.toStdString()),typeInfos[typref]};
+            if(nullptr == id->Attribute("suffix")){
+                return {VarName::makeVarWithoutSuffix(prefix),typeInfos[typref]};
             } else {
-                bool ok;
-                int i = id.attribute("suffix").toInt(&ok);
-                if(!ok)
-                    throw ExprReaderException("suffix attribute must be a integer.",id.lineNumber());
-                else if(i == 0)
-                    return {VarName::makeVarWithoutSuffix(prefix.toStdString()),typeInfos[typref]}; // xx$0 may occur in while invariant, the suffix '0' could be removed in the ibxml step
+                int i;
+                if(tinyxml2::XML_SUCCESS != id->QueryIntAttribute("suffix", &i))
+                    throw ExprReaderException("suffix attribute error.",id->GetLineNum());
+                if(i == 0)
+                    return {VarName::makeVarWithoutSuffix(prefix),typeInfos[typref]}; // xx$0 may occur in while invariant, the suffix '0' could be removed in the ibxml step
                 else
-                    return {VarName::makeVar(prefix.toStdString(),i),typeInfos[typref]};
+                    return {VarName::makeVar(prefix,i),typeInfos[typref]};
             }
-        } else if(id.tagName() == "Fresh_Id"){
-            QString prefix = id.attribute("ref","");
-            if(prefix == "")
-                throw ExprReaderException("ref attribute is empty.",id.lineNumber());
-            QString typref_s = id.attribute("typref","");
-            if(typref_s == "")
-                throw ExprReaderException("value attribute is empty.",id.lineNumber());
-            bool ok = false;
-            unsigned int typref = typref_s.toInt(&ok);
-            if(!ok)
-                throw ExprReaderException("typref attribute is not an integer.",id.lineNumber());
-            return {VarName::makeFreshId(prefix.toStdString()),typeInfos[typref]};
+        } else if(0 == strcmp(id->Name(), "Fresh_Id")){
+            const char *prefix;
+            if(tinyxml2::XML_SUCCESS != id->QueryStringAttribute("ref", &prefix))
+                throw ExprReaderException("ref attribute error.",id->GetLineNum());
+            unsigned int typref;
+            if(tinyxml2::XML_SUCCESS != id->QueryUnsignedAttribute("typref", &typref))
+                throw ExprReaderException("typref attribute error.",id->GetLineNum());
+            return {VarName::makeFreshId(prefix),typeInfos[typref]};
         } else {
-            throw ExprReaderException("Id element expected.",id.lineNumber());
+            throw ExprReaderException("Id element expected.",id->GetLineNum());
         }
         assert(false); // unreachable
     };
@@ -234,47 +232,48 @@ namespace Xml {
         {"pred", Expr::EKind::Predecessor}
     };
 
-    Expr readExpression(const QDomElement &dom, const std::vector<BType> &typeInfos){
-        if (dom.isNull())
+    Expr readExpression(const tinyxml2::XMLElement *dom, const std::vector<BType> &typeInfos){
+        if (nullptr == dom)
             throw ExprReaderException("Null dom element.",-1);
 
-        QString tagName = dom.tagName();
-        if(!dom.hasAttribute("typref"))
-            throw ExprReaderException("Missing typref attribute for '" + tagName.toStdString() + "'.",dom.lineNumber());
-        BType type = typeInfos[dom.attribute("typref").toUInt()];
-        QStringList bxmlTag;
-        QString _bxmlTag = dom.attribute("tag");
-        if(_bxmlTag != "")
+        std::string tagName = dom->Name();
+        unsigned int typref;
+        if(tinyxml2::XML_SUCCESS != dom->QueryUnsignedAttribute("typref", &typref))
+            throw ExprReaderException("typref attribute error.", dom->GetLineNum());
+        BType type = typeInfos[typref];
+        std::vector<std::string> bxmlTag;
+        auto _bxmlTag {dom->Attribute("tag")};
+        if(nullptr != _bxmlTag && 0 != strcmp("", _bxmlTag))
             bxmlTag.push_back(_bxmlTag);
 
-        auto it = etags.find(tagName.toStdString());
+        auto it = etags.find(tagName);
         if(it == etags.end())
-            throw ExprReaderException("Unexpected tag '" + tagName.toStdString() + "'.",dom.lineNumber());
+            throw ExprReaderException("Unexpected tag '" + tagName + "'.", dom->GetLineNum());
 
         switch(it->second){
             case Expr::EKind::BinaryExpr:
                 {
-                    QString op = dom.attribute("op");
-                    auto it = binaryExpOp.find(op.toStdString());
+                    auto op = dom->Attribute("op");
+                    auto it = binaryExpOp.find(op);
                     if(it == binaryExpOp.end())
                         throw ExprReaderException
-                            ("Unknown binary expression operator '" + op.toStdString() + "'.",dom.lineNumber());
-                    QDomElement fst = dom.firstChildElement();
-                    QDomElement snd = fst.nextSiblingElement();
+                            ("Unknown binary expression operator '" + std::string(op) + "'.", dom->GetLineNum());
+                    const tinyxml2::XMLElement *fst {dom->FirstChildElement()};
+                    const tinyxml2::XMLElement * snd {fst->NextSiblingElement()};
                     Expr lhs = readExpression(fst,typeInfos);
                     Expr rhs = readExpression(snd,typeInfos);
                     return Expr::makeBinaryExpr(it->second,std::move(lhs),std::move(rhs),type,bxmlTag);
                 }
             case Expr::EKind::TernaryExpr:
                 {
-                    QString op = dom.attribute("op");
-                    auto it = ternaryExpOp.find(op.toStdString());
+                    auto op = dom->Attribute("op");
+                    auto it = ternaryExpOp.find(op);
                     if(it == ternaryExpOp.end())
                         throw ExprReaderException
-                            ("Unknown ternary expression operator '" + op.toStdString() + "'.",dom.lineNumber());
-                    QDomElement fst = dom.firstChildElement();
-                    QDomElement snd = fst.nextSiblingElement();
-                    QDomElement thd = snd.nextSiblingElement();
+                            ("Unknown ternary expression operator '" + std::string(op) + "'.", dom->GetLineNum());
+                    const tinyxml2::XMLElement * fst = dom->FirstChildElement();
+                    const tinyxml2::XMLElement * snd = fst->NextSiblingElement();
+                    const tinyxml2::XMLElement * thd = snd->NextSiblingElement();
                     Expr efst = readExpression(fst,typeInfos);
                     Expr esnd = readExpression(snd,typeInfos);
                     Expr ethd = readExpression(thd,typeInfos);
@@ -282,23 +281,23 @@ namespace Xml {
                 }
             case Expr::EKind::NaryExpr:
                 {
-                    QString op = dom.attribute("op");
-                    auto it = naryExpOp.find(op.toStdString());
+                    auto op = dom->Attribute("op");
+                    auto it = naryExpOp.find(op);
                     if(it == naryExpOp.end())
                         throw ExprReaderException
-                            ("Unknown n-ary expression operator '" + op.toStdString() + "'.",dom.lineNumber());
+                            ("Unknown n-ary expression operator '" + std::string(op) + "'.",dom->GetLineNum());
                     std::vector<Expr> lst;
-                    QDomElement ce = dom.firstChildElement();
-                    while (!ce.isNull()) {
+                    const tinyxml2::XMLElement * ce = dom->FirstChildElement();
+                    while (nullptr != ce) {
                         lst.push_back(readExpression(ce,typeInfos));
-                        ce = ce.nextSiblingElement();
+                        ce = ce->NextSiblingElement();
                     }
                     return Expr::makeNaryExpr(it->second,std::move(lst),type, bxmlTag);
                 }
             case Expr::EKind::BooleanExpr:
                 {
                     return Expr::makeBooleanExpr(
-                            readPredicate(dom.firstChildElement(),typeInfos),
+                            readPredicate(dom->FirstChildElement(),typeInfos),
                             bxmlTag );
                 }
             case Expr::EKind::EmptySet:
@@ -307,12 +306,12 @@ namespace Xml {
                 }
             case Expr::EKind::Id:
                 {
-                    if(tagName.toStdString() == "Fresh_Id"){
+                    if(tagName == "Fresh_Id"){
                         TypedVar tv = VarNameFromId(dom,typeInfos);
                         return Expr::makeIdent(tv.name, tv.type, bxmlTag);
                     }
 
-                    auto v = dom.attribute("value").toStdString();
+                    auto v = dom->Attribute("value");
                     auto it = constantExpr.find(v);
 
                     if(it == constantExpr.end()){
@@ -359,89 +358,93 @@ namespace Xml {
                 }
             case Expr::EKind::IntegerLiteral:
                 {
-                    return Expr::makeInteger(dom.attribute("value").toStdString(),bxmlTag);
+                    return Expr::makeInteger(dom->Attribute("value"),bxmlTag);
                 }
             case Expr::EKind::RealLiteral:
                 {
-                    QStringList lst = dom.attribute("value").split(".");
+                    const char * val {dom->Attribute("value")};
+                    std::vector<std::string> lst;
+                    std::string integralPart;
+                    std::string decimalPart;
+                    splitDecimal(val, &integralPart, &decimalPart);
                     if(lst.size() == 1 || lst.size() == 2){
-                        std::string integerPart = lst[0].toStdString();
+                        std::string integerPart = lst[0];
                         if(lst.size() == 1){
                             return Expr::makeReal(Expr::Decimal(integerPart),bxmlTag);
                         } else /* lst.size() == 2 */ {
-                            std::string decimalPart = lst[1].toStdString();
+                            std::string decimalPart = lst[1];
                             return Expr::makeReal(Expr::Decimal(integerPart,decimalPart),bxmlTag);
                         }
                     } else {
-                        throw ExprReaderException("Incorrect decimal value ("+ dom.attribute("value").toStdString() + ").",dom.lineNumber());
+                        throw ExprReaderException("Incorrect decimal value ("+ std::string(dom->Attribute("value")) + ").",dom->GetLineNum());
                     }
                 }
             case Expr::EKind::StringLiteral:
                 {
-                    return Expr::makeString(dom.attribute("value").toStdString(),bxmlTag);
+                    return Expr::makeString(dom->Attribute("value"),bxmlTag);
                 }
             case Expr::EKind::QuantifiedExpr:
                 {
-                    QString op = dom.attribute("type");
-                    auto it = quantifiedExprOp.find(op.toStdString());
+                    auto op = dom->Attribute("type");
+                    auto it = quantifiedExprOp.find(op);
                     if(it == quantifiedExprOp.end())
                         throw ExprReaderException
-                            ("Unknown type of quantified expression '" + op.toStdString() + "'.",dom.lineNumber());
+                            ("Unknown type of quantified expression '" + std::string(op) + "'.",dom->GetLineNum());
 
-                    QDomElement vars = dom.firstChildElement("Variables");
-                    if(vars.isNull())
+                    const tinyxml2::XMLElement * vars = dom->FirstChildElement("Variables");
+                    if(nullptr == vars)
                         throw ExprReaderException
-                            ("The 'Quantified_Exp' element is missing some 'Variables' child.",dom.lineNumber());
+                            ("The 'Quantified_Exp' element is missing some 'Variables' child.",dom->GetLineNum());
                     std::vector<TypedVar> ids;
-                    for(    QDomElement ce = vars.firstChildElement();
-                            !ce.isNull();
-                            ce = ce.nextSiblingElement() )
+                    for(    const tinyxml2::XMLElement * ce = vars->FirstChildElement();
+                            nullptr != ce;
+                            ce = ce->NextSiblingElement() )
                     {
                         ids.push_back(VarNameFromId(ce,typeInfos));
                     }
-                    Pred pre = readPredicate(dom.firstChildElement("Pred").firstChildElement(),typeInfos);
-                    Expr body = readExpression(dom.firstChildElement("Body").firstChildElement(),typeInfos);
+                    Pred pre = readPredicate(dom->FirstChildElement("Pred")->FirstChildElement(),typeInfos);
+                    Expr body = readExpression(dom->FirstChildElement("Body")->FirstChildElement(),typeInfos);
                     return Expr::makeQuantifiedExpr(it->second,ids,std::move(pre),std::move(body),type,bxmlTag );
                 }
             case Expr::EKind::QuantifiedSet:
                 {
-                    QDomElement vars = dom.firstChildElement("Variables");
-                    if(vars.isNull())
+                    const tinyxml2::XMLElement * vars = dom->FirstChildElement("Variables");
+                    if(nullptr == vars)
                         throw ExprReaderException
-                            ("The 'Quantified_Set' element is missing some 'Variables' child.",dom.lineNumber());
+                            ("The 'Quantified_Set' element is missing some 'Variables' child.",dom->GetLineNum());
                     std::vector<TypedVar> ids;
-                    for(    QDomElement ce = vars.firstChildElement();
-                            !ce.isNull();
-                            ce = ce.nextSiblingElement() )
+                    for(    const tinyxml2::XMLElement * ce = vars->FirstChildElement();
+                            nullptr != ce;
+                            ce = ce->NextSiblingElement() )
                     {
                         ids.push_back(VarNameFromId(ce,typeInfos));
                     }
-                    Pred body = readPredicate(dom.firstChildElement("Body").firstChildElement(),typeInfos);
+                    Pred body = readPredicate(dom->FirstChildElement("Body")->FirstChildElement(),typeInfos);
                     return Expr::makeQuantifiedSet(ids,std::move(body),type,bxmlTag );
                 }
             case Expr::EKind::UnaryExpr:
                 {
-                    QString op = dom.attribute("op");
-                    auto it = unaryExpOp.find(op.toStdString());
+                    auto op = dom->Attribute("op");
+                    auto it = unaryExpOp.find(op);
                     if(it == unaryExpOp.end())
                         throw ExprReaderException
-                            ("Unknown unary expression operator '" + op.toStdString() + "'.",dom.lineNumber());
-                    Expr content = readExpression(dom.firstChildElement(),typeInfos);
+                            ("Unknown unary expression operator '" + std::string(op) + "'.",dom->GetLineNum());
+                    Expr content = readExpression(dom->FirstChildElement(),typeInfos);
                     return Expr::makeUnaryExpr(it->second,std::move(content),type,bxmlTag);
                 }
             case Expr::EKind::Struct:
                 {
                     std::vector<std::pair<std::string,Expr>> vec;
-                    for(QDomElement recItem = dom.firstChildElement("Record_Item");
-                            !recItem.isNull();
-                            recItem = recItem.nextSiblingElement("Record_Item"))
+                    for(const tinyxml2::XMLElement * recItem = dom->FirstChildElement("Record_Item");
+                            nullptr != recItem;
+                            recItem = recItem->NextSiblingElement("Record_Item"))
                     {
-                        if(!recItem.hasAttribute("label"))
+                        if(nullptr == recItem->Attribute("label"))
                             throw ExprReaderException
-                                ("The 'Record_Item' element is missing a 'label' attribute.",dom.lineNumber());
+                                ("The 'Record_Item' element is missing a 'label' attribute.",dom->GetLineNum());
                         vec.push_back(std::make_pair(
-                                    recItem.attribute("label").toStdString(),
-                                    readExpression(recItem.firstChildElement(),typeInfos)));
+                                    recItem->Attribute("label"),
+                                    readExpression(recItem->FirstChildElement(),typeInfos)));
                     };
                     std::sort(vec.begin(),vec.end(),RecordFieldCmp);
                     return Expr::makeStruct(std::move(vec),type, bxmlTag);
@@ -449,43 +452,43 @@ namespace Xml {
             case Expr::EKind::Record:
                 {
                     std::vector<std::pair<std::string,Expr>> vec;
-                    for(QDomElement recItem = dom.firstChildElement("Record_Item");
-                            !recItem.isNull();
-                            recItem = recItem.nextSiblingElement("Record_Item"))
+                    for(const tinyxml2::XMLElement * recItem = dom->FirstChildElement("Record_Item");
+                            nullptr != recItem;
+                            recItem = recItem->NextSiblingElement("Record_Item"))
                     {
-                        if(!recItem.hasAttribute("label"))
+                        if(nullptr == recItem->Attribute("label"))
                             throw ExprReaderException
-                                ("The 'Record_Item' element is missing a 'label' attribute.",dom.lineNumber());
+                                ("The 'Record_Item' element is missing a 'label' attribute.",dom->GetLineNum());
                         vec.push_back(std::make_pair(
-                                    recItem.attribute("label").toStdString(),
-                                    readExpression(recItem.firstChildElement(),typeInfos)));
+                                    recItem->Attribute("label"),
+                                    readExpression(recItem->FirstChildElement(),typeInfos)));
                     };
                     std::sort(vec.begin(),vec.end(),RecordFieldCmp);
                     return Expr::makeRecord(std::move(vec),type, bxmlTag);
                 }
             case Expr::EKind::TRUE: // Boolean_Literal
                 {
-                    QString lt = dom.attribute("value","").toUpper();
-                    if(lt == "TRUE") return Expr::makeTRUE(bxmlTag);
-                    else if(lt == "FALSE") return Expr::makeFALSE(bxmlTag);
+                    const char * lt {dom->Attribute("value")};
+                    if(strEqCaseInsensitive(lt, "TRUE")) return Expr::makeTRUE(bxmlTag);
+                    else if(strEqCaseInsensitive(lt, "FALSE")) return Expr::makeFALSE(bxmlTag);
                     else
                         throw ExprReaderException("Unknown boolean literal '"
-                                + lt.toStdString() + "'.",dom.lineNumber());
+                                + std::string(lt) + "'.",dom->GetLineNum());
                 }
             case Expr::EKind::Record_Field_Update:
                 {
-                    QDomElement fst = dom.firstChildElement();
-                    QDomElement snd = fst.nextSiblingElement();
+                    const tinyxml2::XMLElement * fst = dom->FirstChildElement();
+                    const tinyxml2::XMLElement * snd = fst->NextSiblingElement();
                     Expr rec = readExpression(fst,typeInfos);
-                    std::string label = dom.attribute("label").toStdString();
+                    std::string label = dom->Attribute("label");
                     Expr fval = readExpression(snd,typeInfos);
                     return Expr::makeRecordFieldUpdate(std::move(rec),label,std::move(fval),type,bxmlTag);
                 }
             case Expr::EKind::Record_Field_Access:
                 {
-                    QDomElement fst = dom.firstChildElement();
+                    const tinyxml2::XMLElement * fst = dom->FirstChildElement();
                     Expr rec = readExpression(fst,typeInfos);
-                    std::string label = dom.attribute("label").toStdString();
+                    std::string label = dom->Attribute("label");
                     return Expr::makeRecordFieldAccess(std::move(rec),label,type,bxmlTag);
                 }
             case Expr::EKind::MaxInt:
@@ -509,4 +512,32 @@ namespace Xml {
         };
         assert(false); // unreachable
     };
+}
+
+static bool strEqCaseInsensitive(const char * lhs, const char * rhs) {
+    const char *pl {lhs};
+    const char *pr {rhs};
+    while (*pl != '\0' && *pr != '\0' && toupper(*pl) == toupper(*pr)) {
+        ++pl; ++pr;
+    }
+    return *pl == '\0' && *pr == '\0';
+}
+
+void splitDecimal(const char *str, std::string *integralPart, std::string *decimalPart)
+{
+    unsigned pos1 = 0;
+    const char *p;
+    p = str;
+    while (*p != '\0' && *p != '.') {
+        ++p; ++pos1;
+    }
+    *integralPart = std::string(str, pos1);
+    unsigned pos2 = 0;
+    while (*p != '\0') {
+        ++p; ++pos2;
+    }
+    if(pos2 == 0)
+        *decimalPart = std::string();
+    else 
+        *decimalPart = std::string(str+pos1+1, pos2);
 }

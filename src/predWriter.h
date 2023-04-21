@@ -1,6 +1,6 @@
 /*
    This file is part of BAST.
-   Copyright © CLEARSY 2023
+   Copyright © CLEARSY 2022-2023
    BAST is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
    the Free Software Foundation, either version 3 of the License, or
@@ -18,10 +18,10 @@
 
 #include "pred.h"
 #include "btype.h"
-#include <QXmlStreamWriter>
+#include "/opt/homebrew/include/tinyxml2.h"
 
 namespace Xml {
-    void writePredicate(QXmlStreamWriter &stream, std::map<BType,unsigned int> &typeInfos, const Pred &p);
+    void writePredicate(tinyxml2::XMLPrinter &stream, std::map<BType,unsigned int> &typeInfos, const Pred &p);
 }
 
 #endif // PREDWRITER_H

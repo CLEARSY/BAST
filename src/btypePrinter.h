@@ -1,6 +1,6 @@
 /*
    This file is part of BAST.
-   Copyright © CLEARSY 2022-2023
+   Copyright © CLEARSY 2023
    BAST is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
    the Free Software Foundation, either version 3 of the License, or
@@ -13,17 +13,16 @@
    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+#ifndef BTYPEPRINTER_H
+#define BTYPEPRINTER_H
 
-#ifndef EXPRWRITER_H
-#define EXPRWRITER_H
+#include<iostream>
 
-#include "/opt/homebrew/include/tinyxml2.h"
+#include "btype.h"
 
-#include "expr.h"
+/// @brief pretty prints B type 
+/// @param stream the output stream where the B type is printed
+/// @param p the type to be printed
+void printType(std::ostream &stream, const BType &p);
 
-namespace Xml {
-    void writeTypedVar(tinyxml2::XMLPrinter &stream, std::map<BType,unsigned int> &typeInfos, const TypedVar &v);
-    void writeExpression(tinyxml2::XMLPrinter &stream, std::map<BType,unsigned int> &typeInfos, const Expr &p);
-}
-
-#endif // EXPRWRITER_H
+#endif // BTYPEPRINTER_H

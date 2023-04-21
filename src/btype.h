@@ -1,6 +1,6 @@
 /*
    This file is part of BAST.
-   Copyright © CLEARSY 2023
+   Copyright © CLEARSY 2022-2023
    BAST is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
    the Free Software Foundation, either version 3 of the License, or
@@ -21,6 +21,11 @@
 #include <vector>
 #include "hash.h"
 
+/**
+ * @brief Abstract class to represent B data types
+ * 
+ * @todo Add data types for deferred sets and enumerations.
+*/
 class BType {
 public:
     enum class Kind { INTEGER, BOOLEAN, FLOAT, REAL, STRING, ProductType, PowerType, Struct };
@@ -103,6 +108,7 @@ class BType::ProductType : public AbstractBType {
         const BType lhs;
         const BType rhs;
 };
+
 class BType::PowerType : public AbstractBType {
     public:
         PowerType(const BType &content):content{content}{};
@@ -113,6 +119,7 @@ class BType::PowerType : public AbstractBType {
         void accept(Visitor &v) const { v.visitPowerType(content); }
         const BType content;
 };
+
 class BType::RecordType : public AbstractBType {
     public:
         RecordType(const std::vector<std::pair<std::string,BType>> &fields):

@@ -1,6 +1,6 @@
 /*
    This file is part of BAST.
-   Copyright © CLEARSY 2022-2023
+   Copyright © CLEARSY 2023
    BAST is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
    the Free Software Foundation, either version 3 of the License, or
@@ -12,18 +12,5 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
-
-
-#ifndef EXPRWRITER_H
-#define EXPRWRITER_H
-
-#include "/opt/homebrew/include/tinyxml2.h"
-
-#include "expr.h"
-
-namespace Xml {
-    void writeTypedVar(tinyxml2::XMLPrinter &stream, std::map<BType,unsigned int> &typeInfos, const TypedVar &v);
-    void writeExpression(tinyxml2::XMLPrinter &stream, std::map<BType,unsigned int> &typeInfos, const Expr &p);
-}
-
-#endif // EXPRWRITER_H
+#define POG_PRINTER_VERSION_MAJOR @pogPrinter_VERSION_MAJOR@
+#define POG_PRINTER_VERSION_MINOR @pogPrinter_VERSION_MINOR@

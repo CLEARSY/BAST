@@ -1,6 +1,6 @@
 /*
    This file is part of BAST.
-   Copyright © CLEARSY 2022-2023
+   Copyright © CLEARSY 2023
    BAST is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
    the Free Software Foundation, either version 3 of the License, or
@@ -12,18 +12,16 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
+#ifndef PRED_PRINTER_H
+#define PRED_PRINTER_H
 
+#include<iostream>
 
-#ifndef EXPRWRITER_H
-#define EXPRWRITER_H
+#include "pred.h"
 
-#include "/opt/homebrew/include/tinyxml2.h"
+/// @brief pretty prints B predicate 
+/// @param stream the output stream where the predicate is printed
+/// @param p the predicate to be printed
+extern void printPredicate(std::ostream &stream, const Pred &p);
 
-#include "expr.h"
-
-namespace Xml {
-    void writeTypedVar(tinyxml2::XMLPrinter &stream, std::map<BType,unsigned int> &typeInfos, const TypedVar &v);
-    void writeExpression(tinyxml2::XMLPrinter &stream, std::map<BType,unsigned int> &typeInfos, const Expr &p);
-}
-
-#endif // EXPRWRITER_H
+#endif

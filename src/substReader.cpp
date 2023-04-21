@@ -34,97 +34,97 @@ namespace Xml {
         {"Witness", Subst::SKind::Witness},
     };
 
-    Subst readSubstitution(const QDomElement &dom, const std::vector<BType> &typeInfos){
-        if (dom.isNull())
+    Subst readSubstitution(const tinyxml2::XMLElement *dom, const std::vector<BType> &typeInfos){
+        if (nullptr == dom)
             throw SubstReaderException("Null dom element.");
 
-        QString tagName = dom.tagName();
+        const char *tagName = dom->Name();
         Subst::SKind kind;
-        if(tagName == "Nary_Sub") {
-            QString op = dom.attribute("op");
-            if(op == "||")
+        if(0 == strcmp(tagName, "Nary_Sub")) {
+            const char *op = dom->Attribute("op");
+            if(0 == strcmp(op, "||"))
                 kind = Subst::SKind::Parallel;
-            else if(op == ";")
+            else if(0 == strcmp(op, ";"))
                 kind = Subst::SKind::Sequence;
-            else if(op == "CHOICE")
+            else if(0 == strcmp(op, "CHOICE"))
                 kind = Subst::SKind::Choice;
             else
-                throw SubstReaderException("Unknown nary substitution operator '"+op.toStdString()+"'.");
+                throw SubstReaderException("Unknown nary substitution operator '"+ std::string(op) +"'.");
         }
         else
         {
-            auto it = ptags.find(tagName.toStdString());
+            auto it = ptags.find(tagName);
             if(it == ptags.end())
-                throw SubstReaderException("Unexpected tag '" + tagName.toStdString() + "'.");
+                throw SubstReaderException("Unexpected tag '" + std::string(tagName) + "'.");
             kind = it->second;
         };
 
         switch(kind){
             case Subst::SKind::Block:
-                return Subst::makeBlock(readSubstitution(dom.firstChildElement(),typeInfos));
+                return Subst::makeBlock(readSubstitution(dom->FirstChildElement(),typeInfos));
             case Subst::SKind::Skip:
                 return Subst::makeSkip();
             case Subst::SKind::Assert:
                 {
-                    QDomElement guard;
-                    if(tagName == "PRE_Sub"){
-                        guard = dom.firstChildElement("Precondition");
-                        if(guard.isNull())
+                    const tinyxml2::XMLElement * guard;
+                    if(0 == strcmp(tagName, "PRE_Sub")){
+                        guard = dom->FirstChildElement("Precondition");
+                        if(guard == nullptr)
                             throw SubstReaderException("Missing child 'Precondition' in PRE_Sub element.");
                     } else {
-                        guard = dom.firstChildElement("Guard");
-                        if(guard.isNull())
+                        guard = dom->FirstChildElement("Guard");
+                        if(guard == nullptr)
                             throw SubstReaderException("Missing child 'Guard' in Assert_Sub element.");
                     }
-                    QDomElement body = dom.firstChildElement("Body");
-                    if(body.isNull())
+                    const tinyxml2::XMLElement *body = dom->FirstChildElement("Body");
+                    if(body == nullptr)
                         throw SubstReaderException("Missing child 'Body' in Assert_Sub or PRE_Sub element.");
                     return Subst::makeAssert(
-                            readPredicate(guard.firstChildElement(),typeInfos),
-                            readSubstitution(body.firstChildElement(),typeInfos)
+                            readPredicate(guard->FirstChildElement(),typeInfos),
+                            readSubstitution(body->FirstChildElement(),typeInfos)
                             );
                 }
             case Subst::SKind::IfThen:
             case Subst::SKind::IfThenElse:
                 {
-                    QDomElement condition = dom.firstChildElement("Condition");
-                    if(condition.isNull())
+                    const tinyxml2::XMLElement * condition = dom->FirstChildElement("Condition");
+                    if(condition == nullptr)
                         throw SubstReaderException("Missing child 'Condition' in 'If_Sub' element.");
-                    QDomElement then = dom.firstChildElement("Then");
-                    if(then.isNull())
+                    const tinyxml2::XMLElement * then = dom->FirstChildElement("Then");
+                    if(then == nullptr)
                         throw SubstReaderException("Missing child 'Then' in 'If_Sub' element.");
-                    QDomElement els = dom.firstChildElement("Else");
-                    if(els.isNull())
+                    const tinyxml2::XMLElement * els = dom->FirstChildElement("Else");
+                    if(els == nullptr)
                         return Subst::makeIfThen(
-                                readPredicate(condition.firstChildElement(),typeInfos),
-                                readSubstitution(then.firstChildElement(),typeInfos)
+                                readPredicate(condition->FirstChildElement(),typeInfos),
+                                readSubstitution(then->FirstChildElement(),typeInfos)
                                 );
                     else
                         return Subst::makeIfThenElse(
-                                readPredicate(condition.firstChildElement(),typeInfos),
-                                readSubstitution(then.firstChildElement(),typeInfos),
-                                readSubstitution(els.firstChildElement(),typeInfos)
+                                readPredicate(condition->FirstChildElement(),typeInfos),
+                                readSubstitution(then->FirstChildElement(),typeInfos),
+                                readSubstitution(els->FirstChildElement(),typeInfos)
                                 );
                 }
             case Subst::SKind::SimpleAssignment:
                 {
-                    QDomElement vars = dom.firstChildElement("Variables");
-                    if(vars.isNull())
+                    const tinyxml2::XMLElement * vars = dom->FirstChildElement("Variables");
+                    if(vars == nullptr)
                         throw SubstReaderException("Missing child 'Variables' in 'Simple_Assignement_Sub' element.");
                     std::vector<TypedVar> vec;
-                    for(    QDomElement ce = vars.firstChildElement();
-                            !ce.isNull();
-                            ce = ce.nextSiblingElement() )
+                    for(    const tinyxml2::XMLElement * ce = vars->FirstChildElement();
+                            ce != nullptr;
+                            ce = ce->NextSiblingElement() )
                     {
                         vec.push_back(VarNameFromId(ce,typeInfos));
                     }
-                    QDomElement values = dom.firstChildElement("Values");
-                    if(values.isNull())
+                    const tinyxml2::XMLElement * values = dom->FirstChildElement("Values");
+                    if(values == nullptr)
                         throw SubstReaderException("Missing child 'Values' in 'Simple_Assignement_Sub' element.");
                     std::vector<Expr> vec2;
-                    for(    QDomElement ce = values.firstChildElement();
-                            !ce.isNull();
-                            ce = ce.nextSiblingElement() )
+                    for(    const tinyxml2::XMLElement * ce = values->FirstChildElement();
+                            ce != nullptr;
+                            ce = ce->NextSiblingElement() )
                     {
                         vec2.push_back(readExpression(ce,typeInfos));
                     }
@@ -133,189 +133,189 @@ namespace Xml {
             case Subst::SKind::Select:
             case Subst::SKind::SelectElse:
                 {
-                    QDomElement clauses = dom.firstChildElement("When_Clauses");
-                    if(clauses.isNull())
+                    const tinyxml2::XMLElement * clauses = dom->FirstChildElement("When_Clauses");
+                    if(clauses == nullptr)
                         throw SubstReaderException("Missing child 'When_Clauses' in 'Select' element.");
                     std::vector<std::pair<Pred,Subst>> vec;
-                    for(    QDomElement ce = clauses.firstChildElement("When");
-                            !ce.isNull();
-                            ce = ce.nextSiblingElement("When") )
+                    for(    const tinyxml2::XMLElement * ce = clauses->FirstChildElement("When");
+                            ce != nullptr;
+                            ce = ce->NextSiblingElement("When") )
                     {
-                        QDomElement cond = ce.firstChildElement("Condition");
-                        if(cond.isNull())
+                        const tinyxml2::XMLElement * cond = ce->FirstChildElement("Condition");
+                        if(cond == nullptr)
                             throw SubstReaderException("Missing child 'Condition' in 'When' element.");
-                        QDomElement then = ce.firstChildElement("Then");
-                        if(then.isNull())
+                        const tinyxml2::XMLElement * then = ce->FirstChildElement("Then");
+                        if(then == nullptr)
                             throw SubstReaderException("Missing child 'Then' in 'When' element.");
                         vec.push_back( {
-                                readPredicate(cond.firstChildElement(),typeInfos),
-                                readSubstitution(then.firstChildElement(),typeInfos) });
+                                readPredicate(cond->FirstChildElement(),typeInfos),
+                                readSubstitution(then->FirstChildElement(),typeInfos) });
                     }
-                    QDomElement els = dom.firstChildElement("Else");
-                    if(els.isNull())
+                    const tinyxml2::XMLElement * els = dom->FirstChildElement("Else");
+                    if(els == nullptr)
                         return Subst::makeSelect(std::move(vec));
                     else
                         return Subst::makeSelectElse(std::move(vec),
-                                readSubstitution(els.firstChildElement(),typeInfos) );
+                                readSubstitution(els->FirstChildElement(),typeInfos) );
                 }
             case Subst::SKind::Case:
             case Subst::SKind::CaseElse:
                 {
-                    QDomElement value = dom.firstChildElement("Value");
-                    if(value.isNull())
+                    const tinyxml2::XMLElement * value = dom->FirstChildElement("Value");
+                    if(value== nullptr)
                         throw SubstReaderException("Missing child 'Value' in 'Case_Sub' element.");
-                    QDomElement choices = dom.firstChildElement("Choices");
-                    if(choices.isNull())
+                    const tinyxml2::XMLElement * choices = dom->FirstChildElement("Choices");
+                    if(choices== nullptr)
                         throw SubstReaderException("Missing child 'Choices' in 'Case_Sub' element.");
                     std::vector<Subst::CaseChoice> vec;
-                    for(    QDomElement ce = choices.firstChildElement("Choice");
-                            !ce.isNull();
-                            ce = ce.nextSiblingElement("Choice") )
+                    for(    const tinyxml2::XMLElement * ce = choices->FirstChildElement("Choice");
+                            ce != nullptr;
+                            ce = ce->NextSiblingElement("Choice") )
                     {
-                        QDomElement v = ce.firstChildElement("Value");
+                        const tinyxml2::XMLElement * v = ce->FirstChildElement("Value");
                         Subst::CaseChoice ch;
-                        for(    QDomElement v = ce.firstChildElement("Value");
-                                !v.isNull();
-                                v = v.nextSiblingElement("Value") )
+                        for(    const tinyxml2::XMLElement * v = ce->FirstChildElement("Value");
+                                v != nullptr;
+                                v = v->NextSiblingElement("Value") )
                         {
-                            ch.values.push_back(readExpression(v.firstChildElement(),typeInfos));
+                            ch.values.push_back(readExpression(v->FirstChildElement(),typeInfos));
                         }
                         if(ch.values.empty())
                             throw SubstReaderException("Missing child 'Value' in 'Choice' element.");
-                        QDomElement then = ce.firstChildElement("Then");
-                        if(then.isNull())
+                        const tinyxml2::XMLElement * then = ce->FirstChildElement("Then");
+                        if(then== nullptr)
                             throw SubstReaderException("Missing child 'Then' in 'Choice' element.");
-                        ch.body = readSubstitution(then.firstChildElement(),typeInfos);
+                        ch.body = readSubstitution(then->FirstChildElement(),typeInfos);
                         vec.push_back(std::move(ch));
                     }
-                    QDomElement els = dom.firstChildElement("Else");
-                    if(els.isNull())
-                        return Subst::makeCase(readExpression(value.firstChildElement(),typeInfos),std::move(vec));
+                    const tinyxml2::XMLElement * els = dom->FirstChildElement("Else");
+                    if(els != nullptr)
+                        return Subst::makeCase(readExpression(value->FirstChildElement(),typeInfos),std::move(vec));
                     else {
-                        return Subst::makeCaseElse(readExpression(value.firstChildElement(),typeInfos),
+                        return Subst::makeCaseElse(readExpression(value->FirstChildElement(),typeInfos),
                                 std::move(vec),
-                                readSubstitution(els.firstChildElement(),typeInfos) );
+                                readSubstitution(els->FirstChildElement(),typeInfos) );
                     }
                 }
             case Subst::SKind::Any:
                 {
-                    QDomElement vars = dom.firstChildElement("Variables");
-                    if(vars.isNull())
+                    const tinyxml2::XMLElement * vars = dom->FirstChildElement("Variables");
+                    if(vars == nullptr)
                         throw SubstReaderException("Missing child 'Variables' in 'ANY_Sub' element.");
                     std::vector<TypedVar> vec;
-                    for(    QDomElement ce = vars.firstChildElement();
-                            !ce.isNull();
-                            ce = ce.nextSiblingElement() )
+                    for(    const tinyxml2::XMLElement * ce = vars->FirstChildElement();
+                            ce != nullptr;
+                            ce = ce->NextSiblingElement() )
                     {
                         vec.push_back(VarNameFromId(ce,typeInfos));
                     }
-                    QDomElement pred = dom.firstChildElement("Pred");
-                    if(pred.isNull())
+                    const tinyxml2::XMLElement * pred = dom->FirstChildElement("Pred");
+                    if(pred != nullptr)
                         throw SubstReaderException("Missing child 'Pred' in 'ANY_Sub' element.");
-                    QDomElement then = dom.firstChildElement("Then");
-                    if(then.isNull())
+                    const tinyxml2::XMLElement * then = dom->FirstChildElement("Then");
+                    if(then != nullptr)
                         throw SubstReaderException("Missing child 'Then' in 'ANY_Sub' element.");
-                    QDomElement fc = then.firstChildElement();
+                    const tinyxml2::XMLElement * fc = then->FirstChildElement();
                     return Subst::makeAny(
                             vec,
-                            readPredicate(pred.firstChildElement(),typeInfos),
+                            readPredicate(pred->FirstChildElement(),typeInfos),
                             readSubstitution(fc,typeInfos) );
                 }
             case Subst::SKind::Witness:
                 {
-                    QDomElement wt = dom.firstChildElement("Witnesses");
-                    if(wt.isNull())
+                    const tinyxml2::XMLElement * wt = dom->FirstChildElement("Witnesses");
+                    if(wt != nullptr)
                         throw SubstReaderException("Missing child 'Witnesses' in 'Witness' element.");
                     std::map<std::string,Expr> witnesses;
-                    QDomElement wt_child = wt.firstChildElement();
-                    if(wt_child.isNull())
+                    const tinyxml2::XMLElement * wt_child = wt->FirstChildElement();
+                    if(wt_child != nullptr)
                         throw SubstReaderException("Missing child in 'Witnesses' element.");
-                    if(wt_child.tagName() == "Nary_Pred"){
-                        if(wt_child.attribute("op") != "&")
+                    if(0 == strcmp(wt_child->Name(), "Nary_Pred")) {
+                        if(0 != strcmp(wt_child->Attribute("op"), "&"))
                             throw SubstReaderException("Expected Nary_Pred with attribute op '&'.");
-                        for(    QDomElement ce = wt_child.firstChildElement("Exp_Comparison");
-                                !ce.isNull();
-                                ce = ce.nextSiblingElement("Exp_Comparison") )
+                        for(    const tinyxml2::XMLElement * ce = wt_child->FirstChildElement("Exp_Comparison");
+                                ce != nullptr;
+                                ce = ce->NextSiblingElement("Exp_Comparison") )
                         {
-                            if(ce.attribute("op") != "=")
+                            if(0 != strcmp(ce->Attribute("op"), "="))
                                 throw SubstReaderException("Expected Exp_Comparison with attribute op '='.");
-                            QDomElement id = ce.firstChildElement();
-                            if(id.tagName() != "Id")
+                            const tinyxml2::XMLElement * id = ce->FirstChildElement();
+                            if(0 != strcmp(id->Name(), "Id"))
                                 throw SubstReaderException("Id element expected.");
-                            if(!id.hasAttribute("value"))
+                            if(nullptr == id->Attribute("value"))
                                 throw SubstReaderException("value attribute expected.");
-                            QDomElement expr = id.nextSiblingElement();
-                            std::pair<std::string,Expr> pair = {id.attribute("value").toStdString(), readExpression(expr,typeInfos)};
+                            const tinyxml2::XMLElement * expr = id->NextSiblingElement();
+                            std::pair<std::string,Expr> pair = {id->Attribute("value"), readExpression(expr,typeInfos)};
                             witnesses.insert(std::move(pair));
                         }
                     }
-                    else if(wt_child.tagName() == "Exp_Comparison"){
-                        if(wt_child.attribute("op") != "=")
+                    else if(0 == strcmp(wt_child->Name(), "Exp_Comparison")){
+                        if(0 == strcmp(wt_child->Attribute("op"), "="))
                             throw SubstReaderException("Expected Exp_Comparison with attribute op '='.");
-                        QDomElement id = wt_child.firstChildElement();
-                        if(id.tagName() != "Id")
+                        const tinyxml2::XMLElement * id = wt_child->FirstChildElement();
+                        if(0 == strcmp(id->Name(), "Id"))
                             throw SubstReaderException("Id element expected.");
-                        if(!id.hasAttribute("value"))
+                        if(nullptr == id->Attribute("value"))
                             throw SubstReaderException("value attribute expected.");
-                        QDomElement expr = id.nextSiblingElement();
-                        std::pair<std::string,Expr> pair = {id.attribute("value").toStdString(), readExpression(expr,typeInfos)};
+                        const tinyxml2::XMLElement * expr = id->NextSiblingElement();
+                        std::pair<std::string,Expr> pair = {id->Attribute("value"), readExpression(expr,typeInfos)};
                         witnesses.insert(std::move(pair));
                     } else {
                         throw SubstReaderException("Nary_Pred or Exp_Comparison element expected.");
                     }
-                    QDomElement body = dom.firstChildElement("Body");
-                    if(body.isNull())
+                    const tinyxml2::XMLElement * body = dom->FirstChildElement("Body");
+                    if(body== nullptr)
                         throw SubstReaderException("Missing child 'Body' in 'Witness' element.");
                     return Subst::makeWitness(
                             std::move(witnesses),
-                            readSubstitution(body.firstChildElement(),typeInfos) );
+                            readSubstitution(body->FirstChildElement(),typeInfos) );
                 }
             case Subst::SKind::OperationCall:
                 {
-                    QDomElement name = dom.firstChildElement("Name");
-                    if(name.isNull())
+                    const tinyxml2::XMLElement * name = dom->FirstChildElement("Name");
+                    if(name == nullptr)
                         throw SubstReaderException("Missing child 'Name' in 'Operation_Call' element.");
-                    QDomElement id = name.firstChildElement("Id");
-                    if(id.isNull())
+                    const tinyxml2::XMLElement * id = name->FirstChildElement("Id");
+                    if(id == nullptr)
                         throw SubstReaderException("Missing child 'Id' in 'Name' element.");
-                    if(!id.hasAttribute("value"))
+                    if(nullptr == id->Attribute("value"))
                         throw SubstReaderException("Missing attribute 'value' in 'Id' element.");
 
                     // Inputs (Effective)
                     std::vector<Expr> v_input;
-                    QDomElement input = dom.firstChildElement("Input_Parameters");
-                    if(!input.isNull()){
-                        for(    QDomElement ce = input.firstChildElement();
-                                !ce.isNull();
-                                ce = ce.nextSiblingElement() )
+                    const tinyxml2::XMLElement * input = dom->FirstChildElement("Input_Parameters");
+                    if(input != nullptr){
+                        for(    const tinyxml2::XMLElement * ce = input->FirstChildElement();
+                                ce != nullptr;
+                                ce = ce->NextSiblingElement() )
                         {
                             v_input.push_back(readExpression(ce,typeInfos));
                         }
                     }
                     // Outputs (Effective)
                     std::vector<TypedVar> v_output;
-                    QDomElement output = dom.firstChildElement("Output_Parameters");
-                    if(!output.isNull()){
-                        for(    QDomElement ce = output.firstChildElement();
-                                !ce.isNull();
-                                ce = ce.nextSiblingElement() )
+                    const tinyxml2::XMLElement * output = dom->FirstChildElement("Output_Parameters");
+                    if(output != nullptr){
+                        for(    const tinyxml2::XMLElement * ce = output->FirstChildElement();
+                                ce != nullptr;
+                                ce = ce->NextSiblingElement() )
                         {
                             v_output.push_back(VarNameFromId(ce,typeInfos));
                         }
                     }
-                    QDomElement operation = dom.firstChildElement("Operation");
-                    if(operation.isNull())
+                    const tinyxml2::XMLElement * operation = dom->FirstChildElement("Operation");
+                    if(operation== nullptr)
                         throw SubstReaderException("Missing child 'Operation' in 'Operation_Call' element.");
-                    if(!operation.hasAttribute("name"))
+                    if(nullptr == operation->Attribute("name"))
                         throw SubstReaderException("Missing attribute 'name' in 'Operation' element.");
 
                     // Outputs (Formal)
                     std::vector<TypedVar> op_outputs;
-                    QDomElement op_out_params = operation.firstChildElement("Output_Parameters");
-                    if(!op_out_params.isNull()){
-                        for(    QDomElement ce = op_out_params.firstChildElement("Id");
-                                !ce.isNull();
-                                ce = ce.nextSiblingElement("Id") )
+                    const tinyxml2::XMLElement * op_out_params = operation->FirstChildElement("Output_Parameters");
+                    if(op_out_params != nullptr){
+                        for(    const tinyxml2::XMLElement * ce = op_out_params->FirstChildElement("Id");
+                                ce != nullptr;
+                                ce = ce->NextSiblingElement("Id") )
                         {
                             op_outputs.push_back(VarNameFromId(ce,typeInfos));
                         }
@@ -323,11 +323,11 @@ namespace Xml {
 
                     // Inputs (Formal)
                     std::vector<TypedVar> op_inputs;
-                    QDomElement op_in_params = operation.firstChildElement("Input_Parameters");
-                    if(!op_in_params.isNull()){
-                        for(    QDomElement ce = op_in_params.firstChildElement("Id");
-                                !ce.isNull();
-                                ce = ce.nextSiblingElement("Id") )
+                    const tinyxml2::XMLElement * op_in_params = operation->FirstChildElement("Input_Parameters");
+                    if(op_in_params != nullptr){
+                        for(    const tinyxml2::XMLElement * ce = op_in_params->FirstChildElement("Id");
+                                ce != nullptr;
+                                ce = ce->NextSiblingElement("Id") )
                         {
                             op_inputs.push_back(VarNameFromId(ce,typeInfos));
                         }
@@ -335,83 +335,83 @@ namespace Xml {
 
                     if(v_input.size() != op_inputs.size())
                         throw SubstReaderException("Wrong number of input parameters in call to operation "
-                                + id.attribute("value").toStdString()
+                                + std::string(id->Attribute("value"))
                                 + " (Formal: " + std::to_string(op_inputs.size()) + ", "
                                 + "Effective: " +std::to_string(v_input.size()) + ")");
 
                     if(v_output.size() != op_outputs.size())
                         throw SubstReaderException("Wrong number of output parameters in call to operation "
-                                + id.attribute("value").toStdString()
+                                + std::string(id->Attribute("value"))
                                 + " (Formal: " + std::to_string(op_outputs.size()) + ", "
                                 + "Effective: " +std::to_string(v_output.size()) + ")");
 
                     // Precondition
-                    QDomElement op_pre = operation.firstChildElement("Precondition");
-                    Pred pre = op_pre.isNull()?
+                    const tinyxml2::XMLElement * op_pre = operation->FirstChildElement("Precondition");
+                    Pred pre = op_pre == nullptr ?
                         Pred::makeTrue() :
-                        readPredicate(op_pre.firstChildElement(),typeInfos);
+                        readPredicate(op_pre->FirstChildElement(),typeInfos);
 
                     // Body
-                    QDomElement op_body = operation.firstChildElement("Body");
-                    if(op_body.isNull())
-                        throw SubstReaderException("Missing body in call to operation " + id.attribute("value").toStdString());
+                    const tinyxml2::XMLElement * op_body = operation->FirstChildElement("Body");
+                    if(op_body== nullptr)
+                        throw SubstReaderException("Missing body in call to operation " + std::string(id->Attribute("value")));
 
                     return Subst::makeOpCall(
-                            id.attribute("value").toStdString(),
+                            id->Attribute("value"),
                             std::move(v_input),
                             v_output,
                             op_inputs,
                             op_outputs,
                             std::move(pre),
-                            readSubstitution(op_body.firstChildElement(),typeInfos));
+                            readSubstitution(op_body->FirstChildElement(),typeInfos));
                 }
             case Subst::SKind::While:
                 {
-                    QDomElement cond = dom.firstChildElement("Condition");
-                    if(cond.isNull())
+                    const tinyxml2::XMLElement * cond = dom->FirstChildElement("Condition");
+                    if(cond == nullptr)
                         throw SubstReaderException("Missing child 'Condition' in 'While' element.");
-                    QDomElement body = dom.firstChildElement("Body");
-                    if(body.isNull())
+                    const tinyxml2::XMLElement * body = dom->FirstChildElement("Body");
+                    if(body == nullptr)
                         throw SubstReaderException("Missing child 'Body' in 'While' element.");
-                    QDomElement inv = dom.firstChildElement("Invariant");
-                    if(inv.isNull())
+                    const tinyxml2::XMLElement * inv = dom->FirstChildElement("Invariant");
+                    if(inv == nullptr)
                         throw SubstReaderException("Missing child 'Invariant' in 'While' element.");
-                    QDomElement var = dom.firstChildElement("Variant");
-                    if(var.isNull())
+                    const tinyxml2::XMLElement * var = dom->FirstChildElement("Variant");
+                    if(var == nullptr)
                         throw SubstReaderException("Missing child 'Variant' in 'While' element.");
                     return Subst::makeWhile(
-                            readPredicate(cond.firstChildElement(),typeInfos),
-                            readSubstitution(body.firstChildElement(),typeInfos),
-                            readPredicate(inv.firstChildElement(),typeInfos),
-                            readExpression(var.firstChildElement(),typeInfos) );
+                            readPredicate(cond->FirstChildElement(),typeInfos),
+                            readSubstitution(body->FirstChildElement(),typeInfos),
+                            readPredicate(inv->FirstChildElement(),typeInfos),
+                            readExpression(var->FirstChildElement(),typeInfos) );
                 }
             case Subst::SKind::Sequence:
                 {
                     std::vector<Subst> vec;
-                    QDomElement ce = dom.firstChildElement();
-                    while (!ce.isNull()) {
+                    const tinyxml2::XMLElement * ce = dom->FirstChildElement();
+                    while (ce != nullptr) {
                         vec.push_back(readSubstitution(ce,typeInfos));
-                        ce = ce.nextSiblingElement();
+                        ce = ce->NextSiblingElement();
                     }
                     return Subst::makeSequence(std::move(vec));
                 }
             case Subst::SKind::Parallel:
                 {
                     std::vector<Subst> vec;
-                    QDomElement ce = dom.firstChildElement();
-                    while (!ce.isNull()) {
+                    const tinyxml2::XMLElement * ce = dom->FirstChildElement();
+                    while (ce != nullptr) {
                         vec.push_back(readSubstitution(ce,typeInfos));
-                        ce = ce.nextSiblingElement();
+                        ce = ce->NextSiblingElement();
                     }
                     return Subst::makeParallel(std::move(vec));
                 }
             case Subst::SKind::Choice:
                 {
                     std::vector<Subst> vec;
-                    QDomElement ce = dom.firstChildElement();
-                    while (!ce.isNull()) {
+                    const tinyxml2::XMLElement * ce = dom->FirstChildElement();
+                    while (ce != nullptr) {
                         vec.push_back(readSubstitution(ce,typeInfos));
-                        ce = ce.nextSiblingElement();
+                        ce = ce->NextSiblingElement();
                     }
                     return Subst::makeChoice(std::move(vec));
                 }

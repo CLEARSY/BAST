@@ -1,6 +1,6 @@
 /*
    This file is part of BAST.
-   Copyright © CLEARSY 2022-2023
+   Copyright © CLEARSY 2023
    BAST is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
    the Free Software Foundation, either version 3 of the License, or
@@ -13,27 +13,38 @@
    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef EXPRREADER_H
-#define EXPRREADER_H
+#ifndef BTYPE_READER_H
+#define BTYPE_READER_H
 
-#include "expr.h"
+#include<vector>
+
+#include "btype.h"
 #include "tinyxml2.h"
 
-namespace Xml {
-    TypedVar VarNameFromId(const tinyxml2::XMLElement *id, const std::vector<BType> &typeInfos);
 
-    class ExprReaderException : public std::exception
+namespace Xml {
+
+    /// @brief reads a TypeInfos DOM element and builds the representation of the corresponding B types
+    /// @param dom a TypeInfos DOM element, as found in BXML, IBXML, POXML and POG files
+    /// @param typeInfos a vector where the representation of each type in the TypeInfos is stored 
+    /// @pre the vector @a typeInfos is empty
+    /// @post The representation of the i-th Type element child of @a dom vector is stored at the i-th
+    /// position of @a typeInfos.
+    void readTypeInfos(const tinyxml2::XMLElement *dom,std::vector<BType> &typeInfos);
+
+    /// @brief exceptions that may be thrown by @a Xml::readTypeInfos on corrupt input
+    class BTypeReaderException : public std::exception
     {
         public:
-            ExprReaderException(const std::string desc, int line):
+            BTypeReaderException(const std::string desc, int line):
                 description{desc + " (line " + std::to_string(line) + ")"}
             {};
-            ~ExprReaderException() throw(){};
+            ~BTypeReaderException() throw(){};
             const char *what() const throw(){ return description.c_str(); };
         private:
             std::string description;
     };
-    Expr readExpression(const tinyxml2::XMLElement *dom, const std::vector<BType> &typeInfos);
+
 }
 
-#endif // EXPRREADER_H
+#endif // BTYPE_READER_H

@@ -1,8 +1,8 @@
-find_package(Qt5Core)
-find_package(Qt5Xml)
-find_package(Qt5XmlPatterns)
+cmake_minimum_required(VERSION 3.15)
+project(LIBBAST)
 
-set(AST_HEADERS
+
+set(BAST_HEADERS
     btype.h
     vars.h
     expr.h
@@ -11,39 +11,55 @@ set(AST_HEADERS
     exprDesc.h
     predDesc.h
     subst.h
+    btypeReader.h
     exprReader.h
     predReader.h
     gpredReader.h
     substReader.h
     exprWriter.h
     predWriter.h
+    btypePrinter.h
+    exprPrinter.h
+    predPrinter.h
     hash.h
 )
 
-set(AST_SRC
+set(BAST_SRC
     btype.cpp
     vars.cpp
     expr.cpp
     pred.cpp
     gpred.cpp
     subst.cpp
+    btypeReader.cpp
     exprReader.cpp
     predReader.cpp
+    predPrinter.h
     gpredReader.cpp
     substReader.cpp
     exprWriter.cpp
     predWriter.cpp
+    btypePrinter.cpp
+    exprPrinter.cpp
+    predPrinter.cpp
 )
 
-
+set(TINYXML2
+  tinyxml2.cpp tinyxml2.h
+)
 include_directories(
         ${CMAKE_CURRENT_BINARY_DIR}
-        ${AST_SOURCE_DIR}
+        ${BAST_SOURCE_DIR}
 )
 
-add_library(ASTLIB
-    ${AST_SRC}
-    ${AST_HEADERS}
+add_library(BAST
+    ${BAST_SRC}
+    ${BAST_HEADERS}
+    ${TINYXML2}
 )
 
-target_link_libraries(ASTLIB Qt5::Core Qt5::Xml)
+set_target_properties(BAST PROPERTIES
+            CXX_STANDARD 17
+            CXX_EXTENSIONS OFF
+)
+

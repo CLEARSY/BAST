@@ -1,6 +1,6 @@
 /*
    This file is part of BAST.
-   Copyright © CLEARSY 2023
+   Copyright © CLEARSY 2022-2023
    BAST is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
    the Free Software Foundation, either version 3 of the License, or
@@ -111,9 +111,11 @@ private:
             virtual size_t hash_combine(size_t seed) const = 0;
             virtual void getAllVars(std::set<VarName> &accu) const = 0;
             virtual void substFreshId(const std::string &id, const VarName &v) = 0;
+            virtual ~AbstractGPred() = default;
     };
     std::unique_ptr<AbstractGPred> ptr;
     GPred(AbstractGPred *ptr):ptr{ptr}{};
+
 };
 
 class GPred::ImplicationPred : public AbstractGPred {

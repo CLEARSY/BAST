@@ -1,6 +1,6 @@
 /*
    This file is part of BAST.
-   Copyright © CLEARSY 2023
+   Copyright © CLEARSY 2022-2023
    BAST is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
    the Free Software Foundation, either version 3 of the License, or
@@ -17,7 +17,7 @@
 #define GPREDREADER_H
 
 #include "gpred.h"
-#include<QDomElement>
+#include "tinyxml2.h"
 
 namespace Xml {
     class GPredReaderException : public std::exception
@@ -30,7 +30,7 @@ namespace Xml {
             std::string description;
     };
 
-    GPred readGPredicate(const QDomElement &dom, const std::vector<BType> &typeInfos);
+    GPred readGPredicate(const tinyxml2::XMLElement *dom, const std::vector<BType> &typeInfos);
 }
 
 #endif // GPREDREADER_H

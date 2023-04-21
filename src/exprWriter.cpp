@@ -1,6 +1,6 @@
 /*
    This file is part of BAST.
-   Copyright © CLEARSY 2023
+   Copyright © CLEARSY 2022-2023
    BAST is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
    the Free Software Foundation, either version 3 of the License, or
@@ -13,6 +13,7 @@
    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+#include <numeric>
 
 #include "exprWriter.h"
 #include "predWriter.h"
@@ -32,24 +33,30 @@ namespace Xml {
 
     void writeExprAttributes(
             const BType &type,
-            const QStringList &bxmlTag,
-            QXmlStreamWriter &stream,
+            const std::vector<std::string> &bxmlTag,
+            tinyxml2::XMLPrinter &stream,
             std::map<BType,unsigned int> &typeInfos)
     {
-        stream.writeAttribute("typref",QString::number(getTypRef(typeInfos,type)));
+        stream.PushAttribute("typref",std::to_string(getTypRef(typeInfos,type)).c_str());
         if(!bxmlTag.empty()){
-            stream.writeAttribute("tag",bxmlTag.join(","));
+            std::string result = 
+                std::accumulate(std::next(bxmlTag.begin()), bxmlTag.end(),
+                                bxmlTag[0],
+                                [](std::string& a, const std::string &b) {
+                                    return a + ","+ b;
+                                });
+            stream.PushAttribute("tag", result.c_str());
         }
     }
 
-    void writeTypedVar(QXmlStreamWriter &stream, std::map<BType,unsigned int> &typeInfos, const TypedVar &v){
-        stream.writeStartElement("Id");
-        stream.writeAttribute("value",QString::fromStdString(v.name.prefix()));
+    void writeTypedVar(tinyxml2::XMLPrinter &stream, std::map<BType,unsigned int> &typeInfos, const TypedVar &v){
+        stream.OpenElement("Id");
+        stream.PushAttribute("value", v.name.prefix().c_str());
         switch(v.name.kind()){
             case VarName::Kind::NoSuffix:
                 break;
             case VarName::Kind::WithSuffix:
-                stream.writeAttribute("suffix",QString::number(v.name.suffix()));
+                stream.PushAttribute("suffix", std::to_string(v.name.suffix()).c_str());
                 break;
             case VarName::Kind::FreshId:
                 assert(false);
@@ -58,177 +65,177 @@ namespace Xml {
                 assert(false);
                 break;
         }
-        stream.writeAttribute("typref",QString::number(getTypRef(typeInfos,v.type)));
-        stream.writeEndElement(); // Id
+        stream.PushAttribute("typref", std::to_string(getTypRef(typeInfos,v.type)).c_str());
+        stream.CloseElement(); // Id
     }
 
     class ExprWriterVisitor : public Expr::Visitor {
         public:
-            void visitConstant(const BType &type, const QStringList &bxmlTag,Expr::Visitor::EConstant c){
+            void visitConstant(const BType &type, const std::vector<std::string> &bxmlTag,Expr::Visitor::EConstant c){
                 switch (c){
                     case Expr::Visitor::EConstant::MaxInt:
                         {
-                            stream.writeStartElement("Id");
-                            stream.writeAttribute("value","MAXINT");
+                            stream.OpenElement("Id");
+                            stream.PushAttribute("value","MAXINT");
                             writeExprAttributes(type,bxmlTag,stream,typeInfos);
-                            stream.writeEndElement(); // Id
+                            stream.CloseElement(); // Id
                             break;
                         }
                     case Expr::Visitor::EConstant::MinInt:
                         {
-                            stream.writeStartElement("Id");
-                            stream.writeAttribute("value","MININT");
+                            stream.OpenElement("Id");
+                            stream.PushAttribute("value","MININT");
                             writeExprAttributes(type,bxmlTag,stream,typeInfos);
-                            stream.writeEndElement(); // Id
+                            stream.CloseElement(); // Id
                             break;
                         }
                     case Expr::Visitor::EConstant::INTEGER:
                         {
-                            stream.writeStartElement("Id");
-                            stream.writeAttribute("value","INTEGER");
+                            stream.OpenElement("Id");
+                            stream.PushAttribute("value","INTEGER");
                             writeExprAttributes(type,bxmlTag,stream,typeInfos);
-                            stream.writeEndElement(); // Id
+                            stream.CloseElement(); // Id
                             break;
                         }
                     case Expr::Visitor::EConstant::NATURAL:
                         {
-                            stream.writeStartElement("Id");
-                            stream.writeAttribute("value","NATURAL");
+                            stream.OpenElement("Id");
+                            stream.PushAttribute("value","NATURAL");
                             writeExprAttributes(type,bxmlTag,stream,typeInfos);
-                            stream.writeEndElement(); // Id
+                            stream.CloseElement(); // Id
                             break;
                         }
                     case Expr::Visitor::EConstant::NATURAL1:
                         {
-                            stream.writeStartElement("Id");
-                            stream.writeAttribute("value","NATURAL1");
+                            stream.OpenElement("Id");
+                            stream.PushAttribute("value","NATURAL1");
                             writeExprAttributes(type,bxmlTag,stream,typeInfos);
-                            stream.writeEndElement(); // Id
+                            stream.CloseElement(); // Id
                             break;
                         }
                     case Expr::Visitor::EConstant::INT:
                         {
-                            stream.writeStartElement("Id");
-                            stream.writeAttribute("value","INT");
+                            stream.OpenElement("Id");
+                            stream.PushAttribute("value","INT");
                             writeExprAttributes(type,bxmlTag,stream,typeInfos);
-                            stream.writeEndElement(); // Id
+                            stream.CloseElement(); // Id
                             break;
                         }
                     case Expr::Visitor::EConstant::NAT:
                         {
-                            stream.writeStartElement("Id");
-                            stream.writeAttribute("value","NAT");
+                            stream.OpenElement("Id");
+                            stream.PushAttribute("value","NAT");
                             writeExprAttributes(type,bxmlTag,stream,typeInfos);
-                            stream.writeEndElement(); // Id
+                            stream.CloseElement(); // Id
                             break;
                         }
                     case Expr::Visitor::EConstant::NAT1:
                         {
-                            stream.writeStartElement("Id");
-                            stream.writeAttribute("value","NAT1");
+                            stream.OpenElement("Id");
+                            stream.PushAttribute("value","NAT1");
                             writeExprAttributes(type,bxmlTag,stream,typeInfos);
-                            stream.writeEndElement(); // Id
+                            stream.CloseElement(); // Id
                             break;
                         }
                     case Expr::Visitor::EConstant::STRING:
                         {
-                            stream.writeStartElement("Id");
-                            stream.writeAttribute("value","STRING");
+                            stream.OpenElement("Id");
+                            stream.PushAttribute("value","STRING");
                             writeExprAttributes(type,bxmlTag,stream,typeInfos);
-                            stream.writeEndElement(); // Id
+                            stream.CloseElement(); // Id
                             break;
                         }
                     case Expr::Visitor::EConstant::BOOL:
                         {
-                            stream.writeStartElement("Id");
-                            stream.writeAttribute("value","BOOL");
+                            stream.OpenElement("Id");
+                            stream.PushAttribute("value","BOOL");
                             writeExprAttributes(type,bxmlTag,stream,typeInfos);
-                            stream.writeEndElement(); // Id
+                            stream.CloseElement(); // Id
                             break;
                         }
                     case Expr::Visitor::EConstant::REAL:
                         {
-                            stream.writeStartElement("Id");
-                            stream.writeAttribute("value","REAL");
+                            stream.OpenElement("Id");
+                            stream.PushAttribute("value","REAL");
                             writeExprAttributes(type,bxmlTag,stream,typeInfos);
-                            stream.writeEndElement(); // Id
+                            stream.CloseElement(); // Id
                             break;
                         }
                     case Expr::Visitor::EConstant::FLOAT:
                         {
-                            stream.writeStartElement("Id");
-                            stream.writeAttribute("value","FLOAT");
+                            stream.OpenElement("Id");
+                            stream.PushAttribute("value","FLOAT");
                             writeExprAttributes(type,bxmlTag,stream,typeInfos);
-                            stream.writeEndElement(); // Id
+                            stream.CloseElement(); // Id
                             break;
                         }
                     case Expr::Visitor::EConstant::TRUE:
                         {
-                            stream.writeStartElement("Boolean_Literal");
-                            stream.writeAttribute("value","TRUE");
+                            stream.OpenElement("Boolean_Literal");
+                            stream.PushAttribute("value","TRUE");
                             writeExprAttributes(type,bxmlTag,stream,typeInfos);
-                            stream.writeEndElement(); // Boolean_Literal
+                            stream.CloseElement(); // Boolean_Literal
                             break;
                         }
                     case Expr::Visitor::EConstant::FALSE:
                         {
-                            stream.writeStartElement("Boolean_Literal");
-                            stream.writeAttribute("value","FALSE");
+                            stream.OpenElement("Boolean_Literal");
+                            stream.PushAttribute("value","FALSE");
                             writeExprAttributes(type,bxmlTag,stream,typeInfos);
-                            stream.writeEndElement(); // Boolean_Literal
+                            stream.CloseElement(); // Boolean_Literal
                             break;
                         }
                     case Expr::Visitor::EConstant::EmptySet:
                         {
-                            stream.writeStartElement("EmptySet");
+                            stream.OpenElement("EmptySet");
                             writeExprAttributes(type,bxmlTag,stream,typeInfos);
-                            stream.writeEndElement(); // EmptySet
+                            stream.CloseElement(); // EmptySet
                             break;
                         }
                     case Expr::Visitor::EConstant::Successor:
                         {
-                            stream.writeStartElement("Id");
-                            stream.writeAttribute("value","succ");
+                            stream.OpenElement("Id");
+                            stream.PushAttribute("value","succ");
                             writeExprAttributes(type,bxmlTag,stream,typeInfos);
-                            stream.writeEndElement(); // Id
+                            stream.CloseElement(); // Id
                             break;
                         }
                     case Expr::Visitor::EConstant::Predecessor:
                         {
-                            stream.writeStartElement("Id");
-                            stream.writeAttribute("value","pred");
+                            stream.OpenElement("Id");
+                            stream.PushAttribute("value","pred");
                             writeExprAttributes(type,bxmlTag,stream,typeInfos);
-                            stream.writeEndElement(); // Id
+                            stream.CloseElement(); // Id
                             break;
                         }
                 }
             }
-            void visitIntegerLiteral(const BType &type, const QStringList &bxmlTag,const std::string &i){
-                stream.writeStartElement("Integer_Literal");
-                stream.writeAttribute("value",QString::fromStdString(i));
+            void visitIntegerLiteral(const BType &type, const std::vector<std::string> &bxmlTag,const std::string &i){
+                stream.OpenElement("Integer_Literal");
+                stream.PushAttribute("value", i.c_str());
                 writeExprAttributes(type,bxmlTag,stream,typeInfos);
-                stream.writeEndElement(); // Integer_Literal
+                stream.CloseElement(); // Integer_Literal
             }
-            void visitStringLiteral(const BType &type, const QStringList &bxmlTag,const std::string &b){
-                stream.writeStartElement("STRING_Literal");
-                stream.writeAttribute("value",QString::fromStdString(b));
+            void visitStringLiteral(const BType &type, const std::vector<std::string> &bxmlTag,const std::string &b){
+                stream.OpenElement("STRING_Literal");
+                stream.PushAttribute("value", b.c_str());
                 writeExprAttributes(type,bxmlTag,stream,typeInfos);
-                stream.writeEndElement(); // STRING_Literal
+                stream.CloseElement(); // STRING_Literal
             }
-            void visitRealLiteral(const BType &type, const QStringList &bxmlTag,const Expr::Decimal &d){
-                stream.writeStartElement("Real_Literal");
-                stream.writeAttribute("value",QString::fromStdString(d.integerPart) + "." + QString::fromStdString(d.fractionalPart));
+            void visitRealLiteral(const BType &type, const std::vector<std::string> &bxmlTag,const Expr::Decimal &d){
+                stream.OpenElement("Real_Literal");
+                stream.PushAttribute("value", std::string(d.integerPart + "." + d.fractionalPart).c_str());
                 writeExprAttributes(type,bxmlTag,stream,typeInfos);
-                stream.writeEndElement(); // Real_Literal
+                stream.CloseElement(); // Real_Literal
             }
-            void visitIdent(const BType &type, const QStringList &bxmlTag, const VarName &v){
-                stream.writeStartElement("Id");
-                stream.writeAttribute("value",QString::fromStdString(v.prefix()));
+            void visitIdent(const BType &type, const std::vector<std::string> &bxmlTag, const VarName &v){
+                stream.OpenElement("Id");
+                stream.PushAttribute("value", v.prefix().c_str());
                 switch(v.kind()){
                     case VarName::Kind::NoSuffix:
                         break;
                     case VarName::Kind::WithSuffix:
-                        stream.writeAttribute("suffix",QString::number(v.suffix()));
+                        stream.PushAttribute("suffix", std::to_string(v.suffix()).c_str());
                         break;
                     case VarName::Kind::FreshId:
                         assert(false);
@@ -238,131 +245,131 @@ namespace Xml {
                         break;
                 }
                 writeExprAttributes(type,bxmlTag,stream,typeInfos);
-                stream.writeEndElement(); // Id
+                stream.CloseElement(); // Id
             }
-            void visitUnaryExpression(const BType &type, const QStringList &bxmlTag,Expr::UnaryOp op,const Expr &e){
-                stream.writeStartElement("Unary_Exp");
-                stream.writeAttribute("op",QString::fromStdString(Expr::to_string(op)));
+            void visitUnaryExpression(const BType &type, const std::vector<std::string> &bxmlTag,Expr::UnaryOp op,const Expr &e){
+                stream.OpenElement("Unary_Exp");
+                stream.PushAttribute("op", Expr::to_string(op).c_str());
                 writeExprAttributes(type,bxmlTag,stream,typeInfos);
                 e.accept(*this);
-                stream.writeEndElement(); // Unary_Exp
+                stream.CloseElement(); // Unary_Exp
             }
-            void visitBinaryExpression(const BType &type, const QStringList &bxmlTag,Expr::BinaryOp op, const Expr &lhs, const Expr &rhs){
-                stream.writeStartElement("Binary_Exp");
-                stream.writeAttribute("op",QString::fromStdString(Expr::to_string(op)));
+            void visitBinaryExpression(const BType &type, const std::vector<std::string> &bxmlTag,Expr::BinaryOp op, const Expr &lhs, const Expr &rhs){
+                stream.OpenElement("Binary_Exp");
+                stream.PushAttribute("op", Expr::to_string(op).c_str());
                 writeExprAttributes(type,bxmlTag,stream,typeInfos);
                 lhs.accept(*this);
                 rhs.accept(*this);
-                stream.writeEndElement(); // Binary_Exp
+                stream.CloseElement(); // Binary_Exp
             }
-            void visitTernaryExpression(const BType &type, const QStringList &bxmlTag,Expr::TernaryOp op, const Expr &fst, const Expr &snd, const Expr &thd){
-                stream.writeStartElement("Ternary_Exp");
-                stream.writeAttribute("op",QString::fromStdString(Expr::to_string(op)));
+            void visitTernaryExpression(const BType &type, const std::vector<std::string> &bxmlTag,Expr::TernaryOp op, const Expr &fst, const Expr &snd, const Expr &thd){
+                stream.OpenElement("Ternary_Exp");
+                stream.PushAttribute("op", Expr::to_string(op).c_str());
                 writeExprAttributes(type,bxmlTag,stream,typeInfos);
                 fst.accept(*this);
                 snd.accept(*this);
                 thd.accept(*this);
-                stream.writeEndElement(); // Ternary_Exp
+                stream.CloseElement(); // Ternary_Exp
             }
-            void visitNaryExpression(const BType &type, const QStringList &bxmlTag,Expr::NaryOp op, const std::vector<Expr> &vec){
-                stream.writeStartElement("Nary_Exp");
-                stream.writeAttribute("op",QString::fromStdString(Expr::to_string(op)));
+            void visitNaryExpression(const BType &type, const std::vector<std::string> &bxmlTag,Expr::NaryOp op, const std::vector<Expr> &vec){
+                stream.OpenElement("Nary_Exp");
+                stream.PushAttribute("op", Expr::to_string(op).c_str());
                 writeExprAttributes(type,bxmlTag,stream,typeInfos);
                 for(auto &e : vec)
                     e.accept(*this);
-                stream.writeEndElement(); // Nary_Exp
+                stream.CloseElement(); // Nary_Exp
             }
-            void visitBooleanExpression(const BType &type, const QStringList &bxmlTag,const Pred &p){
-                stream.writeStartElement("Boolean_Exp");
+            void visitBooleanExpression(const BType &type, const std::vector<std::string> &bxmlTag,const Pred &p){
+                stream.OpenElement("Boolean_Exp");
                 writeExprAttributes(type,bxmlTag,stream,typeInfos);
                 writePredicate(stream,typeInfos,p);
-                stream.writeEndElement(); // Boolean_Exp
+                stream.CloseElement(); // Boolean_Exp
             }
-            void visitRecord(const BType &type, const QStringList &bxmlTag,const std::vector<std::pair<std::string,Expr>> &fds){
-                stream.writeStartElement("Record");
+            void visitRecord(const BType &type, const std::vector<std::string> &bxmlTag,const std::vector<std::pair<std::string,Expr>> &fds){
+                stream.OpenElement("Record");
                 writeExprAttributes(type,bxmlTag,stream,typeInfos);
                 for(auto &pair : fds){
-                    stream.writeStartElement("Record_Item");
-                    stream.writeAttribute("label",QString::fromStdString(pair.first));
+                    stream.OpenElement("Record_Item");
+                    stream.PushAttribute("label", pair.first.c_str());
                     pair.second.accept(*this);
-                    stream.writeEndElement(); // Record_Item
+                    stream.CloseElement(); // Record_Item
                 };
-                stream.writeEndElement(); // Record
+                stream.CloseElement(); // Record
             }
-            void visitStruct(const BType &type, const QStringList &bxmlTag,const std::vector<std::pair<std::string,Expr>> &fds){
-                stream.writeStartElement("Struct");
+            void visitStruct(const BType &type, const std::vector<std::string> &bxmlTag,const std::vector<std::pair<std::string,Expr>> &fds){
+                stream.OpenElement("Struct");
                 writeExprAttributes(type,bxmlTag,stream,typeInfos);
                 for(auto &pair : fds){
-                    stream.writeStartElement("Record_Item");
-                    stream.writeAttribute("label",QString::fromStdString(pair.first));
+                    stream.OpenElement("Record_Item");
+                    stream.PushAttribute("label", pair.first.c_str());
                     pair.second.accept(*this);
-                    stream.writeEndElement(); // Record_Item
+                    stream.CloseElement(); // Record_Item
                 };
-                stream.writeEndElement(); // Struct
+                stream.CloseElement(); // Struct
             }
-            void visitQuantifiedExpr(const BType &type, const QStringList &bxmlTag,Expr::QuantifiedOp op,const std::vector<TypedVar> vars,const Pred &cond, const Expr &body){
-                stream.writeStartElement("Quantified_Exp");
-                stream.writeAttribute("type",QString::fromStdString(Expr::to_string(op)));
+            void visitQuantifiedExpr(const BType &type, const std::vector<std::string> &bxmlTag,Expr::QuantifiedOp op,const std::vector<TypedVar> vars,const Pred &cond, const Expr &body){
+                stream.OpenElement("Quantified_Exp");
+                stream.PushAttribute("type", Expr::to_string(op).c_str());
                 writeExprAttributes(type,bxmlTag,stream,typeInfos);
 
-                stream.writeStartElement("Variables");
+                stream.OpenElement("Variables");
                 for(auto &id : vars)
                     writeTypedVar(stream,typeInfos,id);
-                stream.writeEndElement(); // Variables
+                stream.CloseElement(); // Variables
 
-                stream.writeStartElement("Pred");
+                stream.OpenElement("Pred");
                 writePredicate(stream,typeInfos,cond);
-                stream.writeEndElement(); // Pred
+                stream.CloseElement(); // Pred
 
-                stream.writeStartElement("Body");
+                stream.OpenElement("Body");
                 body.accept(*this);
-                stream.writeEndElement(); // Body
+                stream.CloseElement(); // Body
 
-                stream.writeEndElement(); // Quantified_Exp
+                stream.CloseElement(); // Quantified_Exp
             }
-            void visitQuantifiedSet(const BType &type, const QStringList &bxmlTag,const std::vector<TypedVar> vars, const Pred &cond){
-                stream.writeStartElement("Quantified_Set");
+            void visitQuantifiedSet(const BType &type, const std::vector<std::string> &bxmlTag,const std::vector<TypedVar> vars, const Pred &cond){
+                stream.OpenElement("Quantified_Set");
                 writeExprAttributes(type,bxmlTag,stream,typeInfos);
 
-                stream.writeStartElement("Variables");
+                stream.OpenElement("Variables");
                 for(auto &id : vars)
                     writeTypedVar(stream,typeInfos,id);
-                stream.writeEndElement(); // Variables
+                stream.CloseElement(); // Variables
 
-                stream.writeStartElement("Body");
+                stream.OpenElement("Body");
                 writePredicate(stream,typeInfos,cond);
-                stream.writeEndElement(); // Body
+                stream.CloseElement(); // Body
 
-                stream.writeEndElement(); // Quantified_Set
+                stream.CloseElement(); // Quantified_Set
             };
 
-            void visitRecordUpdate(const BType &type, const QStringList &bxmlTag, const Expr &rec, const std::string &label, const Expr &value){
-                stream.writeStartElement("Record_Update");
-                stream.writeAttribute("label",QString::fromStdString(label));
+            void visitRecordUpdate(const BType &type, const std::vector<std::string> &bxmlTag, const Expr &rec, const std::string &label, const Expr &value){
+                stream.OpenElement("Record_Update");
+                stream.PushAttribute("label", label.c_str());
                 writeExprAttributes(type,bxmlTag,stream,typeInfos);
                 rec.accept(*this);
                 value.accept(*this);
-                stream.writeEndElement(); // Record_Update
+                stream.CloseElement(); // Record_Update
             }
 
-            void visitRecordAccess(const BType &type, const QStringList &bxmlTag, const Expr &rec, const std::string &label){
-                stream.writeStartElement("Record_Field_Access");
-                stream.writeAttribute("label",QString::fromStdString(label));
+            void visitRecordAccess(const BType &type, const std::vector<std::string> &bxmlTag, const Expr &rec, const std::string &label){
+                stream.OpenElement("Record_Field_Access");
+                stream.PushAttribute("label", label.c_str());
                 writeExprAttributes(type,bxmlTag,stream,typeInfos);
                 rec.accept(*this);
-                stream.writeEndElement(); // Record_Field_Access
+                stream.CloseElement(); // Record_Field_Access
             }
 
-            ExprWriterVisitor(QXmlStreamWriter &s, std::map<BType,unsigned int> &typeInfos):
+            ExprWriterVisitor(tinyxml2::XMLPrinter &s, std::map<BType,unsigned int> &typeInfos):
                 stream{s},
                 typeInfos{typeInfos}
             {};
         private:
-            QXmlStreamWriter &stream;
+            tinyxml2::XMLPrinter &stream;
             std::map<BType,unsigned int> &typeInfos;
     };
 
-    void writeExpression(QXmlStreamWriter &stream, std::map<BType,unsigned int> &typeInfos, const Expr &p){
+    void writeExpression(tinyxml2::XMLPrinter &stream, std::map<BType,unsigned int> &typeInfos, const Expr &p){
         ExprWriterVisitor v(stream,typeInfos);
         p.accept(v);
     }
