@@ -2,7 +2,7 @@ find_package(Qt5Core)
 find_package(Qt5Xml)
 find_package(Qt5XmlPatterns)
 
-set(AST_HEADERS
+set(BAST_HEADERS
     btype.h
     vars.h
     expr.h
@@ -20,7 +20,7 @@ set(AST_HEADERS
     hash.h
 )
 
-set(AST_SRC
+set(BAST_SRC
     btype.cpp
     vars.cpp
     expr.cpp
@@ -38,12 +38,12 @@ set(AST_SRC
 
 include_directories(
         ${CMAKE_CURRENT_BINARY_DIR}
-        ${AST_SOURCE_DIR}
+        ${BAST_SOURCE_DIR}
 )
 
-add_library(ASTLIB
-    ${AST_SRC}
-    ${AST_HEADERS}
+add_library(BAST
+    ${BAST_SRC}
+    ${BAST_HEADERS}
 )
 
-target_link_libraries(ASTLIB Qt5::Core Qt5::Xml)
+target_link_libraries(BAST Qt5::Core Qt5::Xml)
