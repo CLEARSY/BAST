@@ -1,3 +1,3 @@
-project(AST)
+project(BAST)
 
 add_subdirectory(src)
