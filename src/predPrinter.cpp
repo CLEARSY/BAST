@@ -55,7 +55,6 @@ class PredPrinterVisitor : public Pred::Visitor {
                         stream << tab << "& ";
                     }
                     p.accept(*this);
-                    stream << std::endl;
                 }
                 stream << ")";
             };

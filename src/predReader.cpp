@@ -120,10 +120,10 @@ namespace Xml {
                         vec.push_back(VarNameFromId(ce,typeInfos));
                     }
 
-                    if(0 == strcmp(op, "!")){
+                    if(it->second == Pred::PKind::Forall){
                         return Pred::makeForall(vec,
                                 readPredicate(dom->FirstChildElement("Body")->FirstChildElement(),typeInfos));
-                    } else if (0 == strcmp(op, "#")){
+                    } else if (it->second == Pred::PKind::Exists){
                         return Pred::makeExists(vec,
                                 readPredicate(dom->FirstChildElement("Body")->FirstChildElement(),typeInfos));
                     } else
