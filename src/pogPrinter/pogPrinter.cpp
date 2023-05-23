@@ -14,12 +14,12 @@
 */
 #include<iostream>
 
-#include "/opt/homebrew/include/tinyxml2.h"
+#include "tinyxml2.h"
 
-#include "../btypeReader.h"
-#include "../btypePrinter.h"
-#include "../predReader.h"
-#include "../predPrinter.h"
+#include "btypeReader.h"
+#include "btypePrinter.h"
+#include "predReader.h"
+#include "predPrinter.h"
 
 #include "pogPrinterConfig.h"
 

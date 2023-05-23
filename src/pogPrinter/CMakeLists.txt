@@ -13,7 +13,7 @@ add_executable(pogPrinter
 )
 
 target_include_directories(pogPrinter
-    PUBLIC "${PROJECT_BINARY_DIR}" "${BAST_SOURCE_DIR}"
+    PUBLIC "${PROJECT_BINARY_DIR}" "${LIBBAST_SOURCE_DIR}"
 )
 
 target_link_libraries(pogPrinter
