@@ -82,6 +82,7 @@ class PredPrinterVisitor : public Pred::Visitor {
                     } else {
                         stream << ", ";
                     }
+                    printTypedVar(stream, v);
                 }
                 stream << ").(";
                 p.accept(*this);
@@ -96,6 +97,7 @@ class PredPrinterVisitor : public Pred::Visitor {
                     } else {
                         stream << ", ";
                     }
+                    printTypedVar(stream, v);
                 }
                 stream << ").(";
                 p.accept(*this);

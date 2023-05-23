@@ -224,7 +224,9 @@ class Subst::WitnessSubst : public SubstDesc {
     public:
         // Constructor
         WitnessSubst(std::map<std::string,Expr> &&witnesses, Subst &&body)
-            :body{std::move(body)},witnesses{std::move(witnesses)}{};
+            : witnesses{std::move(witnesses)}
+            , body{std::move(body)}
+            {}
         // Members
         std::map<std::string,Expr> witnesses;
         Subst body;
