@@ -1,6 +1,5 @@
 find_package(Qt5Core)
 find_package(Qt5Xml)
-find_package(Qt5XmlPatterns)
 
 set(BAST_HEADERS
     btype.h
