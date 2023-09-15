@@ -1,0 +1,23 @@
+stages:
+  - build
+
+.in-build:
+  variables:
+    PACKAGE: ""
+  stage: build
+  tags:
+    - docker-linux
+  script:
+    - mkdir -p build
+    - cd build
+    - cmake ..
+    - cmake --build .
+    - cd ..
+
+build_KTOOLS_Linux:
+  image: ${CI_REGISTRY}/clearsy-public/bbatch-linux-docker/debian:11.6-gmp_icu
+  variables:
+    PACKAGE: "DEB"
+  extends:
+    - .in-build
+
