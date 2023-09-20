@@ -15,9 +15,7 @@ stages:
     - cd ..
 
 build_KTOOLS_Linux:
-  image: ${CI_REGISTRY}/clearsy-public/bbatch-linux-docker/debian:11.6-gmp_icu
-  variables:
-    PACKAGE: "DEB"
+  image: ${CI_REGISTRY}/clearsy-public/bbatch-linux-docker/debian-cli-qt5:11.6-v1
   extends:
     - .in-build
 
