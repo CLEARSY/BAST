@@ -1,8 +1,5 @@
 project(BASTLIB)
 
-find_package(Qt5Core)
-find_package(Qt5Xml)
-
 set(BAST_HEADERS
     btype.h
     vars.h
@@ -36,6 +33,7 @@ set(BAST_SRC
     predWriter.cpp
 )
 
+find_package(Qt5 REQUIRED COMPONENTS Core Xml)
 
 include_directories(
         ${CMAKE_CURRENT_BINARY_DIR}
@@ -47,4 +45,4 @@ add_library(BAST
     ${BAST_HEADERS}
 )
 
-target_link_libraries(BAST Qt5::Core Qt5::Xml)
+target_link_libraries(BAST PRIVATE Qt5::Core Qt5::Xml)
