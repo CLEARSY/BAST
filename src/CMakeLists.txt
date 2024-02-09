@@ -18,7 +18,7 @@ set(BAST_HEADERS
     hash.h
 )
 
-set(BAST_SRC
+set(BAST_SOURCES
     btype.cpp
     vars.cpp
     expr.cpp
@@ -41,8 +41,9 @@ include_directories(
 )
 
 add_library(BAST
-    ${BAST_SRC}
-    ${BAST_HEADERS}
+  SHARED
+  ${BAST_SOURCES}
+  ${BAST_HEADERS}
 )
 
 target_link_libraries(BAST PRIVATE Qt5::Core Qt5::Xml)
