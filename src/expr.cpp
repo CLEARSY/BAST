@@ -55,12 +55,12 @@ class Expr::IntegerLiteral : public ExprDesc {
             if(s[0] == '-'){
                 assert(s.size() > 1);
                 assert(s[1] != '0');
-                for(int i=1;i<s.size();i++)
+                for(size_t i=1;i<s.size();i++)
                     assert(isdigit(s[i]));
             } else if (s[0] == '0'){
                 assert(s.size() == 1);
             } else {
-                for(int i=0;i<s.size();i++)
+                for(size_t i=0;i<s.size();i++)
                     assert(isdigit(s[i]));
             }
         };
@@ -597,7 +597,7 @@ void Expr::addBxmlTags(const QStringList &bxmlTag){
 
 int compare_field_vec(const std::vector<std::pair<std::string,Expr>>& lhs, const std::vector<std::pair<std::string,Expr>>& rhs){
     if(lhs.size() == rhs.size()){
-        int i = 0;
+        size_t i = 0;
         while(i<lhs.size()){
             auto &p1 = lhs.at(i);
             auto &p2 = rhs.at(i);
@@ -796,7 +796,7 @@ int Expr::compare(const Expr& e1, const Expr& e2){
 
 int Expr::vec_compare(const std::vector<Expr>& lhs, const std::vector<Expr>& rhs){
     if(lhs.size() == rhs.size()){
-        int i = 0;
+        size_t i = 0;
         while(i<lhs.size()){
             int res = compare(lhs.at(i),rhs.at(i));
             if(res != 0) return res;
@@ -1008,7 +1008,7 @@ std::string Expr::show() const {
                 auto& q = toQuantifiedSet();
                 assert(q.vars.size()>0);
                 auto vars = q.vars[0].name.show();
-                for(int i=1;i<q.vars.size();++i)
+                for(size_t i=1;i<q.vars.size();++i)
                     vars += " " + q.vars[i].name.show();
                 return "(QSet (" + vars + ") " + q.cond.show() + ")";
             }
@@ -1017,7 +1017,7 @@ std::string Expr::show() const {
                 auto& q = toQuantiedExpr();
                 assert(q.vars.size()>0);
                 auto vars = q.vars[0].name.show();
-                for(int i=1;i<q.vars.size();++i)
+                for(size_t i=1;i<q.vars.size();++i)
                     vars += " " + q.vars[i].name.show();
                 return "(" + to_string(q.op) + " (" + vars + ") "
                     + q.cond.show() + " " + q.body.show() + ")";
@@ -1151,7 +1151,7 @@ bool Expr::isRenamingNeeded(const std::vector<TypedVar> &vars,const std::set<Var
     return false;
 }
 void Expr::renameVars(std::vector<TypedVar> &vars, const std::set<VarName> freeVars, std::map<VarName,Expr> &map2){
-    for(int i=0;i<vars.size();i++){
+    for(size_t i=0;i<vars.size();i++){
         VarName nv = VarName::getFreshVar(vars[i].name.prefix(),freeVars);
         map2[vars[i].name] = Expr::makeIdent(nv,vars[i].type);
         vars[i].name = nv;
@@ -1230,7 +1230,7 @@ bool Expr::alpha_equals(Context &ctx, const Expr& e1, const Expr& e2){
                         return false;
                     if(n1.vec.size() != n2.vec.size())
                         return false;
-                    for(int i=0;i<n1.vec.size();i++){
+                    for(size_t i=0;i<n1.vec.size();i++){
                         if(!alpha_equals(ctx,n1.vec[i],n2.vec[i]))
                             return false;
                     }
@@ -1246,7 +1246,7 @@ bool Expr::alpha_equals(Context &ctx, const Expr& e1, const Expr& e2){
                     auto &s2 = e2.toStructExpr();
                     if(s1.fields.size() != s2.fields.size())
                         return false;
-                    for(int i=0;i<s1.fields.size();i++){
+                    for(size_t i=0;i<s1.fields.size();i++){
                         if(s1.fields[i].first != s2.fields[i].first)
                             return false;
                         if(!alpha_equals(ctx,s1.fields[i].second,s2.fields[i].second))
@@ -1260,7 +1260,7 @@ bool Expr::alpha_equals(Context &ctx, const Expr& e1, const Expr& e2){
                     auto &s2 = e2.toRecordExpr();
                     if(s1.fields.size() != s2.fields.size())
                         return false;
-                    for(int i=0;i<s1.fields.size();i++){
+                    for(size_t i=0;i<s1.fields.size();i++){
                         if(s1.fields[i].first != s2.fields[i].first)
                             return false;
                         if(!alpha_equals(ctx,s1.fields[i].second,s2.fields[i].second))

@@ -95,7 +95,7 @@ int compare_field_vec(const std::vector<std::pair<std::string,BType>>& lhs, cons
         std::vector<std::pair<std::string,BType>> sorted_rhs(rhs.size());
         partial_sort_copy(begin(rhs), end(rhs), begin(sorted_rhs), end(sorted_rhs),lessThan);
 
-        int i = 0;
+        size_t i = 0;
         while(i<lhs.size()){
             auto &p1 = sorted_lhs.at(i);
             auto &p2 = sorted_rhs.at(i);

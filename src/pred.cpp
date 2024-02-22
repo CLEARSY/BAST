@@ -238,7 +238,7 @@ int Pred::compare(const Pred &p1, const Pred& p2){
 
 int Pred::vec_compare(const std::vector<Pred> &lhs, const std::vector<Pred>& rhs){
        if(lhs.size() == rhs.size()){
-        int i = 0;
+        size_t i = 0;
         while(i<lhs.size()){
             int res = compare(lhs.at(i),rhs.at(i));
             if(res != 0) return res;
@@ -318,7 +318,7 @@ std::string Pred::show() const {
                 auto& q = toForall();
                 assert(q.vars.size()>0);
                 auto vars = q.vars[0].name.show();
-                for(int i=1;i<q.vars.size();++i)
+                for(size_t i=1;i<q.vars.size();++i)
                     vars += " " + q.vars[i].name.show();
                 return "(forall (" + vars + ") " + q.body.show() + ")";
             }
@@ -327,7 +327,7 @@ std::string Pred::show() const {
                 auto& q = toExists();
                 assert(q.vars.size()>0);
                 auto vars = q.vars[0].name.show();
-                for(int i=1;i<q.vars.size();++i)
+                for(size_t i=1;i<q.vars.size();++i)
                     vars += " " + q.vars[i].name.show();
                 return "(exists (" + vars + ") " + q.body.show() + ")";
             }
@@ -425,7 +425,7 @@ bool Pred::alpha_equals(Context &ctx, const Pred& p1, const Pred& p2){
                 auto& prd2 = p2.toConjunction();
                 if(prd1.operands.size() != prd2.operands.size())
                     return false;
-                for(int i=0;i<prd1.operands.size();i++){
+                for(size_t i=0;i<prd1.operands.size();i++){
                     if(!alpha_equals(ctx,prd1.operands[i],prd2.operands[i]))
                         return false;
                 }
@@ -437,7 +437,7 @@ bool Pred::alpha_equals(Context &ctx, const Pred& p1, const Pred& p2){
                 auto& prd2 = p2.toDisjunction();
                 if(prd1.operands.size() != prd2.operands.size())
                     return false;
-                for(int i=0;i<prd1.operands.size();i++){
+                for(size_t i=0;i<prd1.operands.size();i++){
                     if(!alpha_equals(ctx,prd1.operands[i],prd2.operands[i]))
                         return false;
                 }

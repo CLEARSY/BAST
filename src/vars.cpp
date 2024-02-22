@@ -52,7 +52,7 @@ int VarName::compare(const VarName &v1, const VarName& v2){
 
 int VarName::vec_compare(const std::vector<VarName> &lhs, const std::vector<VarName>& rhs) {
     if(lhs.size() == rhs.size()){
-        int i = 0;
+        size_t i = 0;
         while(i<lhs.size()){
             int res = compare(lhs.at(i),rhs.at(i));
             if(res != 0) return res;
@@ -110,7 +110,7 @@ int TypedVar::compare(const TypedVar &v1, const TypedVar& v2){
 
 int TypedVar::vec_compare(const std::vector<TypedVar> &lhs, const std::vector<TypedVar>& rhs) {
     if(lhs.size() == rhs.size()){
-        int i = 0;
+        size_t i = 0;
         while(i<lhs.size()){
             int res = compare(lhs.at(i),rhs.at(i));
             if(res != 0) return res;

@@ -2,59 +2,52 @@
 
 A C++ library to represent B Abstract Syntax Trees
 
-Ce module est utilisé
+This source code is used as 
 
-- comme un sous-module de Atelier B
+- a submodule of AtelierB
 
-## Numéro de version
+## Version nomber
 
-Il n'existe pas de moyen d'instropection pour identifier un numéro
-de version.
+There is currently no formal policy to give official identifiers to versions of this code.
 
-## Dépendances
+## Dependencies
 
-La bibliothèque repose sur Qt5Core et Qt5Xml. Tout logiciel utilisant
-BAST doit donc se mettre en conformité avec leur licence:
-- (un pointeur vers) le code source,
-- les binaires,
-- l'attribution,
-- le texte de la licence LGPLv3.
+The library depends on the libraries Qt5Core and Qt5Xml. 
 
 ## Compilation
 
-Il n'existe pas de procédure d'installation dédiée pour ce module.
+Compilation is realized with the [CMake](https://cmake.org) software build system.
 
-Les variables CMake suivantes sont définies par inclusion du fichier CMakeLists.txt:
-- La cible BAST correspond à la bibliothèque `libBAST.a`
-- Le dossier `$BAST_SOURCE_DIR` contient les en-têtes
-- Le dossier `$BAST_BINARY_DIR` contient la bibliothèque.
+The `CMakeLists.txt` file defines the following:
 
-### Instructions pour Windows
+- The target `BAST_LIB` for the static library `libBAST.a`
+- The directory `$BAST_SOURCE_DIR` contains the library headers
+- The directory `$BAST_SOURCE_DIR` contains the static library
 
-Ces instructions sont destinées à un environnement MSYS2/Mingw-64 comme décrit dans
-https://projets-clearsy.com/projects/ratb/wiki
+Assuming
 
-Soit `$SOURCE` le dossier où le clonage du dépôt git a été réalisé et `$BUILD` le dossier où la compilation sera effectuée.
+- `$SOURCE` is the path of the directory where the git repository has been cloned
+- `$BUILD` is the path of the directory where the build is launched
 
-La compilation s'effectue en faisant :
-
-```sh
-cd $BUILD
-cmake -G Ninja -DCMAKE_BUILD_TYPE=release "$SOURCE"
-cmake --build .
-```
-
-### Instructions pour Linux
-
-Il faut avoir installé le paquet `libqtbase5-dev` (ou équivalent).
-
-Soit `$SOURCE` le dossier où le clonage du dépôt git a été réalisé, `$BUILD` le dossier où la compilation sera effectuée.
-
-La compilation s'effectue en faisant :
+The following commands build the library :
 
 ```sh
 cd $BUILD
-cmake -DCMAKE_BUILD_TYPE=release "$SOURCE"
+cmake "$SOURCE"
 cmake --build .
 ```
+
+### Instructions for Linux
+
+Package `libqtbase5-dev` (or equivalent) shall have been installed
+
+### Instructions for Windows
+
+The library has been successfully build with `MSYS2-Mingw-w64` using the following package environment :
+
+```sh
+pacman -S --needed --noconfirm \
+    mingw-w64-ucrt-x86_64-{cmake,ninja,gcc} \
+    mingw-w64-ucrt-x86_64-qt5-base \
+
 

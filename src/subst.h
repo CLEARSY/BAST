@@ -224,7 +224,9 @@ class Subst::WitnessSubst : public SubstDesc {
     public:
         // Constructor
         WitnessSubst(std::map<std::string,Expr> &&witnesses, Subst &&body)
-            :body{std::move(body)},witnesses{std::move(witnesses)}{};
+          : witnesses{std::move(witnesses)}
+          , body{std::move(body)}
+      {}
         // Members
         std::map<std::string,Expr> witnesses;
         Subst body;
@@ -392,7 +394,7 @@ class Subst::SimpleAssignmentSubst : public SubstDesc {
             }
         }
         void alpha(const std::map<VarName,VarName> &map){
-            for(int i=0;i<vars.size();i++){
+            for(size_t i=0;i<vars.size();i++){
                 auto it = map.find(vars[i].name);
                 if(it != map.end())
                     vars[i].name = it->second;
@@ -402,7 +404,7 @@ class Subst::SimpleAssignmentSubst : public SubstDesc {
         }
         void getInnerFreeVars(std::set<VarName> &accu) const { }
         void substFreshId(const std::string &id, const VarName &v){
-            for(int i=0;i<vars.size();i++){
+            for(size_t i=0;i<vars.size();i++){
                 if(vars[i].name.kind() == VarName::Kind::FreshId && vars[i].name.prefix() == id)
                     vars[i].name = v;
             }
@@ -727,7 +729,7 @@ class Subst::AnySubst : public SubstDesc {
             body.getInnerFreeVars(accu);
         }
         void substFreshId(const std::string &id, const VarName &v){
-            for(int i=0;i<vars.size();i++){
+            for(size_t i=0;i<vars.size();i++){
                 if(vars[i].name.kind() == VarName::Kind::FreshId && vars[i].name.prefix() == id)
                     vars[i].name = v;
             }
@@ -821,7 +823,7 @@ class Subst::OpCallSubst : public SubstDesc {
             op_body.getModifiedVars(boundVars2,accu);
         }
         void alpha(const std::map<VarName,VarName> &map){
-            for(int i=0;i<output.size();i++){
+            for(size_t i=0;i<output.size();i++){
                 auto it = map.find(output[i].name);
                 if(it != map.end())
                     output[i].name = it->second;
@@ -839,17 +841,17 @@ class Subst::OpCallSubst : public SubstDesc {
             op_body.getFreeVars(boundVars,accu);
         }
         void substFreshId(const std::string &id, const VarName &v){
-            for(int i=0;i<output.size();i++){
+            for(size_t i=0;i<output.size();i++){
                 if(output[i].name.kind() == VarName::Kind::FreshId && output[i].name.prefix() == id)
                     output[i].name = v;
             }
             for(auto &e : input)
                 e.substFreshId(id,v);
-            for(int i=0;i<op_output.size();i++){
+            for(size_t i=0;i<op_output.size();i++){
                 if(op_output[i].name.kind() == VarName::Kind::FreshId && op_output[i].name.prefix() == id)
                     op_output[i].name = v;
             }
-            for(int i=0;i<op_input.size();i++){
+            for(size_t i=0;i<op_input.size();i++){
                 if(op_input[i].name.kind() == VarName::Kind::FreshId && op_input[i].name.prefix() == id)
                     op_input[i].name = v;
             }

@@ -406,7 +406,7 @@ void Subst::getModifiedVars(const std::set<VarName> &boundVars, std::set<TypedVa
 std::map<VarName,Expr> Subst::SimpleAssignmentSubst::toMap() const {
     assert(vars.size() == exprs.size());
     std::map<VarName,Expr> map;
-    for(int i = 0;i<vars.size();i++)
+    for(size_t i = 0;i<vars.size();i++)
         map[vars.at(i).name] = exprs.at(i).copy();
     return map;
 };

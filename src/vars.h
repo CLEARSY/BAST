@@ -106,7 +106,7 @@ class Context {
     public:
         bool push(const std::vector<TypedVar> &vars1, const std::vector<TypedVar> &vars2){
             if(vars1.size() == vars2.size()){
-                for(int i=0;i<vars1.size();i++){
+                for(size_t i=0;i<vars1.size();i++){
                     if(vars1[i].name.prefix() != vars2[i].name.prefix())
                         return false;
                     if(vars1[i].type != vars2[i].type)
@@ -121,10 +121,10 @@ class Context {
         };
         static void get_pair(
                 const std::vector<std::vector<TypedVar>> vec, const VarName &v,
-                bool &found, std::pair<int,int> &pos)
+                bool &found, std::pair<size_t,size_t> &pos)
         {
-            for(int i=0;i<vec.size();i++){
-                for(int j=0;j<vec[i].size();j++){
+            for(size_t i=0;i<vec.size();i++){
+                for(size_t j=0;j<vec[i].size();j++){
                     if(v == vec[i][j].name){
                         found = true;
                         pos = {i,j};
@@ -136,7 +136,7 @@ class Context {
         }
         bool equals(const VarName &v1, const VarName &v2){
             bool v1_found, v2_found;
-            std::pair<int,int> p1, p2;
+            std::pair<size_t,size_t> p1, p2;
             get_pair(vec1,v1,v1_found,p1);
             get_pair(vec2,v2,v2_found,p2);
             if(v1_found && v2_found){

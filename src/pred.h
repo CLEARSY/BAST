@@ -140,8 +140,8 @@ class Pred {
         std::unique_ptr<PredDesc> desc; // content of the predicate. Never null (except if default constructor is used)
         // Constructor
         Pred(PredDesc *desc, const std::string &gt):
-            desc{desc},
-            goalTag{gt}
+            goalTag{gt},
+            desc{desc}
         {};
 };
 

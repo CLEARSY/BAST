@@ -99,9 +99,9 @@ class Expr {
                 assert(fractionalPart.size()>0);
                 assert(integerPart == "0" || integerPart[0] != '0');
                 assert(fractionalPart == "0" || fractionalPart[fractionalPart.size()-1] != '0');
-                for(int i=1;i<integerPart.size();i++)
+                for(size_t i=1;i<integerPart.size();i++)
                     assert(isdigit(integerPart[i]));
-                for(int i=1;i<fractionalPart.size();i++)
+                for(size_t i=1;i<fractionalPart.size();i++)
                     assert(isdigit(fractionalPart[i]));
             };
             Decimal(const std::string &integerPart):

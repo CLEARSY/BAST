@@ -250,7 +250,7 @@ class GPred::ForallPred : public AbstractGPred {
             body.getAllVars(accu);
         }
         void substFreshId(const std::string &id, const VarName &v){
-            for(int i=0;i<vars.size();i++){
+            for(size_t i=0;i<vars.size();i++){
                 if(vars[i].name.kind() == VarName::Kind::FreshId && vars[i].name.prefix() == id)
                     vars[i].name = v;
             }
@@ -275,7 +275,7 @@ class GPred::ExistsPred : public AbstractGPred {
             body.getAllVars(accu);
         }
         void substFreshId(const std::string &id, const VarName &v){
-            for(int i=0;i<vars.size();i++){
+            for(size_t i=0;i<vars.size();i++){
                 if(vars[i].name.kind() == VarName::Kind::FreshId && vars[i].name.prefix() == id)
                     vars[i].name = v;
             }

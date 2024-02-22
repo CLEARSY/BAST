@@ -404,7 +404,7 @@ class Expr::QuantifiedSet : public Expr::ExprDesc {
             cond.getFreeVars(boundVars2,accu);
         };
         void substFreshId(const std::string &id, const VarName &v){
-            for(int i=0;i<vars.size();i++){
+            for(size_t i=0;i<vars.size();i++){
                 if(vars[i].name.kind() == VarName::Kind::FreshId && vars[i].name.prefix() == id)
                     vars[i].name = v;
             }
@@ -494,7 +494,7 @@ class Expr::QuantifiedExpr : public Expr::ExprDesc {
             body.getFreeVars(boundVars2,accu);
         };
         void substFreshId(const std::string &id, const VarName &v){
-            for(int i=0;i<vars.size();i++){
+            for(size_t i=0;i<vars.size();i++){
                 if(vars[i].name.kind() == VarName::Kind::FreshId && vars[i].name.prefix() == id)
                     vars[i].name = v;
             }
