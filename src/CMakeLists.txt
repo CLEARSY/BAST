@@ -40,10 +40,7 @@ include_directories(
         ${BAST_SOURCE_DIR}
 )
 
-add_library(BAST
-  SHARED
-  ${BAST_SOURCES}
-  ${BAST_HEADERS}
-)
+add_library(BAST_LIB STATIC ${BAST_SOURCES} ${BAST_HEADERS})
+set_target_properties(BAST_LIB PROPERTIES PREFIX "lib" OUTPUT_NAME "BAST")
 
-target_link_libraries(BAST PRIVATE Qt5::Core Qt5::Xml)
+target_link_libraries(BAST_LIB PRIVATE Qt5::Core Qt5::Xml)
