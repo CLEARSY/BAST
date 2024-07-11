@@ -16,6 +16,7 @@
 
 #include <cassert>
 #include <algorithm>
+#include <memory>
 #include "btype.h"
 
 void BType::accept(Visitor &v) const {
@@ -34,6 +35,12 @@ void BType::accept(Visitor &v) const {
             break;
         case Kind::STRING:
             v.visitSTRING();
+            break;
+        case Kind::AbstractSet:
+            v.visitAbstractSet();
+            break;
+        case Kind::EnumeratedSet:
+            v.visitEnumeratedSet();
             break;
         case Kind::ProductType:
         case Kind::PowerType:
@@ -57,6 +64,16 @@ const BType::RecordType& BType::toRecordType() const{
   return static_cast<RecordType&>(*ptr);
 };
 
+const BType::AbstractSet& BType::toAbstractSetType() const{
+  assert(kind == Kind::AbstractSet);
+  return static_cast<AbstractSet&>(*ptr);
+};
+
+const BType::EnumeratedSet& BType::toEnumeratedSetType() const{
+  assert(kind == Kind::EnumeratedSet);
+  return static_cast<EnumeratedSet&>(*ptr);
+};
+
 const BType BType::INT = BType(Kind::INTEGER,nullptr);
 const BType BType::BOOL = BType(Kind::BOOLEAN,nullptr);
 const BType BType::FLOAT = BType(Kind::FLOAT,nullptr);
@@ -77,6 +94,12 @@ BType BType::PROD(const BType &lhs,const BType &rhs){
 BType BType::POW(const BType &content){
     return BType(Kind::PowerType,std::make_shared<PowerType>(PowerType(content)));
 };
+BType BType::ABSTRACT_SET(const std::string &name) {
+    return BType(Kind::AbstractSet, std::make_shared<AbstractSet>(AbstractSet(name)));
+}
+BType BType::ENUMERATED_SET(const std::pair<std::string, std::vector<std::string>> &values) {
+    return BType(Kind::EnumeratedSet, std::make_shared<EnumeratedSet>(EnumeratedSet(values)));
+}
 BType BType::STRUCT(const std::vector<std::pair<std::string,BType>> &fields){
     return BType(Kind::Struct,std::make_shared<RecordType>(RecordType(fields)));
 }
@@ -136,6 +159,14 @@ int BType::compare(const BType &ty1, const BType& ty2){
                 }
             case Kind::Struct:
                 return compare_field_vec(ty1.toRecordType().fields,ty2.toRecordType().fields);
+            case Kind::AbstractSet:
+                {
+                    return ty1.toAbstractSetType().getName().compare(ty2.toAbstractSetType().getName().c_str());
+                }
+            case Kind::EnumeratedSet:
+                {
+                    return ty1.toAbstractSetType().getName().compare(ty2.toAbstractSetType().getName().c_str());
+                }
         }
     }
     else if (ty1.kind < ty2.kind){
@@ -182,6 +213,16 @@ std::string BType::to_string() const {
             return "PROD("
                 + toProductType().lhs.to_string() + ", "
                 + toProductType().rhs.to_string() + ")";
+        case Kind::AbstractSet:
+            {
+                auto &st = this->toAbstractSetType();
+                return "ASET(" + st.getName() + ")";
+            }
+        case Kind::EnumeratedSet:
+            {
+                auto &st2 = this->toEnumeratedSetType();
+                return "ESET(" + st2.getName() + ")";
+            }
         case Kind::Struct:
             {
                 std::string accu = "STRUCT(";
