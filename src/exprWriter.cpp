@@ -15,18 +15,80 @@
 
 
 #include "exprWriter.h"
+#include "btype.h"
 #include "predWriter.h"
 #include "exprDesc.h"
 
 namespace Xml {
+    /* Compare les types de deux expressions */
+    bool compareTypesUnfold(const BType ty1, const BType ty2) {
+        if (ty1.getKind() != ty2.getKind()) return false;
+        switch (ty1.getKind()) {
+            case BType::Kind::INTEGER:
+            case BType::Kind::FLOAT:
+            case BType::Kind::BOOLEAN:
+            case BType::Kind::REAL:
+            case BType::Kind::STRING:
+            case BType::Kind::Struct:
+                return true;
+            case BType::Kind::PowerType:
+                return compareTypesUnfold(ty1.toPowerType().content, ty2.toPowerType().content);
+            case BType::Kind::ProductType:
+                return compareTypesUnfold(ty1.toProductType().lhs, ty2.toProductType().lhs) && 
+                       compareTypesUnfold(ty1.toProductType().rhs, ty2.toProductType().rhs);
+            case BType::Kind::AbstractSet:
+                return ty1.toAbstractSetType().getName().compare(ty2.toAbstractSetType().getName()) == 0;
+            case BType::Kind::EnumeratedSet:
+                return ty1.toEnumeratedSetType().getName().compare(ty2.toEnumeratedSetType().getName()) == 0;
+            default:
+                return false;
+        }
+    }
+
+    /* Gère la détection ou l'ajout des types dans typeInfos */
     unsigned int getTypRef(std::map<BType,unsigned int> &typeInfos, const BType &ty){
         auto it = typeInfos.find(ty);
-        if(it == typeInfos.end()){
-            unsigned int i = typeInfos.size();
-            typeInfos.insert({ty,i});
-            return i;
-        } else {
-            return it->second;
+
+        switch (ty.getKind()) {
+            case BType::Kind::INTEGER:
+            case BType::Kind::FLOAT:
+            case BType::Kind::BOOLEAN:
+            case BType::Kind::REAL:
+            case BType::Kind::STRING:
+            case BType::Kind::Struct:
+                {
+                    if(it == typeInfos.end()){
+                        unsigned int i = typeInfos.size();
+                        typeInfos.insert({ty,i});
+                        return i;
+                    } else {
+                        return it->second;
+                    }
+                }
+            case BType::Kind::PowerType:
+            case BType::Kind::ProductType:
+            case BType::Kind::AbstractSet:
+            case BType::Kind::EnumeratedSet:
+                {
+                    std::map<BType,unsigned int> copyTypes;
+                    for (auto pair : typeInfos) {
+                        copyTypes.insert(pair);
+                    }
+                    auto it2 = copyTypes.find(ty);
+
+                    while (it2 != copyTypes.end()) {
+                        if (compareTypesUnfold(ty, it2->first)) {
+                            return it2->second;
+                        } else {
+                            copyTypes.erase(it2);
+                            it2 = copyTypes.find(ty);
+                        }
+                    }
+                    unsigned int i = typeInfos.size();
+                    typeInfos.insert({ty, i});
+                    return i;
+                }
+
         }
     }
 

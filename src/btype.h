@@ -18,21 +18,26 @@
 
 #include <memory>
 #include <algorithm>
+#include <utility>
 #include <vector>
 #include "hash.h"
 
 class BType {
 public:
-    enum class Kind { INTEGER, BOOLEAN, FLOAT, REAL, STRING, ProductType, PowerType, Struct };
+    enum class Kind { INTEGER, BOOLEAN, FLOAT, REAL, STRING, ProductType, PowerType, Struct, AbstractSet, EnumeratedSet };
     Kind getKind() const { return kind; };
 
     class ProductType;
     class PowerType;
     class RecordType;
+    class AbstractSet;
+    class EnumeratedSet;
 
     const ProductType& toProductType() const;
     const PowerType& toPowerType() const;
     const RecordType& toRecordType() const;
+    const AbstractSet& toAbstractSetType() const;
+    const EnumeratedSet& toEnumeratedSetType() const;
 
     class Visitor {
         public:
@@ -41,6 +46,8 @@ public:
         virtual void visitFLOAT() = 0;
         virtual void visitREAL() = 0;
         virtual void visitSTRING() = 0;
+        virtual void visitAbstractSet() = 0;
+        virtual void visitEnumeratedSet() = 0;
         virtual void visitProductType(const BType &lhs, const BType &rhs) = 0;
         virtual void visitPowerType(const BType &ty) = 0;
         virtual void visitRecordType(const std::vector<std::pair<std::string,BType>> &fields) = 0;
@@ -64,6 +71,8 @@ public:
 
     static BType PROD(const BType &lhs, const BType &rhs);
     static BType POW(const BType &content);
+    static BType ABSTRACT_SET(const std::string &name);
+    static BType ENUMERATED_SET(const std::pair<std::string, std::vector<std::string>> &values);
     static BType STRUCT(const std::vector<std::pair<std::string,BType>> &fields);
 
     BType():kind{Kind::INTEGER},ptr{nullptr}{}
@@ -80,6 +89,7 @@ public:
 
     size_t hash_combine(size_t seed) const ;
     std::string to_string() const;
+
 private:
     class AbstractBType {
         public:
@@ -116,6 +126,31 @@ class BType::PowerType : public AbstractBType {
         void accept(Visitor &v) const { v.visitPowerType(content); }
         const BType content;
 };
+class BType::AbstractSet : public AbstractBType {
+    public:
+        AbstractSet(const std::string &name):name{name}{};
+
+        size_t hash_combine(size_t seed) const {
+            return (BType::INT.hash_combine(seed));
+        }
+        void accept(Visitor &v) const { v.visitAbstractSet(); }
+        const std::string& getName() const { return name ; }
+        const std::string name;
+};
+class BType::EnumeratedSet : public AbstractSet {
+    public:
+        EnumeratedSet(const std::pair<std::string, std::vector<std::string>> &values) : AbstractSet(values.first), values{values} {};
+
+        size_t hash_combine(size_t seed) const {
+            return (BType::INT.hash_combine(seed));
+        }
+        void accept(Visitor &v) const { v.visitEnumeratedSet(); }
+
+        const std::string& getName() const { return values.first; }
+        const std::vector<std::string>& getContent() const { return values.second; }
+        const std::pair<std::string, std::vector<std::string>> values;
+};
+
 class BType::RecordType : public AbstractBType {
     public:
         RecordType(const std::vector<std::pair<std::string,BType>> &fields):
