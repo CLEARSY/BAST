@@ -539,8 +539,8 @@ Expr Expr::makeIdent(const VarName &id, const BType &type, const QStringList &bx
             type,bxmlTag);
 };
 
-Expr Expr::makePredecessor(const BType &type, const QStringList &bxmlTag){ return Expr(EKind::Predecessor,nullptr,type,bxmlTag); };
-Expr Expr::makeSuccessor(const BType &type, const QStringList &bxmlTag){ return Expr(EKind::Successor,nullptr,type,bxmlTag); };
+Expr Expr::makePredecessor(const QStringList &bxmlTag){ return Expr(EKind::Predecessor,nullptr,BType::RELATION_INTEGER,bxmlTag); };
+Expr Expr::makeSuccessor(const QStringList &bxmlTag){ return Expr(EKind::Successor,nullptr,BType::RELATION_INTEGER,bxmlTag); };
 Expr Expr::makeEmptySet(const BType &type, const QStringList &bxmlTag){ return Expr(EKind::EmptySet,nullptr,type,bxmlTag); };
 Expr Expr::makeMaxInt(const QStringList &bxmlTag){ return Expr(EKind::MaxInt,nullptr,BType::INT,bxmlTag); };
 Expr Expr::makeMinInt(const QStringList &bxmlTag){ return Expr(EKind::MinInt,nullptr,BType::INT,bxmlTag); };

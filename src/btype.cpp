@@ -69,6 +69,8 @@ const BType BType::POW_FLOAT = POW(FLOAT);
 const BType BType::POW_STRING = POW(STRING);
 const BType BType::POW_REAL = POW(REAL);
 
+const BType BType::RELATION_INTEGER = POW(PROD(INT, INT));
+
 BType BType::PROD(const BType &lhs,const BType &rhs){
     return BType(Kind::ProductType,std::make_shared<ProductType>(ProductType(lhs,rhs)));
 };

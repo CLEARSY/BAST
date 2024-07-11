@@ -38,7 +38,7 @@ class Expr {
             QuantifiedSet, UnaryExpr, BinaryExpr, NaryExpr, Struct, Record,
             TernaryExpr, Record_Field_Access, Record_Field_Update, Successor,
             Predecessor
-        }; 
+        };
 
         enum class BinaryOp {
             Mapplet, Cartesian_Product, Partial_Functions, Partial_Surjections,
@@ -117,8 +117,8 @@ class Expr {
         static Expr makeReal(const Decimal &d, const QStringList &bxmlTag = {});
         static Expr makeIdent(const VarName &s, const BType &type, const QStringList &bxmlTag = {});
         static Expr makeEmptySet(const BType &ty, const QStringList &bxmlTag = {});
-        static Expr makePredecessor(const BType &ty, const QStringList &bxmlTag = {});
-        static Expr makeSuccessor(const BType &ty, const QStringList &bxmlTag = {});
+        static Expr makePredecessor(const QStringList &bxmlTag = {});
+        static Expr makeSuccessor(const QStringList &bxmlTag = {});
         static Expr makeMaxInt(const QStringList &bxmlTag = {});
         static Expr makeMinInt(const QStringList &bxmlTag = {});
         static Expr makeINTEGER(const QStringList &bxmlTag = {});
@@ -151,13 +151,13 @@ class Expr {
         const QStringList& getBxmlTag() const { return bxmlTag; };
 
         void addBxmlTags(const QStringList &bxmlTag);
-        
+
         // Capture-avoiding substitution
         void subst(const std::map<VarName,Expr> &map);
         // Alpha renaming. The new var names must not occur (free or bound) in the expression
         void alpha(const std::map<VarName,VarName> &map);
 
-	/** \brief Get new identifiers occurring free in expression 
+	/** \brief Get new identifiers occurring free in expression
 	 * \param boundVars set of bound variables in the current context
 	 * \param freeVars set of free variables already declared
 	 * \param freeVarsThis receives the set of free variables occuring in expression that are not in freeVars.
@@ -248,7 +248,7 @@ class Expr {
         static int vec_compare(const std::vector<Expr>& lhs, const std::vector<Expr>& rhs);
 
         // test for equality, modulo arithmetic equality:
-        // compare(a,b) == 0 => equals(a, b)  
+        // compare(a,b) == 0 => equals(a, b)
         //static bool equals(const Expr& e1, const Expr& e2);
 
         static bool alpha_equals(Context &ctx, const Expr& e1, const Expr& e2);

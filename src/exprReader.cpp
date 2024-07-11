@@ -350,9 +350,9 @@ namespace Xml {
                         case Expr::EKind::FALSE:
                             return Expr::makeFALSE(bxmlTag);
                         case Expr::EKind::Successor:
-                            return Expr::makeSuccessor(type,bxmlTag);
+                            return Expr::makeSuccessor(bxmlTag);
                         case Expr::EKind::Predecessor:
-                            return Expr::makePredecessor(type,bxmlTag);
+                            return Expr::makePredecessor(bxmlTag);
                         default:
                             assert(false); // unreachable
                     };
@@ -422,12 +422,30 @@ namespace Xml {
             case Expr::EKind::UnaryExpr:
                 {
                     QString op = dom.attribute("op");
-                    auto it = unaryExpOp.find(op.toStdString());
-                    if(it == unaryExpOp.end())
-                        throw ExprReaderException
-                            ("Unknown unary expression operator '" + op.toStdString() + "'.",dom.lineNumber());
-                    Expr content = readExpression(dom.firstChildElement(),typeInfos);
-                    return Expr::makeUnaryExpr(it->second,std::move(content),type,bxmlTag);
+                    if (op == QString("succ")) {
+                      return Expr::makeBinaryExpr(Expr::BinaryOp::Application,
+                      Expr::makeSuccessor(),
+                          std::move(readExpression(dom.firstChildElement(),
+                                                   typeInfos)),
+                          type, bxmlTag);
+                    } else if (op == QString("pred")) {
+                      return Expr::makeBinaryExpr(Expr::BinaryOp::Application,
+                      Expr::makePredecessor(),
+                          std::move(readExpression(dom.firstChildElement(),
+                                                   typeInfos)),
+                          type, bxmlTag);
+                    } else {
+                      auto it = unaryExpOp.find(op.toStdString());
+                      if (it == unaryExpOp.end())
+                        throw ExprReaderException(
+                            "Unknown unary expression operator '" +
+                                op.toStdString() + "'.",
+                            dom.lineNumber());
+                      Expr content =
+                          readExpression(dom.firstChildElement(), typeInfos);
+                      return Expr::makeUnaryExpr(it->second, std::move(content),
+                                                 type, bxmlTag);
+                    }
                 }
             case Expr::EKind::Struct:
                 {

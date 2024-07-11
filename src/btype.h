@@ -59,6 +59,9 @@ public:
     static const BType POW_STRING;
     static const BType POW_REAL;
 
+  /** @brief the type for succ and pred */
+    static const BType RELATION_INTEGER;
+
     static BType PROD(const BType &lhs, const BType &rhs);
     static BType POW(const BType &content);
     static BType STRUCT(const std::vector<std::pair<std::string,BType>> &fields);
