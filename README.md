@@ -6,7 +6,7 @@ This source code is used as
 
 - a submodule of AtelierB
 
-## Version nomber
+## Version numbers
 
 There is currently no formal policy to give official identifiers to versions of this code.
 
@@ -33,7 +33,7 @@ The following commands build the library :
 
 ```sh
 cd $BUILD
-cmake "$SOURCE"
+cmake -G Ninja "$SOURCE"
 cmake --build .
 ```
 
