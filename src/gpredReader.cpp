@@ -48,11 +48,11 @@ namespace Xml {
             case GPred::Kind::NotSubNot:
                 {
                     QDomElement child = dom.firstChildElement();
-                    if(child.isNull() or child.tagName() != "Sub_Calculus")
+                    if(child.isNull() || child.tagName() != "Sub_Calculus")
                         throw GPredReaderException("Sub_Calculus element expected.");
                     QDomElement sub = child.firstChildElement();
                     QDomElement _not = sub.nextSiblingElement();
-                    if(_not.isNull() or _not.tagName() != "Not")
+                    if(_not.isNull() || _not.tagName() != "Not")
                         throw GPredReaderException("Not element expected.");
                     QDomElement prd = _not.firstChildElement();
                     return GPred::makeNotSubNot
