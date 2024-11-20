@@ -24,6 +24,7 @@ set(BAST_SOURCES
     expr.cpp
     pred.cpp
     gpred.cpp
+    exprDesc.cpp
     subst.cpp
     exprReader.cpp
     predReader.cpp

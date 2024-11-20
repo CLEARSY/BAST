@@ -228,7 +228,7 @@ class Expr::NaryExpr : public Expr::ExprDesc {
         };
 };
 
-struct {
+extern struct RecordFieldCmp {
     bool operator()(const std::pair<std::string,Expr> &a, const std::pair<std::string,Expr> &b)
     {
         return a.first < b.first;
