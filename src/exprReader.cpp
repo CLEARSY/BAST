@@ -61,7 +61,7 @@ namespace Xml {
             throw ExprReaderException("Id element expected.",id.lineNumber());
         }
         assert(false); // unreachable
-    };
+    }
 
     const std::map<std::string, Expr::EKind> etags = {
         {"Binary_Exp", Expr::EKind::BinaryExpr},
@@ -355,7 +355,8 @@ namespace Xml {
                             return Expr::makePredecessor(bxmlTag);
                         default:
                             assert(false); // unreachable
-                    };
+                            throw ExprReaderException("Unreachable code executed", dom.lineNumber());
+                    }
                 }
             case Expr::EKind::IntegerLiteral:
                 {
@@ -425,14 +426,12 @@ namespace Xml {
                     if (op == QString("succ")) {
                       return Expr::makeBinaryExpr(Expr::BinaryOp::Application,
                       Expr::makeSuccessor(),
-                          std::move(readExpression(dom.firstChildElement(),
-                                                   typeInfos)),
+                          readExpression(dom.firstChildElement(), typeInfos),
                           type, bxmlTag);
                     } else if (op == QString("pred")) {
                       return Expr::makeBinaryExpr(Expr::BinaryOp::Application,
                       Expr::makePredecessor(),
-                          std::move(readExpression(dom.firstChildElement(),
-                                                   typeInfos)),
+                          readExpression(dom.firstChildElement(), typeInfos),
                           type, bxmlTag);
                     } else {
                       auto it = unaryExpOp.find(op.toStdString());
@@ -521,10 +520,10 @@ namespace Xml {
             case Expr::EKind::FALSE:
             case Expr::EKind::Successor:
             case Expr::EKind::Predecessor:
-                {
-                    assert(false); // unreachable
-                }
+                assert(false); // unreachable
+                throw ExprReaderException("Unreachable code executed", dom.lineNumber());
         };
         assert(false); // unreachable
-    };
+        throw ExprReaderException("Unreachable code executed", dom.lineNumber());
+    }
 }

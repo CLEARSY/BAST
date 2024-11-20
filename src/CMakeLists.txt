@@ -1,5 +1,13 @@
 project(BASTLIB)
 
+if (MSVC)
+    # warning level 4
+    add_compile_options(/W4)
+else()
+    # additional warnings
+    add_compile_options(-Wall -Wextra -Wpedantic -Werror)
+endif()
+
 set(BAST_HEADERS
     btype.h
     vars.h
@@ -42,6 +50,7 @@ include_directories(
 )
 
 add_library(BAST_LIB STATIC ${BAST_SOURCES} ${BAST_HEADERS})
-set_target_properties(BAST_LIB PROPERTIES PREFIX "lib" OUTPUT_NAME "BAST")
-
 target_link_libraries(BAST_LIB PRIVATE Qt5::Core Qt5::Xml)
+
+target_compile_features(BAST_LIB PUBLIC cxx_std_20)
+set_target_properties(BAST_LIB PROPERTIES PREFIX "lib" OUTPUT_NAME "BAST")

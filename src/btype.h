@@ -1,6 +1,6 @@
 /*
    This file is part of BAST.
-   Copyright © CLEARSY 2023
+   Copyright © CLEARSY 2023, 2024
    BAST is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
    the Free Software Foundation, either version 3 of the License, or
@@ -93,6 +93,7 @@ public:
 private:
     class AbstractBType {
         public:
+            virtual ~AbstractBType() {}
             virtual void accept(Visitor &v) const = 0;
             virtual size_t hash_combine(size_t seed) const = 0;
     };

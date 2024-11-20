@@ -1,6 +1,6 @@
 /*
    This file is part of BAST.
-   Copyright © CLEARSY 2023
+   Copyright © CLEARSY 2023, 2024
    BAST is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
    the Free Software Foundation, either version 3 of the License, or
@@ -34,7 +34,7 @@ namespace Xml {
             case BType::Kind::PowerType:
                 return compareTypesUnfold(ty1.toPowerType().content, ty2.toPowerType().content);
             case BType::Kind::ProductType:
-                return compareTypesUnfold(ty1.toProductType().lhs, ty2.toProductType().lhs) && 
+                return compareTypesUnfold(ty1.toProductType().lhs, ty2.toProductType().lhs) &&
                        compareTypesUnfold(ty1.toProductType().rhs, ty2.toProductType().rhs);
             case BType::Kind::AbstractSet:
                 return ty1.toAbstractSetType().getName().compare(ty2.toAbstractSetType().getName()) == 0;
@@ -90,6 +90,8 @@ namespace Xml {
                 }
 
         }
+        // unreachable
+        return -1;
     }
 
     void writeExprAttributes(

@@ -1,7 +1,7 @@
 
 /*
    This file is part of BAST.
-   Copyright © CLEARSY 2023
+   Copyright © CLEARSY 2023, 2024
    BAST is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
    the Free Software Foundation, either version 3 of the License, or
@@ -47,32 +47,32 @@ void BType::accept(Visitor &v) const {
         case Kind::Struct:
             ptr->accept(v);
     }
-};
+}
 
 const BType::ProductType& BType::toProductType() const{
   assert(kind == Kind::ProductType);
   return static_cast<ProductType&>(*ptr);
-};
+}
 
 const BType::PowerType& BType::toPowerType() const{
   assert(kind == Kind::PowerType);
   return static_cast<PowerType&>(*ptr);
-};
+}
 
 const BType::RecordType& BType::toRecordType() const{
   assert(kind == Kind::Struct);
   return static_cast<RecordType&>(*ptr);
-};
+}
 
 const BType::AbstractSet& BType::toAbstractSetType() const{
   assert(kind == Kind::AbstractSet);
   return static_cast<AbstractSet&>(*ptr);
-};
+}
 
 const BType::EnumeratedSet& BType::toEnumeratedSetType() const{
   assert(kind == Kind::EnumeratedSet);
   return static_cast<EnumeratedSet&>(*ptr);
-};
+}
 
 const BType BType::INT = BType(Kind::INTEGER,nullptr);
 const BType BType::BOOL = BType(Kind::BOOLEAN,nullptr);
@@ -90,10 +90,10 @@ const BType BType::RELATION_INTEGER = POW(PROD(INT, INT));
 
 BType BType::PROD(const BType &lhs,const BType &rhs){
     return BType(Kind::ProductType,std::make_shared<ProductType>(ProductType(lhs,rhs)));
-};
+}
 BType BType::POW(const BType &content){
     return BType(Kind::PowerType,std::make_shared<PowerType>(PowerType(content)));
-};
+}
 BType BType::ABSTRACT_SET(const std::string &name) {
     return BType(Kind::AbstractSet, std::make_shared<AbstractSet>(AbstractSet(name)));
 }
@@ -134,7 +134,7 @@ int compare_field_vec(const std::vector<std::pair<std::string,BType>>& lhs, cons
     } else {
         return (lhs.size() - rhs.size());
     }
-};
+}
 
 int BType::compare(const BType &ty1, const BType& ty2){
     if(ty1.kind == ty2.kind){
@@ -175,6 +175,7 @@ int BType::compare(const BType &ty1, const BType& ty2){
         return 1;
     }
     assert(false); // unreachable
+    return 0;
 }
 
 size_t BType::hash_combine(size_t seed) const {
@@ -232,4 +233,5 @@ std::string BType::to_string() const {
             }
     }
     assert(false); // unreachable
+    return "";
 }

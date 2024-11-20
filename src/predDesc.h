@@ -1,6 +1,6 @@
 /*
    This file is part of BAST.
-   Copyright © CLEARSY 2023
+   Copyright © CLEARSY 2023, 2024
    BAST is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
    the Free Software Foundation, either version 3 of the License, or
@@ -457,13 +457,13 @@ class Pred::True : public PredDesc {
         size_t hash_combine(size_t seed) const {
             return seed;
         }
-        void subst(const std::map<VarName,Expr> &map) { };
-        void alpha(const std::map<VarName,VarName> &map) { };
-        void getFreeVars(const std::set<VarName> &boundVars, const std::set<VarName> &freeVars, std::set<VarName>& freeVarsThis) const {}
-        void getFreeVars(const std::set<VarName> &boundVars, std::set<VarName> &accu) const {}
-        void getAllVars(std::set<VarName> &accu) const {}
-        void substFreshId(const std::string &id, const VarName &v){}
-        void getFreeTVars(const std::set<VarName> &boundVars, std::set<TypedVar> &accu) const { }
+        void subst(const std::map<VarName,Expr> &) { };
+        void alpha(const std::map<VarName,VarName> &) { };
+        void getFreeVars(const std::set<VarName> &, const std::set<VarName> &, std::set<VarName>& ) const {}
+        void getFreeVars(const std::set<VarName> &, std::set<VarName> &) const {}
+        void getAllVars(std::set<VarName> &) const {}
+        void substFreshId(const std::string &, const VarName &){}
+        void getFreeTVars(const std::set<VarName> &, std::set<TypedVar> &) const { }
 };
 class Pred::False : public PredDesc {
     public:
@@ -476,12 +476,12 @@ class Pred::False : public PredDesc {
         size_t hash_combine(size_t seed) const {
             return seed;
         }
-        void subst(const std::map<VarName,Expr> &map) { };
-        void alpha(const std::map<VarName,VarName> &map) { };
-        void getFreeVars(const std::set<VarName> &boundVars, const std::set<VarName> &freeVars, std::set<VarName>& freeVarsThis) const {}
-        void getFreeVars(const std::set<VarName> &boundVars, std::set<VarName> &accu) const {}
-        void getAllVars(std::set<VarName> &accu) const {}
-        void substFreshId(const std::string &id, const VarName &v){}
-        void getFreeTVars(const std::set<VarName> &boundVars, std::set<TypedVar> &accu) const { }
+        void subst(const std::map<VarName,Expr> &) { };
+        void alpha(const std::map<VarName,VarName> &) { };
+        void getFreeVars(const std::set<VarName> &, const std::set<VarName> &, std::set<VarName>& ) const {}
+        void getFreeVars(const std::set<VarName> &, std::set<VarName> &) const {}
+        void getAllVars(std::set<VarName> &) const {}
+        void substFreshId(const std::string &, const VarName &){}
+        void getFreeTVars(const std::set<VarName> &, std::set<TypedVar> &) const { }
 };
 #endif

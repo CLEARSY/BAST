@@ -1,4 +1,11 @@
 # Build artifacts
-#
 build/
-
+# git artifacts
+*.orig
+# Backup files
+*~
+# IDE settings
+.vscode/settings.json
+.vscode/c_cpp_properties.json
+# OS artifacts
+.DS_Store

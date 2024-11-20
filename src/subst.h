@@ -1,6 +1,6 @@
 /*
    This file is part of BAST.
-   Copyright © CLEARSY 2023
+   Copyright © CLEARSY 2023, 2024
    BAST is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
    the Free Software Foundation, either version 3 of the License, or
@@ -22,7 +22,7 @@
 
 class Subst {
     public:
-        enum class SKind { 
+        enum class SKind {
             Block, Skip, Assert, IfThen, IfThenElse, Select,
             SelectElse, Case, CaseElse, Any, OperationCall,
             While, Sequence, Parallel, Choice, SimpleAssignment, Witness };
@@ -88,9 +88,20 @@ class Subst {
         class OpCallSubst;
         class WhileSubst;
         class WitnessSubst;
-        class SubstDesc;
         class BlockSubst;
         class NarySubst;
+        class SubstDesc{
+        public:
+            virtual ~SubstDesc(){};
+            virtual size_t hash_combine(size_t seed) const = 0;
+            virtual void getFreeVars(const std::set<VarName> &boundVars, std::set<VarName> &accu) const = 0;
+            virtual void getAllVars(std::set<VarName> &accu) const = 0;
+            virtual void getModifiedVars(const std::set<VarName> &boundVars, std::set<TypedVar> &accu) const = 0;
+            virtual void alpha(const std::map<VarName,VarName> &map) = 0;
+            virtual void getInnerFreeVars(std::set<VarName> &accu) const = 0;
+            virtual void substFreshId(const std::string &id, const VarName &v) = 0;
+            virtual SubstDesc* copy() const = 0;
+        };
 
         const Subst& toBlock() const;
         Subst& toBlock();
@@ -167,19 +178,6 @@ class Subst {
 struct Subst::CaseChoice {
     std::vector<Expr> values;
     Subst body;
-};
-
-class Subst::SubstDesc {
-    public:
-        virtual ~SubstDesc(){};
-        virtual size_t hash_combine(size_t seed) const = 0;
-        virtual void getFreeVars(const std::set<VarName> &boundVars, std::set<VarName> &accu) const = 0;
-        virtual void getAllVars(std::set<VarName> &accu) const = 0;
-        virtual void getModifiedVars(const std::set<VarName> &boundVars, std::set<TypedVar> &accu) const = 0;
-        virtual void alpha(const std::map<VarName,VarName> &map) = 0;
-        virtual void getInnerFreeVars(std::set<VarName> &accu) const = 0;
-        virtual void substFreshId(const std::string &id, const VarName &v) = 0;
-        virtual SubstDesc* copy() const = 0;
 };
 
 class Subst::AssertSubst : public SubstDesc {
@@ -402,7 +400,7 @@ class Subst::SimpleAssignmentSubst : public SubstDesc {
             for(auto &e : exprs)
                 e.alpha(map);
         }
-        void getInnerFreeVars(std::set<VarName> &accu) const { }
+        void getInnerFreeVars(std::set<VarName> &) const { }
         void substFreshId(const std::string &id, const VarName &v){
             for(size_t i=0;i<vars.size();i++){
                 if(vars[i].name.kind() == VarName::Kind::FreshId && vars[i].name.prefix() == id)

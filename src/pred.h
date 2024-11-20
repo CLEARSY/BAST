@@ -134,7 +134,20 @@ class Pred {
         static bool alpha_equals(Context &ctx, const Pred& p1, const Pred& p2);
         static bool alpha_equals(const Pred& p1, const Pred& p2);
     private:
-        class PredDesc;
+        class PredDesc  {
+        public:
+            virtual ~PredDesc(){};
+            virtual PKind tag() const = 0;
+            virtual void accept(Visitor &visitor) const = 0;
+            virtual size_t hash_combine(size_t seed) const = 0;
+            virtual void subst(const std::map<VarName,Expr> &map) = 0;
+            virtual void alpha(const std::map<VarName,VarName> &map) = 0;
+            virtual void getFreeVars(const std::set<VarName> &boundVars, const std::set<VarName> &freeVars, std::set<VarName>& freeVarsThis) const = 0;
+            virtual void getFreeVars(const std::set<VarName> &boundVars, std::set<VarName> &accu) const = 0;
+            virtual void getAllVars(std::set<VarName> &accu) const = 0;
+            virtual void getFreeTVars(const std::set<VarName> &bv, std::set<TypedVar> &accu) const = 0;
+            virtual void substFreshId(const std::string &id, const VarName &v) = 0;
+        };
 
         std::string goalTag; // Used to describe the source of the goal of a proof obligation
         std::unique_ptr<PredDesc> desc; // content of the predicate. Never null (except if default constructor is used)
@@ -143,21 +156,6 @@ class Pred {
             goalTag{gt},
             desc{desc}
         {};
-};
-
-class Pred::PredDesc {
-    public:
-        virtual ~PredDesc(){};
-        virtual PKind tag() const = 0;
-        virtual void accept(Visitor &visitor) const = 0;
-        virtual size_t hash_combine(size_t seed) const = 0;
-        virtual void subst(const std::map<VarName,Expr> &map) = 0;
-        virtual void alpha(const std::map<VarName,VarName> &map) = 0;
-        virtual void getFreeVars(const std::set<VarName> &boundVars, const std::set<VarName> &freeVars, std::set<VarName>& freeVarsThis) const = 0;
-        virtual void getFreeVars(const std::set<VarName> &boundVars, std::set<VarName> &accu) const = 0;
-        virtual void getAllVars(std::set<VarName> &accu) const = 0;
-                virtual void getFreeTVars(const std::set<VarName> &bv, std::set<TypedVar> &accu) const = 0;
-        virtual void substFreshId(const std::string &id, const VarName &v) = 0;
 };
 
 class Pred::Visitor {

@@ -1,6 +1,6 @@
 /*
    This file is part of BAST.
-   Copyright © CLEARSY 2023
+   Copyright © CLEARSY 2023, 2024
    BAST is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
    the Free Software Foundation, either version 3 of the License, or
@@ -16,8 +16,8 @@
 #include <cassert>
 #include "gpred.h"
 
-GPred::Kind GPred::getKind() const { return ptr->getKind(); };
-void GPred::accept(Visitor &v) const { ptr->accept(v); };
+GPred::Kind GPred::getKind() const { return ptr->getKind(); }
+void GPred::accept(Visitor &v) const { ptr->accept(v); }
 const GPred::ImplicationPred& GPred::toImplication() const{
   assert(getKind() == Kind::Implication);
   return static_cast<ImplicationPred&>(*ptr);
@@ -114,18 +114,18 @@ GPred::LetFreshId& GPred::toLetFreshId() {
   assert(getKind() == Kind::LetFreshId);
   return static_cast<LetFreshId&>(*ptr);
 }
-GPred GPred::makeImplication(GPred &&lhs, GPred &&rhs){ return GPred(new ImplicationPred(std::move(lhs),std::move(rhs))); };
-GPred GPred::makeEquivalence(GPred &&lhs, GPred &&rhs){ return GPred(new EquivalencePred(std::move(lhs),std::move(rhs))); };
-GPred GPred::makeExprComparison(Pred::ComparisonOp op, Expr &&lhs, Expr &&rhs){ return GPred(new ExprComparison(op,std::move(lhs),std::move(rhs))); };
-GPred GPred::makeNegationPred(GPred &&content){ return GPred(new NegationPred(std::move(content))); };
-GPred GPred::makeConjunction(std::vector<GPred> &&content){ return GPred(new ConjunctionPred(std::move(content))); };
-GPred GPred::makeDisjunction(std::vector<GPred> &&content){ return GPred(new DisjunctionPred(std::move(content))); };
-GPred GPred::makeForall(const std::vector<TypedVar> &vars, GPred &&body){ return GPred(new ForallPred(vars,std::move(body))); };
-GPred GPred::makeExists(const std::vector<TypedVar> &vars, GPred &&body){ return GPred(new ExistsPred(vars,std::move(body))); };
-GPred GPred::makeTaggedPred(const std::string &tag, GPred &&p){ return GPred(new TaggedPred(tag,std::move(p))); };
-GPred GPred::makeSub(Subst &&subst, GPred &&pred, bool overflow){ return GPred(new Sub(std::move(subst),std::move(pred),overflow)); };
-GPred GPred::makeNotSubNot(Subst &&subst, Pred &&pred){ return GPred(new NotSubNot(std::move(subst),std::move(pred))); };
-GPred GPred::makeLetFreshId(const std::string &id, GPred &&pred){ return GPred(new LetFreshId(id,std::move(pred))); };
+GPred GPred::makeImplication(GPred &&lhs, GPred &&rhs){ return GPred(new ImplicationPred(std::move(lhs),std::move(rhs))); }
+GPred GPred::makeEquivalence(GPred &&lhs, GPred &&rhs){ return GPred(new EquivalencePred(std::move(lhs),std::move(rhs))); }
+GPred GPred::makeExprComparison(Pred::ComparisonOp op, Expr &&lhs, Expr &&rhs){ return GPred(new ExprComparison(op,std::move(lhs),std::move(rhs))); }
+GPred GPred::makeNegationPred(GPred &&content){ return GPred(new NegationPred(std::move(content))); }
+GPred GPred::makeConjunction(std::vector<GPred> &&content){ return GPred(new ConjunctionPred(std::move(content))); }
+GPred GPred::makeDisjunction(std::vector<GPred> &&content){ return GPred(new DisjunctionPred(std::move(content))); }
+GPred GPred::makeForall(const std::vector<TypedVar> &vars, GPred &&body){ return GPred(new ForallPred(vars,std::move(body))); }
+GPred GPred::makeExists(const std::vector<TypedVar> &vars, GPred &&body){ return GPred(new ExistsPred(vars,std::move(body))); }
+GPred GPred::makeTaggedPred(const std::string &tag, GPred &&p){ return GPred(new TaggedPred(tag,std::move(p))); }
+GPred GPred::makeSub(Subst &&subst, GPred &&pred, bool overflow){ return GPred(new Sub(std::move(subst),std::move(pred),overflow)); }
+GPred GPred::makeNotSubNot(Subst &&subst, Pred &&pred){ return GPred(new NotSubNot(std::move(subst),std::move(pred))); }
+GPred GPred::makeLetFreshId(const std::string &id, GPred &&pred){ return GPred(new LetFreshId(id,std::move(pred))); }
 
 size_t GPred::hash_combine(size_t seed) const {
     return hashUtil::hash_combine_int(static_cast<int>(getKind()),ptr->hash_combine(seed));

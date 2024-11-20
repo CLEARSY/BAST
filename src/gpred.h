@@ -1,6 +1,6 @@
 /*
    This file is part of BAST.
-   Copyright © CLEARSY 2023
+   Copyright © CLEARSY 2023, 2024
    BAST is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
    the Free Software Foundation, either version 3 of the License, or
@@ -106,6 +106,7 @@ public:
 private:
     class AbstractGPred {
         public:
+            virtual ~AbstractGPred() {}
             virtual Kind getKind() const = 0;
             virtual void accept(Visitor &v) const = 0;
             virtual size_t hash_combine(size_t seed) const = 0;
@@ -126,7 +127,7 @@ class GPred::ImplicationPred : public AbstractGPred {
         }
         GPred lhs;
         GPred rhs;
-        void getAllVars(std::set<VarName> &accu) const {
+        void getAllVars(std::set<VarName> &) const {
             lhs.getAllVars();
             rhs.getAllVars();
         }
@@ -145,7 +146,7 @@ class GPred::EquivalencePred : public AbstractGPred {
         }
         GPred lhs;
         GPred rhs;
-        void getAllVars(std::set<VarName> &accu) const {
+        void getAllVars(std::set<VarName> &) const {
             lhs.getAllVars();
             rhs.getAllVars();
         }
@@ -167,7 +168,7 @@ class GPred::ExprComparison : public AbstractGPred {
         const Pred::ComparisonOp op;
         Expr lhs;
         Expr rhs;
-        void getAllVars(std::set<VarName> &accu) const {
+        void getAllVars(std::set<VarName> &) const {
             lhs.getAllVars();
             rhs.getAllVars();
         }
@@ -185,7 +186,7 @@ class GPred::NegationPred : public AbstractGPred {
             return content.hash_combine(seed);
         }
         GPred content;
-        void getAllVars(std::set<VarName> &accu) const {
+        void getAllVars(std::set<VarName> &) const {
             content.getAllVars();
         }
         void substFreshId(const std::string &id, const VarName &v){

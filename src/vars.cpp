@@ -1,6 +1,6 @@
 /*
    This file is part of BAST.
-   Copyright © CLEARSY 2023
+   Copyright © CLEARSY 2023, 2024
    BAST is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
    the Free Software Foundation, either version 3 of the License, or
@@ -31,18 +31,18 @@ int mkPrefix(const std::string &s){
     }
 }
 
-const std::string &VarName::prefix() const { return prefixToString[_prefix]; };
+const std::string &VarName::prefix() const { return prefixToString[_prefix]; }
 
 static int varname_cpt = -2;
-VarName VarName::makeTmp(const std::string &p){ varname_cpt--; return VarName(p,varname_cpt); };
+VarName VarName::makeTmp(const std::string &p){ varname_cpt--; return VarName(p,varname_cpt); }
 
 size_t VarName::hash_combine(size_t seed) const {
     return hashUtil::hash_combine_int(_suffix,hashUtil::hash_combine_string(prefix(),seed));
-};
+}
 
 size_t TypedVar::hash_combine(size_t seed) const {
     return name.hash_combine(type.hash_combine(seed));
-};
+}
 
 int VarName::compare(const VarName &v1, const VarName& v2){
     int i = v1._prefix - v2._prefix;
@@ -100,6 +100,7 @@ VarName VarName::getFreshVar(const VarName &v, const std::set<VarName> &set){
             return makeTmp(v.prefix());
     };
     assert(false); // unreachable
+    return v;
 }
 
 int TypedVar::compare(const TypedVar &v1, const TypedVar& v2){

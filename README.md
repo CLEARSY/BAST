@@ -21,8 +21,8 @@ Compilation is realized with the [CMake](https://cmake.org) software build syste
 The `CMakeLists.txt` file defines the following:
 
 - The target `BAST_LIB` for the static library `libBAST.a`
-- The directory `$BAST_SOURCE_DIR` contains the library headers
-- The directory `$BAST_SOURCE_DIR` contains the static library
+- The directory `$BASTLIB_SOURCE_DIR` contains the library headers
+- The directory `$BASTLIB_SOURCE_DIR` contains the static library
 
 Assuming
 
@@ -49,5 +49,3 @@ The library has been successfully build with `MSYS2-Mingw-w64` using the followi
 pacman -S --needed --noconfirm \
     mingw-w64-ucrt-x86_64-{cmake,ninja,gcc} \
     mingw-w64-ucrt-x86_64-qt5-base \
-
-

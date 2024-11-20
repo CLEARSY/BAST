@@ -1,6 +1,6 @@
 /*
    This file is part of BAST.
-   Copyright © CLEARSY 2023
+   Copyright © CLEARSY 2023, 2024
    BAST is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
    the Free Software Foundation, either version 3 of the License, or
@@ -63,8 +63,8 @@ class Expr::IntegerLiteral : public ExprDesc {
                 for(size_t i=0;i<s.size();i++)
                     assert(isdigit(s[i]));
             }
-        };
-        ~IntegerLiteral(){};
+        }
+        ~IntegerLiteral(){}
         const std::string value;
         size_t hash_combine(size_t seed) const {
             return hashUtil::hash_combine_string(value,seed);
@@ -72,13 +72,13 @@ class Expr::IntegerLiteral : public ExprDesc {
         IntegerLiteral* copy() const {
             return new IntegerLiteral(value);
         }
-        void subst(const std::map<VarName,Expr> &map) {}
-        void alpha(const std::map<VarName,VarName> &map) {}
-        void getFreeVars(const std::set<VarName> &boundVars, const std::set<VarName> &freeVars, std::set<VarName>& freeVarsThis) const {}
-        void getFreeVars(const std::set<VarName> &boundVars, std::set<VarName> &accu) const {}
-        void getFreeTVars(const std::set<VarName> &boundVars, std::set<TypedVar> &accu, const BType &ty) const {}
-        void getAllVars(std::set<VarName> &accu) const {}
-        void substFreshId(const std::string &id, const VarName &v){}
+        void subst(const std::map<VarName,Expr> &) {}
+        void alpha(const std::map<VarName,VarName> &) {}
+        void getFreeVars(const std::set<VarName> &, const std::set<VarName> &, std::set<VarName>& ) const {}
+        void getFreeVars(const std::set<VarName> &, std::set<VarName> &) const {}
+        void getFreeTVars(const std::set<VarName> &, std::set<TypedVar> &, const BType &) const {}
+        void getAllVars(std::set<VarName> &) const {}
+        void substFreshId(const std::string &, const VarName &){}
 };
 
 class Expr::StringLiteral : public ExprDesc {
@@ -92,13 +92,13 @@ class Expr::StringLiteral : public ExprDesc {
         StringLiteral* copy() const {
             return new StringLiteral(value);
         }
-        void subst(const std::map<VarName,Expr> &map) {}
-        void alpha(const std::map<VarName,VarName> &map) {}
-        void getFreeVars(const std::set<VarName> &boundVars, const std::set<VarName> &freeVars, std::set<VarName>& freeVarsThis) const {}
-        void getFreeVars(const std::set<VarName> &boundVars, std::set<VarName> &accu) const {}
-        void getFreeTVars(const std::set<VarName> &boundVars, std::set<TypedVar> &accu, const BType &ty) const {}
-        void getAllVars(std::set<VarName> &accu) const {}
-        void substFreshId(const std::string &id, const VarName &v){}
+        void subst(const std::map<VarName,Expr> &) {}
+        void alpha(const std::map<VarName,VarName> &) {}
+        void getFreeVars(const std::set<VarName> &, const std::set<VarName> &, std::set<VarName>& ) const {}
+        void getFreeVars(const std::set<VarName> &, std::set<VarName> &) const {}
+        void getFreeTVars(const std::set<VarName> &, std::set<TypedVar> &, const BType &) const {}
+        void getAllVars(std::set<VarName> &) const {}
+        void substFreshId(const std::string &, const VarName &){}
 };
 
 class Expr::RealLiteral : public ExprDesc {
@@ -113,13 +113,13 @@ class Expr::RealLiteral : public ExprDesc {
         RealLiteral* copy() const {
             return new RealLiteral(value);
         }
-        void subst(const std::map<VarName,Expr> &map) {}
-        void alpha(const std::map<VarName,VarName> &map) {}
-        void getFreeVars(const std::set<VarName> &boundVars, const std::set<VarName> &freeVars, std::set<VarName>& freeVarsThis) const {}
-        void getFreeVars(const std::set<VarName> &boundVars, std::set<VarName> &accu) const {}
-        void getFreeTVars(const std::set<VarName> &boundVars, std::set<TypedVar> &accu, const BType &ty) const {}
-        void getAllVars(std::set<VarName> &accu) const {}
-        void substFreshId(const std::string &id, const VarName &v){}
+        void subst(const std::map<VarName,Expr> &) {}
+        void alpha(const std::map<VarName,VarName> &) {}
+        void getFreeVars(const std::set<VarName> &, const std::set<VarName> &, std::set<VarName>& ) const {}
+        void getFreeVars(const std::set<VarName> &, std::set<VarName> &) const {}
+        void getFreeTVars(const std::set<VarName> &, std::set<TypedVar> &, const BType &) const {}
+        void getAllVars(std::set<VarName> &) const {}
+        void substFreshId(const std::string &, const VarName &){}
 };
 
 class Expr::IdentExpr : public ExprDesc {
@@ -133,7 +133,7 @@ class Expr::IdentExpr : public ExprDesc {
         IdentExpr* copy() const {
             return new IdentExpr(value);
         }
-        void subst(const std::map<VarName,Expr> &map) {
+        void subst(const std::map<VarName,Expr> &) {
             assert(false); // should not be called
         }
         void alpha(const std::map<VarName,VarName> &map) {
@@ -188,7 +188,7 @@ class Expr::BooleanExpr : public Expr::ExprDesc {
         void getFreeVars(const std::set<VarName> &boundVars, std::set<VarName> &accu) const {
             pred.getFreeVars(boundVars,accu);
         }
-        void getFreeTVars(const std::set<VarName> &boundVars, std::set<TypedVar> &accu, const BType &ty) const {
+        void getFreeTVars(const std::set<VarName> &boundVars, std::set<TypedVar> &accu, const BType &) const {
             pred.getFreeTVars(boundVars,accu);
         }
         void getAllVars(std::set<VarName> &accu) const {
@@ -379,217 +379,217 @@ void Expr::accept(Visitor &visitor) const {
             }
 
     };
-};
+}
 
 const std::string& Expr::getIntegerLiteral() const {
     assert(tag == EKind::IntegerLiteral);
     return static_cast<IntegerLiteral&>(*desc).value;
-};
+}
 
 const Expr::Decimal& Expr::getRealLiteral() const {
     assert(tag == EKind::RealLiteral);
     return static_cast<RealLiteral&>(*desc).value;
-};
+}
 
 const std::string& Expr::getStringLiteral() const {
     assert(tag == EKind::StringLiteral);
     return static_cast<StringLiteral&>(*desc).value;
-};
+}
 
 const VarName& Expr::getId() const {
     assert(tag == EKind::Id);
     return static_cast<IdentExpr&>(*desc).value;
-};
+}
 
 const Expr::BinaryExpr& Expr::toBinaryExpr() const{
     assert(tag == EKind::BinaryExpr);
     return static_cast<BinaryExpr&>(*desc);
-};
+}
 
 const Expr::TernaryExpr& Expr::toTernaryExpr() const{
     assert(tag == EKind::TernaryExpr);
     return static_cast<TernaryExpr&>(*desc);
-};
+}
 
 const Expr::UnaryExpr& Expr::toUnaryExpr() const{
     assert(tag == EKind::UnaryExpr);
     return static_cast<UnaryExpr&>(*desc);
-};
+}
 
 const Expr::NaryExpr& Expr::toNaryExpr() const {
     assert(tag == EKind::NaryExpr);
     return static_cast<NaryExpr&>(*desc);
-};
+}
 
 const Pred& Expr::toBooleanExpr() const {
     assert(tag == EKind::BooleanExpr);
     return static_cast<BooleanExpr&>(*desc).pred;
-};
+}
 
 const Expr::QuantifiedSet& Expr::toQuantifiedSet() const {
     assert(tag == EKind::QuantifiedSet);
     return static_cast<QuantifiedSet&>(*desc);
-};
+}
 
 const Expr::QuantifiedExpr& Expr::toQuantiedExpr() const {
     assert(tag == EKind::QuantifiedExpr);
     return static_cast<QuantifiedExpr&>(*desc);
-};
+}
 
 const Expr::RecordExpr& Expr::toRecordExpr() const {
     assert(tag == EKind::Record);
     return static_cast<RecordExpr&>(*desc);
-};
+}
 
 const Expr::StructExpr& Expr::toStructExpr() const {
     assert(tag == EKind::Struct);
     return static_cast<StructExpr&>(*desc);
-};
+}
 
 const Expr::RecordAccessExpr& Expr::toRecordAccess() const {
     assert(tag == EKind::Record_Field_Access);
     return static_cast<RecordAccessExpr&>(*desc);
-};
+}
 
 const Expr::RecordUpdateExpr& Expr::toRecordUpdate() const {
     assert(tag == EKind::Record_Field_Update);
     return static_cast<RecordUpdateExpr&>(*desc);
-};
+}
 
 Expr::BinaryExpr& Expr::toBinaryExpr() {
     assert(tag == EKind::BinaryExpr);
     return static_cast<BinaryExpr&>(*desc);
-};
+}
 
 Expr::TernaryExpr& Expr::toTernaryExpr() {
     assert(tag == EKind::TernaryExpr);
     return static_cast<TernaryExpr&>(*desc);
-};
+}
 
 Expr::UnaryExpr& Expr::toUnaryExpr() {
     assert(tag == EKind::UnaryExpr);
     return static_cast<UnaryExpr&>(*desc);
-};
+}
 
 Expr::NaryExpr& Expr::toNaryExpr() {
     assert(tag == EKind::NaryExpr);
     return static_cast<NaryExpr&>(*desc);
-};
+}
 
 Pred& Expr::toBooleanExpr() {
     assert(tag == EKind::BooleanExpr);
     return static_cast<BooleanExpr&>(*desc).pred;
-};
+}
 
 Expr::QuantifiedSet& Expr::toQuantifiedSet() {
     assert(tag == EKind::QuantifiedSet);
     return static_cast<QuantifiedSet&>(*desc);
-};
+}
 
 Expr::QuantifiedExpr& Expr::toQuantiedExpr() {
     assert(tag == EKind::QuantifiedExpr);
     return static_cast<QuantifiedExpr&>(*desc);
-};
+}
 
 Expr::RecordExpr& Expr::toRecordExpr() {
     assert(tag == EKind::Record);
     return static_cast<RecordExpr&>(*desc);
-};
+}
 
 Expr::StructExpr& Expr::toStructExpr() {
     assert(tag == EKind::Struct);
     return static_cast<StructExpr&>(*desc);
-};
+}
 
 Expr::RecordAccessExpr& Expr::toRecordAccess() {
     assert(tag == EKind::Record_Field_Access);
     return static_cast<RecordAccessExpr&>(*desc);
-};
+}
 
 Expr::RecordUpdateExpr& Expr::toRecordUpdate() {
     assert(tag == EKind::Record_Field_Update);
     return static_cast<RecordUpdateExpr&>(*desc);
-};
+}
 
 Expr Expr::makeInteger(const std::string &i, const QStringList &bxmlTag){
     return Expr(
             EKind::IntegerLiteral,
             new IntegerLiteral(i),
             BType::INT,bxmlTag);
-};
+}
 
 Expr Expr::makeString(const std::string &s, const QStringList &bxmlTag){
     return Expr(
             EKind::StringLiteral,
             new StringLiteral(s),
             BType::STRING,bxmlTag);
-};
+}
 
 Expr Expr::makeReal(const Decimal &d, const QStringList &bxmlTag){
     return Expr(
             EKind::RealLiteral,
             new RealLiteral(d),
             BType::REAL,bxmlTag);
-};
+}
 
 Expr Expr::makeIdent(const VarName &id, const BType &type, const QStringList &bxmlTag){
     return Expr(
             EKind::Id,
             new IdentExpr(id),
             type,bxmlTag);
-};
+}
 
-Expr Expr::makePredecessor(const QStringList &bxmlTag){ return Expr(EKind::Predecessor,nullptr,BType::RELATION_INTEGER,bxmlTag); };
-Expr Expr::makeSuccessor(const QStringList &bxmlTag){ return Expr(EKind::Successor,nullptr,BType::RELATION_INTEGER,bxmlTag); };
-Expr Expr::makeEmptySet(const BType &type, const QStringList &bxmlTag){ return Expr(EKind::EmptySet,nullptr,type,bxmlTag); };
-Expr Expr::makeMaxInt(const QStringList &bxmlTag){ return Expr(EKind::MaxInt,nullptr,BType::INT,bxmlTag); };
-Expr Expr::makeMinInt(const QStringList &bxmlTag){ return Expr(EKind::MinInt,nullptr,BType::INT,bxmlTag); };
-Expr Expr::makeINTEGER(const QStringList &bxmlTag){ return Expr(EKind::INTEGER,nullptr,BType::POW_INT,bxmlTag); };
-Expr Expr::makeNATURAL(const QStringList &bxmlTag){ return Expr(EKind::NATURAL,nullptr,BType::POW_INT,bxmlTag); };
-Expr Expr::makeNATURAL1(const QStringList &bxmlTag){ return Expr(EKind::NATURAL1,nullptr,BType::POW_INT,bxmlTag); };
-Expr Expr::makeINT(const QStringList &bxmlTag){ return Expr(EKind::INT,nullptr,BType::POW_INT,bxmlTag); };
-Expr Expr::makeNAT(const QStringList &bxmlTag){ return Expr(EKind::NAT,nullptr,BType::POW_INT,bxmlTag); };
-Expr Expr::makeNAT1(const QStringList &bxmlTag){ return Expr(EKind::NAT1,nullptr,BType::POW_INT,bxmlTag); };
-Expr Expr::makeSTRING(const QStringList &bxmlTag){ return Expr(EKind::STRING,nullptr,BType::POW_STRING,bxmlTag); };
-Expr Expr::makeBOOL(const QStringList &bxmlTag){ return Expr(EKind::BOOL,nullptr,BType::POW_BOOL,bxmlTag); };
-Expr Expr::makeTRUE(const QStringList &bxmlTag){ return Expr(EKind::TRUE,nullptr,BType::BOOL,bxmlTag); };
-Expr Expr::makeFALSE(const QStringList &bxmlTag){ return Expr(EKind::FALSE,nullptr,BType::BOOL,bxmlTag); };
-Expr Expr::makeREAL(const QStringList &bxmlTag){ return Expr(EKind::REAL,nullptr,BType::POW_REAL,bxmlTag); };
-Expr Expr::makeFLOAT(const QStringList &bxmlTag){ return Expr(EKind::FLOAT,nullptr,BType::POW_FLOAT,bxmlTag); };
+Expr Expr::makePredecessor(const QStringList &bxmlTag){ return Expr(EKind::Predecessor,nullptr,BType::RELATION_INTEGER,bxmlTag); }
+Expr Expr::makeSuccessor(const QStringList &bxmlTag){ return Expr(EKind::Successor,nullptr,BType::RELATION_INTEGER,bxmlTag); }
+Expr Expr::makeEmptySet(const BType &type, const QStringList &bxmlTag){ return Expr(EKind::EmptySet,nullptr,type,bxmlTag); }
+Expr Expr::makeMaxInt(const QStringList &bxmlTag){ return Expr(EKind::MaxInt,nullptr,BType::INT,bxmlTag); }
+Expr Expr::makeMinInt(const QStringList &bxmlTag){ return Expr(EKind::MinInt,nullptr,BType::INT,bxmlTag); }
+Expr Expr::makeINTEGER(const QStringList &bxmlTag){ return Expr(EKind::INTEGER,nullptr,BType::POW_INT,bxmlTag); }
+Expr Expr::makeNATURAL(const QStringList &bxmlTag){ return Expr(EKind::NATURAL,nullptr,BType::POW_INT,bxmlTag); }
+Expr Expr::makeNATURAL1(const QStringList &bxmlTag){ return Expr(EKind::NATURAL1,nullptr,BType::POW_INT,bxmlTag); }
+Expr Expr::makeINT(const QStringList &bxmlTag){ return Expr(EKind::INT,nullptr,BType::POW_INT,bxmlTag); }
+Expr Expr::makeNAT(const QStringList &bxmlTag){ return Expr(EKind::NAT,nullptr,BType::POW_INT,bxmlTag); }
+Expr Expr::makeNAT1(const QStringList &bxmlTag){ return Expr(EKind::NAT1,nullptr,BType::POW_INT,bxmlTag); }
+Expr Expr::makeSTRING(const QStringList &bxmlTag){ return Expr(EKind::STRING,nullptr,BType::POW_STRING,bxmlTag); }
+Expr Expr::makeBOOL(const QStringList &bxmlTag){ return Expr(EKind::BOOL,nullptr,BType::POW_BOOL,bxmlTag); }
+Expr Expr::makeTRUE(const QStringList &bxmlTag){ return Expr(EKind::TRUE,nullptr,BType::BOOL,bxmlTag); }
+Expr Expr::makeFALSE(const QStringList &bxmlTag){ return Expr(EKind::FALSE,nullptr,BType::BOOL,bxmlTag); }
+Expr Expr::makeREAL(const QStringList &bxmlTag){ return Expr(EKind::REAL,nullptr,BType::POW_REAL,bxmlTag); }
+Expr Expr::makeFLOAT(const QStringList &bxmlTag){ return Expr(EKind::FLOAT,nullptr,BType::POW_FLOAT,bxmlTag); }
 
 Expr Expr::makeBinaryExpr(BinaryOp op, Expr &&lhs, Expr &&rhs, const BType &type, const QStringList &bxmlTag){
     return Expr( EKind::BinaryExpr, new BinaryExpr(op,std::move(lhs),std::move(rhs)), type,bxmlTag);
-};
+}
 Expr Expr::makeTernaryExpr(TernaryOp op, Expr &&fst, Expr &&snd, Expr &&thd, const BType &type, const QStringList &bxmlTag){
     return Expr( EKind::TernaryExpr, new TernaryExpr(op,std::move(fst),std::move(snd),std::move(thd)), type,bxmlTag);
-};
+}
 Expr Expr::makeUnaryExpr(UnaryOp op, Expr &&e, const BType &type, const QStringList &bxmlTag){
     return Expr( EKind::UnaryExpr, new UnaryExpr(op,std::move(e)), type,bxmlTag);
-};
+}
 Expr Expr::makeNaryExpr(NaryOp op, std::vector<Expr> &&vec, const BType &type, const QStringList &bxmlTag){
     return Expr( EKind::NaryExpr, new NaryExpr(op,std::move(vec)), type,bxmlTag);
-};
+}
 Expr Expr::makeBooleanExpr(Pred &&p, const QStringList &bxmlTag){
     return Expr( EKind::BooleanExpr, new BooleanExpr(std::move(p)), BType::BOOL,bxmlTag);
-};
+}
 Expr Expr::makeRecord(std::vector<std::pair<std::string,Expr>> &&fds, const BType &type, const QStringList &bxmlTag){
     return Expr( EKind::Record, new RecordExpr(std::move(fds)),type,bxmlTag);
-};
+}
 Expr Expr::makeStruct(std::vector<std::pair<std::string,Expr>> &&fds, const BType &type, const QStringList &bxmlTag){
     return Expr( EKind::Struct, new StructExpr(std::move(fds)),type,bxmlTag);
-};
+}
 Expr Expr::makeQuantifiedExpr(QuantifiedOp op,const std::vector<TypedVar> vars, Pred &&cond, Expr &&body, const BType &type, const QStringList &bxmlTag){
     return Expr( EKind::QuantifiedExpr, new QuantifiedExpr(op,vars,std::move(cond),std::move(body)),type,bxmlTag);
-};
+}
 Expr Expr::makeQuantifiedSet(const std::vector<TypedVar> vars, Pred &&cond, const BType &type, const QStringList &bxmlTag){
     return Expr( EKind::QuantifiedSet, new QuantifiedSet(vars,std::move(cond)),type,bxmlTag);
-};
+}
 Expr Expr::makeRecordFieldUpdate(Expr &&rec, const std::string &label, Expr &&value, const BType &type, const QStringList &bxmlTag){
     return Expr(EKind::Record_Field_Update, new RecordUpdateExpr(std::move(rec),label,std::move(value)) ,type,bxmlTag);
-};
+}
 Expr Expr::makeRecordFieldAccess(Expr &&rec, const std::string &label, const BType &type, const QStringList &bxmlTag){
     return Expr(EKind::Record_Field_Access, new RecordAccessExpr(std::move(rec),label) ,type,bxmlTag);
-};
+}
 
 void Expr::addBxmlTags(const QStringList &bxmlTag){
     this->bxmlTag << bxmlTag;
@@ -611,7 +611,7 @@ int compare_field_vec(const std::vector<std::pair<std::string,Expr>>& lhs, const
     } else {
         return (lhs.size() - rhs.size());
     }
-};
+}
 
 int Expr::compare(const Expr& e1, const Expr& e2){
     if(e1.getTag() == e2.getTag()){
@@ -792,7 +792,9 @@ int Expr::compare(const Expr& e1, const Expr& e2){
     } else {
         return 1;
     }
-};
+    assert(false); // unreachable
+    return 0;
+}
 
 int Expr::vec_compare(const std::vector<Expr>& lhs, const std::vector<Expr>& rhs){
     if(lhs.size() == rhs.size()){
@@ -866,7 +868,8 @@ std::string Expr::to_string(UnaryOp op){
         case UnaryOp::Bin: return "bin";
     };
     assert(false); // unreachable
-};
+    return "";
+}
 
 std::string Expr::to_string(BinaryOp op){
     switch(op){
@@ -925,7 +928,8 @@ std::string Expr::to_string(BinaryOp op){
         case BinaryOp::Arity: return "arity";
     };
     assert(false); // unreachable
-};
+    return "";
+}
 
 std::string Expr::to_string(NaryOp op){
     switch(op){
@@ -933,7 +937,8 @@ std::string Expr::to_string(NaryOp op){
         case NaryOp::Set: return "{";
     };
     assert(false); // unreachable
-};
+    return "";
+}
 
 std::string Expr::to_string(TernaryOp op){
     switch(op){
@@ -941,7 +946,8 @@ std::string Expr::to_string(TernaryOp op){
         case TernaryOp::Son: return "son";
     };
     assert(false); // unreachable
-};
+    return "";
+}
 
 std::string Expr::to_string(QuantifiedOp op){
     switch(op){
@@ -954,7 +960,8 @@ std::string Expr::to_string(QuantifiedOp op){
         case QuantifiedOp::ISum: return "iSIGMA";
     }
     assert(false); // unreachable
-};
+    return "";
+}
 
 std::string Expr::show() const {
     switch(tag){
@@ -1050,9 +1057,11 @@ std::string Expr::show() const {
                         return "(Seq" + accu + ")";
                     case Expr::NaryOp::Set:
                         return "(Set" + accu + ")";
+                    default:
+                        assert(false); // unreachable
+                        return "";
                 }
-                assert(false); // unreachable
-            }
+        }
         case EKind::BooleanExpr:
             return "(bool " + toBooleanExpr().show() + ")";
         case EKind::Struct:
@@ -1082,6 +1091,7 @@ std::string Expr::show() const {
             }
     };
     assert(false); // unreachable
+    return "";
 }
 
 void Expr::subst(const std::map<VarName,Expr> &map) {
@@ -1137,12 +1147,12 @@ void Expr::subst(const std::map<VarName,Expr> &map) {
        }
        assert(false); // unreachable
     }
-};
+}
 
 void Expr::alpha(const std::map<VarName,VarName> &map) {
     if(desc != nullptr)
         desc->alpha(map);
-};
+}
 bool Expr::isRenamingNeeded(const std::vector<TypedVar> &vars,const std::set<VarName> freeVars){
     for(auto &v : vars){
         if(freeVars.find(v.name) != freeVars.end())
@@ -1308,11 +1318,11 @@ bool Expr::alpha_equals(Context &ctx, const Expr& e1, const Expr& e2){
                         && alpha_equals(ctx,t1.rec,t2.rec);
                 }
         }
-        assert(false); // unreachable
     } else {
         return false;
     }
-
+    assert(false); // unreachable
+    return false;
 }
 
 bool Expr::alpha_equals(const Expr& e1, const Expr& e2){

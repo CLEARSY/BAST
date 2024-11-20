@@ -1,6 +1,6 @@
 /*
    This file is part of BAST.
-   Copyright © CLEARSY 2023
+   Copyright © CLEARSY 2023, 2024
    BAST is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
    the Free Software Foundation, either version 3 of the License, or
@@ -33,35 +33,35 @@ void Pred::getFreeTVars(const std::set<VarName> &boundVars, std::set<TypedVar> &
 }
 Pred Pred::makeImplication(Pred &&lhs, Pred &&rhs, const std::string &goalTag){
     return Pred(new Implication(std::move(lhs),std::move(rhs)),goalTag);
-};
+}
 Pred Pred::makeEquivalence(Pred &&lhs, Pred &&rhs, const std::string &goalTag){
     return Pred(new Equivalence(std::move(lhs),std::move(rhs)),goalTag);
-};
+}
 Pred Pred::makeExprComparison(Pred::ComparisonOp op, Expr &&lhs, Expr &&rhs, const std::string &goalTag){
     if(op == ComparisonOp::Equality){
         assert(lhs.getType() == rhs.getType());
     }
     return Pred(new ExprComparison(op,std::move(lhs),std::move(rhs)),goalTag);
-};
+}
 Pred Pred::makeNegation(Pred &&p, const std::string &goalTag){
     return Pred(new NegationPred(std::move(p)),goalTag);
-};
+}
 Pred Pred::makeConjunction(std::vector<Pred> &&vec, const std::string &goalTag){
     return Pred(new Conjunction(std::move(vec)),goalTag);
-};
+}
 Pred Pred::makeDisjunction(std::vector<Pred> &&vec, const std::string &goalTag){
     return Pred(new Disjunction(std::move(vec)),goalTag);
-};
+}
 Pred Pred::makeForall(const std::vector<TypedVar> &ids, Pred &&body, const std::string &goalTag){
     return Pred(new Forall(ids,std::move(body)),goalTag);
-};
+}
 Pred Pred::makeExists(const std::vector<TypedVar> &ids, Pred &&body, const std::string &goalTag){
     return Pred(new Exists(ids,std::move(body)),goalTag);
-};
+}
 Pred Pred::makeExistsForWitness(const std::vector<TypedVar> &ids, Pred &&body, const std::string &goalTag){
     return Pred(new Exists(ids,std::move(body),true),goalTag);
 }
-Pred Pred::makeTrue(const std::string &goalTag){  
+Pred Pred::makeTrue(const std::string &goalTag){
     return Pred(new True(),goalTag);
 }
 Pred Pred::makeFalse(const std::string &goalTag){
@@ -69,78 +69,78 @@ Pred Pred::makeFalse(const std::string &goalTag){
 }
 void Pred::accept(Visitor &visitor) const {
     desc->accept(visitor);
-};
+}
 void Pred::subst(const std::map<VarName,Expr> &map) {
     if(!map.empty())
         desc->subst(map);
-};
+}
 void Pred::alpha(const std::map<VarName,VarName> &map) {
     desc->alpha(map);
-};
+}
 const Pred::Implication& Pred::toImplication() const {
     assert(desc->tag() == PKind::Implication);
     return static_cast<Implication&>(*desc);
-};
+}
 const Pred::Equivalence& Pred::toEquivalence() const {
     assert(desc->tag() == PKind::Equivalence);
     return static_cast<Equivalence&>(*desc);
-};
+}
 const Pred::ExprComparison& Pred::toExprComparison() const {
     assert(desc->tag() == PKind::ExprComparison);
     return static_cast<ExprComparison&>(*desc);
-};
+}
 const Pred::NegationPred& Pred::toNegation() const{
     assert(desc->tag() == PKind::Negation);
     return static_cast<NegationPred&>(*desc);
-};
+}
 const Pred::Conjunction& Pred::toConjunction() const{
     assert(desc->tag() == PKind::Conjunction);
     return static_cast<Conjunction&>(*desc);
-};
+}
 const Pred::Disjunction& Pred::toDisjunction() const{
     assert(desc->tag() == PKind::Disjunction);
     return static_cast<Disjunction&>(*desc);
-};
+}
 const Pred::Forall& Pred::toForall() const{
     assert(desc->tag() == PKind::Forall);
     return static_cast<Forall&>(*desc);
-};
+}
 const Pred::Exists& Pred::toExists() const {
     assert(desc->tag() == PKind::Exists);
     return static_cast<Exists&>(*desc);
-};
+}
 Pred::Implication& Pred::toImplication() {
     assert(desc->tag() == PKind::Implication);
     return static_cast<Implication&>(*desc);
-};
+}
 Pred::Equivalence& Pred::toEquivalence() {
     assert(desc->tag() == PKind::Equivalence);
     return static_cast<Equivalence&>(*desc);
-};
+}
 Pred::ExprComparison& Pred::toExprComparison() {
     assert(desc->tag() == PKind::ExprComparison);
     return static_cast<ExprComparison&>(*desc);
-};
+}
 Pred::NegationPred& Pred::toNegation(){
     assert(desc->tag() == PKind::Negation);
     return static_cast<NegationPred&>(*desc);
-};
+}
 Pred::Conjunction& Pred::toConjunction(){
     assert(desc->tag() == PKind::Conjunction);
     return static_cast<Conjunction&>(*desc);
-};
+}
 Pred::Disjunction& Pred::toDisjunction(){
     assert(desc->tag() == PKind::Disjunction);
     return static_cast<Disjunction&>(*desc);
-};
+}
 Pred::Forall& Pred::toForall(){
     assert(desc->tag() == PKind::Forall);
     return static_cast<Forall&>(*desc);
-};
+}
 Pred::Exists& Pred::toExists(){
     assert(desc->tag() == PKind::Exists);
     return static_cast<Exists&>(*desc);
-};
+}
 
 Pred::PKind Pred::getTag() const { return desc->tag(); }
 
@@ -234,6 +234,8 @@ int Pred::compare(const Pred &p1, const Pred& p2){
     } else {
         return 1;
     }
+    assert(false); // unreachable
+    return 0;
 }
 
 int Pred::vec_compare(const std::vector<Pred> &lhs, const std::vector<Pred>& rhs){
@@ -276,7 +278,8 @@ std::string Pred::to_string(ComparisonOp op){
         case ComparisonOp::Igt: return ">i";
     }
     assert(false); // unreachable
-};
+    return "";
+}
 
 std::string Pred::show() const {
     switch(desc->tag()){
@@ -337,6 +340,7 @@ std::string Pred::show() const {
             return "bfalse";
     };
     assert(false); // unreachable
+    return "";
 }
 
 Pred Pred::copy() const {
@@ -390,6 +394,7 @@ Pred Pred::copy() const {
             return makeFalse(goalTag);
     };
     assert(false); // unreachable
+    return makeFalse(goalTag);
 }
 bool Pred::alpha_equals(Context &ctx, const Pred& p1, const Pred& p2){
     if(p1.getTag() != p2.getTag())
@@ -468,6 +473,7 @@ bool Pred::alpha_equals(Context &ctx, const Pred& p1, const Pred& p2){
             return true;
     };
     assert(false); // unreachable
+    return false;
 }
 bool Pred::alpha_equals(const Pred& p1, const Pred& p2){
     Context ctx;

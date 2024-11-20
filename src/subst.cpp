@@ -1,6 +1,6 @@
 /*
    This file is part of BAST.
-   Copyright © CLEARSY 2023
+   Copyright © CLEARSY 2023, 2024
    BAST is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
    the Free Software Foundation, either version 3 of the License, or
@@ -31,7 +31,7 @@ Subst Subst::copy() const {
 }
 class Subst::BlockSubst : public SubstDesc {
     public:
-        BlockSubst(Subst &&s):content{std::move(s)}{};
+        BlockSubst(Subst &&s):content{std::move(s)}{}
         Subst content;
         size_t hash_combine(size_t seed) const {
             return content.hash_combine(seed);
@@ -103,57 +103,57 @@ class Subst::NarySubst : public SubstDesc {
 Subst Subst::makeSkip(){ return Subst(SKind::Skip,nullptr); }
 Subst Subst::makeBlock(Subst &&s){
     return Subst(SKind::Block, new BlockSubst(std::move(s))) ;
-};
+}
 Subst Subst::makeAssert(Pred &&p, Subst &&s){
     return Subst(SKind::Assert, new AssertSubst(std::move(p),std::move(s)) );
-};
+}
 Subst Subst::makeIfThen(Pred &&cond, Subst &&s){
     return Subst(SKind::IfThen, new IfThenSubst(std::move(cond),std::move(s)) );
-};
+}
 Subst Subst::makeIfThenElse(Pred &&cond, Subst &&s_if, Subst &&s_else){
     return Subst(SKind::IfThenElse, new IfThenElseSubst(std::move(cond),std::move(s_if),std::move(s_else)) );
-};
+}
 Subst Subst::makeSimpleAssignment(const std::vector<TypedVar> &variables, std::vector<Expr> &&values){
     assert(variables.size() == values.size());
     return Subst(SKind::SimpleAssignment, new SimpleAssignmentSubst(variables,std::move(values)) );
-};
+}
 Subst Subst::makeSelect(std::vector<std::pair<Pred,Subst>> &&clauses){
     return Subst(SKind::Select, new SelectSubst(std::move(clauses)) );
-};
+}
 Subst Subst::makeSelectElse(std::vector<std::pair<Pred,Subst>> &&clauses, Subst &&els){
     return Subst(SKind::SelectElse, new SelectElseSubst(std::move(clauses),std::move(els)) );
-};
+}
 Subst Subst::makeCase(Expr &&e, std::vector<CaseChoice> &&cases){
     return Subst(SKind::Case, new CaseSubst(std::move(e),std::move(cases)) );
-};
+}
 Subst Subst::makeCaseElse(Expr &&e, std::vector<CaseChoice> &&cases, Subst &&els){
     return Subst(SKind::CaseElse, new CaseElseSubst(std::move(e),std::move(cases),std::move(els)) );
-};
+}
 Subst Subst::makeAny(const std::vector<TypedVar> &vars, Pred &&p, Subst &&body){
     return Subst(SKind::Any, new AnySubst(vars,std::move(p),std::move(body)));
-};
+}
 Subst Subst::makeOpCall(const std::string &name, std::vector<Expr> &&input, const std::vector<TypedVar> &output,
         const std::vector<TypedVar> &op_input, const std::vector<TypedVar> &op_output, Pred &&op_precondition, Subst &&op_body){
     assert(input.size() == op_input.size());
     assert(output.size() == op_output.size());
     return Subst(SKind::OperationCall,
             new OpCallSubst(name,std::move(input),output,op_input,op_output,std::move(op_precondition),std::move(op_body))) ;
-};
+}
 Subst Subst::makeWhile(Pred &&cond, Subst &&body, Pred &&inv, Expr &&var){
     return Subst(SKind::While, new WhileSubst(std::move(cond),std::move(body),std::move(inv),std::move(var)) );
-};
+}
 Subst Subst::makeWitness(std::map<std::string,Expr> &&witnesses, Subst &&body){
     return Subst(SKind::Witness, new WitnessSubst(std::move(witnesses),std::move(body)) );
-};
+}
 Subst Subst::makeSequence(std::vector<Subst> &&vec){
     return Subst(SKind::Sequence, new NarySubst(std::move(vec)) );
-};
+}
 Subst Subst::makeParallel(std::vector<Subst> &&vec){
     return Subst(SKind::Parallel, new NarySubst(std::move(vec)) );
-};
+}
 Subst Subst::makeChoice(std::vector<Subst> &&vec){
     return Subst(SKind::Choice, new NarySubst(std::move(vec)) );
-};
+}
 void Subst::accept(Visitor &visitor) const {
     switch(tag){
         case Subst::SKind::Any:
@@ -258,136 +258,136 @@ void Subst::accept(Visitor &visitor) const {
                 break;
             }
     };
-};
+}
 const Subst& Subst::toBlock() const {
     assert(tag == SKind::Block);
     return static_cast<BlockSubst&>(*desc).content;
-};
+}
 const Subst::AssertSubst& Subst::toAssert() const {
     assert(tag == SKind::Assert);
     return static_cast<AssertSubst&>(*desc);
-};
+}
 const Subst::IfThenSubst& Subst::toIfThen() const {
     assert(tag == SKind::IfThen);
     return static_cast<IfThenSubst&>(*desc);
-};
+}
 const Subst::IfThenElseSubst& Subst::toIfThenElse() const {
     assert(tag == SKind::IfThenElse);
     return static_cast<IfThenElseSubst&>(*desc);
-};
+}
 const Subst::SimpleAssignmentSubst& Subst::toSimpleAssignment() const {
     assert(tag == SKind::SimpleAssignment);
     return static_cast<SimpleAssignmentSubst&>(*desc);
-};
+}
 const Subst::SelectSubst& Subst::toSelect() const {
     assert(tag == SKind::Select);
     return static_cast<SelectSubst&>(*desc);
-};
+}
 const Subst::SelectElseSubst& Subst::toSelectElse() const {
     assert(tag == SKind::SelectElse);
     return static_cast<SelectElseSubst&>(*desc);
-};
+}
 const Subst::CaseSubst& Subst::toCase() const {
     assert(tag == SKind::Case);
     return static_cast<CaseSubst&>(*desc);
-};
+}
 const Subst::CaseElseSubst& Subst::toCaseElse() const {
     assert(tag == SKind::CaseElse);
     return static_cast<CaseElseSubst&>(*desc);
-};
+}
 const Subst::AnySubst& Subst::toAny() const {
     assert(tag == SKind::Any);
     return static_cast<AnySubst&>(*desc);
-};
+}
 const Subst::OpCallSubst& Subst::toOpCall() const {
     assert(tag == SKind::OperationCall);
     return static_cast<OpCallSubst&>(*desc);
-};
+}
 const Subst::WhileSubst& Subst::toWhile() const {
     assert(tag == SKind::While);
     return static_cast<WhileSubst&>(*desc);
-};
+}
 const std::vector<Subst>& Subst::toSequence() const {
     assert(tag == SKind::Sequence);
     return static_cast<NarySubst&>(*desc).content;
-};
+}
 const std::vector<Subst>& Subst::toParallel() const {
     assert(tag == SKind::Parallel);
     return static_cast<NarySubst&>(*desc).content;
-};
+}
 const std::vector<Subst>& Subst::toChoice() const {
     assert(tag == SKind::Choice);
     return static_cast<NarySubst&>(*desc).content;
-};
+}
 const Subst::WitnessSubst& Subst::toWitness() const {
     assert(tag == SKind::Witness);
     return static_cast<WitnessSubst&>(*desc);
-};
+}
 
 Subst& Subst::toBlock() {
     assert(tag == SKind::Block);
     return static_cast<BlockSubst&>(*desc).content;
-};
+}
 Subst::AssertSubst& Subst::toAssert() {
     assert(tag == SKind::Assert);
     return static_cast<AssertSubst&>(*desc);
-};
+}
 Subst::IfThenSubst& Subst::toIfThen() {
     assert(tag == SKind::IfThen);
     return static_cast<IfThenSubst&>(*desc);
-};
+}
 Subst::IfThenElseSubst& Subst::toIfThenElse() {
     assert(tag == SKind::IfThenElse);
     return static_cast<IfThenElseSubst&>(*desc);
-};
+}
 Subst::SimpleAssignmentSubst& Subst::toSimpleAssignment() {
     assert(tag == SKind::SimpleAssignment);
     return static_cast<SimpleAssignmentSubst&>(*desc);
-};
+}
 Subst::SelectSubst& Subst::toSelect() {
     assert(tag == SKind::Select);
     return static_cast<SelectSubst&>(*desc);
-};
+}
 Subst::SelectElseSubst& Subst::toSelectElse() {
     assert(tag == SKind::SelectElse);
     return static_cast<SelectElseSubst&>(*desc);
-};
+}
 Subst::CaseSubst& Subst::toCase() {
     assert(tag == SKind::Case);
     return static_cast<CaseSubst&>(*desc);
-};
+}
 Subst::CaseElseSubst& Subst::toCaseElse() {
     assert(tag == SKind::CaseElse);
     return static_cast<CaseElseSubst&>(*desc);
-};
+}
 Subst::AnySubst& Subst::toAny() {
     assert(tag == SKind::Any);
     return static_cast<AnySubst&>(*desc);
-};
+}
 Subst::OpCallSubst& Subst::toOpCall() {
     assert(tag == SKind::OperationCall);
     return static_cast<OpCallSubst&>(*desc);
-};
+}
 Subst::WhileSubst& Subst::toWhile() {
     assert(tag == SKind::While);
     return static_cast<WhileSubst&>(*desc);
-};
+}
 std::vector<Subst>& Subst::toSequence() {
     assert(tag == SKind::Sequence);
     return static_cast<NarySubst&>(*desc).content;
-};
+}
 std::vector<Subst>& Subst::toParallel() {
     assert(tag == SKind::Parallel);
     return static_cast<NarySubst&>(*desc).content;
-};
+}
 std::vector<Subst>& Subst::toChoice() {
     assert(tag == SKind::Choice);
     return static_cast<NarySubst&>(*desc).content;
-};
+}
 Subst::WitnessSubst& Subst::toWitness() {
     assert(tag == SKind::Witness);
     return static_cast<WitnessSubst&>(*desc);
-};
+}
 
 void Subst::getFreeVars(const std::set<VarName> &boundVars, std::set<VarName> &accu) const {
     if(desc != nullptr)
@@ -409,7 +409,7 @@ std::map<VarName,Expr> Subst::SimpleAssignmentSubst::toMap() const {
     for(size_t i = 0;i<vars.size();i++)
         map[vars.at(i).name] = exprs.at(i).copy();
     return map;
-};
+}
 
 size_t Subst::hash_combine(size_t seed) const {
     if(desc != nullptr)

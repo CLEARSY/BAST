@@ -1,6 +1,6 @@
 /*
    This file is part of BAST.
-   Copyright © CLEARSY 2023
+   Copyright © CLEARSY 2023, 2024
    BAST is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
    the Free Software Foundation, either version 3 of the License, or
@@ -111,8 +111,8 @@ namespace Xml {
                                 (Pred::ComparisonOp::Equality,
                                  readExpression(fst,typeInfos),
                                  readExpression(snd,typeInfos)));
-                        throw GPredReaderException
-                            ("Unknown comparison operator '" + op.toStdString() + "'.");
+                    throw GPredReaderException
+                        ("Unknown comparison operator '" + op.toStdString() + "'.");
 
                 }
             case GPred::Kind::Forall:
@@ -182,5 +182,7 @@ namespace Xml {
                 }
         };
         assert(false); // unreachable
-    };
+        throw GPredReaderException
+            ("Unreachable code executed");
+    }
 }
