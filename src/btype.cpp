@@ -1,7 +1,7 @@
 
 /*
    This file is part of BAST.
-   Copyright © CLEARSY 2023, 2024
+   Copyright © CLEARSY 2022-2025
    BAST is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
    the Free Software Foundation, either version 3 of the License, or
@@ -37,11 +37,7 @@ void BType::accept(Visitor &v) const {
             v.visitSTRING();
             break;
         case Kind::AbstractSet:
-            v.visitAbstractSet();
-            break;
         case Kind::EnumeratedSet:
-            v.visitEnumeratedSet();
-            break;
         case Kind::ProductType:
         case Kind::PowerType:
         case Kind::Struct:
@@ -86,7 +82,7 @@ const BType BType::POW_FLOAT = POW(FLOAT);
 const BType BType::POW_STRING = POW(STRING);
 const BType BType::POW_REAL = POW(REAL);
 
-const BType BType::RELATION_INTEGER = POW(PROD(INT, INT));
+const BType BType::RELATION_INTEGER = POW(PROD(INT, INT)); // type of functions succ and pred
 
 BType BType::PROD(const BType &lhs,const BType &rhs){
     return BType(Kind::ProductType,std::make_shared<ProductType>(ProductType(lhs,rhs)));

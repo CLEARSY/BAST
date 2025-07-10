@@ -1,6 +1,6 @@
 /*
    This file is part of BAST.
-   Copyright © CLEARSY 2023, 2024
+   Copyright © CLEARSY 2022-2025
    BAST is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
    the Free Software Foundation, either version 3 of the License, or
@@ -22,6 +22,11 @@
 #include <vector>
 #include "hash.h"
 
+/**
+ * @brief Abstract class to represent B data types
+ *
+ * @todo Add data types for deferred sets and enumerations.
+*/
 class BType {
 public:
     enum class Kind { INTEGER, BOOLEAN, FLOAT, REAL, STRING, ProductType, PowerType, Struct, AbstractSet, EnumeratedSet };
@@ -46,11 +51,11 @@ public:
         virtual void visitFLOAT() = 0;
         virtual void visitREAL() = 0;
         virtual void visitSTRING() = 0;
-        virtual void visitAbstractSet() = 0;
-        virtual void visitEnumeratedSet() = 0;
         virtual void visitProductType(const BType &lhs, const BType &rhs) = 0;
         virtual void visitPowerType(const BType &ty) = 0;
         virtual void visitRecordType(const std::vector<std::pair<std::string,BType>> &fields) = 0;
+        virtual void visitAbstractSet(const BType::AbstractSet &type) = 0;
+        virtual void visitEnumeratedSet(const BType::EnumeratedSet &type) = 0;
     };
     void accept(Visitor &v) const;
 
@@ -66,7 +71,7 @@ public:
     static const BType POW_STRING;
     static const BType POW_REAL;
 
-  /** @brief the type for succ and pred */
+    /** @brief the type for succ and pred */
     static const BType RELATION_INTEGER;
 
     static BType PROD(const BType &lhs, const BType &rhs);
@@ -93,9 +98,9 @@ public:
 private:
     class AbstractBType {
         public:
-            virtual ~AbstractBType() {}
             virtual void accept(Visitor &v) const = 0;
             virtual size_t hash_combine(size_t seed) const = 0;
+            virtual ~AbstractBType() = default;
     };
     Kind kind;
     std::shared_ptr<AbstractBType> ptr;
@@ -109,22 +114,27 @@ private:
 class BType::ProductType : public AbstractBType {
     public:
         ProductType(const BType &lhs, const BType &rhs):lhs{lhs}, rhs{rhs}{};
-        void accept(Visitor &v) const { v.visitProductType(lhs,rhs); }
+        virtual ~ProductType() = default;
 
-        size_t hash_combine(size_t seed) const {
+        void accept(Visitor &v) const override { v.visitProductType(lhs,rhs); }
+        size_t hash_combine(size_t seed) const override {
             return lhs.hash_combine(rhs.hash_combine(seed));
         }
+
         const BType lhs;
         const BType rhs;
 };
+
 class BType::PowerType : public AbstractBType {
     public:
         PowerType(const BType &content):content{content}{};
+        virtual ~PowerType() = default;
 
-        size_t hash_combine(size_t seed) const {
+        void accept(Visitor &v) const override { v.visitPowerType(content); }
+        size_t hash_combine(size_t seed) const override {
             return content.hash_combine(seed);
         }
-        void accept(Visitor &v) const { v.visitPowerType(content); }
+
         const BType content;
 };
 class BType::AbstractSet : public AbstractBType {
@@ -134,7 +144,7 @@ class BType::AbstractSet : public AbstractBType {
         size_t hash_combine(size_t seed) const {
             return (BType::INT.hash_combine(seed));
         }
-        void accept(Visitor &v) const { v.visitAbstractSet(); }
+        void accept(Visitor &v) const { v.visitAbstractSet(*this); }
         const std::string& getName() const { return name ; }
         const std::string name;
 };
@@ -145,7 +155,7 @@ class BType::EnumeratedSet : public AbstractSet {
         size_t hash_combine(size_t seed) const {
             return (BType::INT.hash_combine(seed));
         }
-        void accept(Visitor &v) const { v.visitEnumeratedSet(); }
+        void accept(Visitor &v) const { v.visitEnumeratedSet(*this); }
 
         const std::string& getName() const { return values.first; }
         const std::vector<std::string>& getContent() const { return values.second; }
@@ -156,8 +166,10 @@ class BType::RecordType : public AbstractBType {
     public:
         RecordType(const std::vector<std::pair<std::string,BType>> &fields):
             fields{sort(fields)}{ };
+        virtual ~RecordType() = default;
 
-        size_t hash_combine(size_t seed) const {
+        void accept(Visitor &v) const override { v.visitRecordType(fields); }
+        size_t hash_combine(size_t seed) const override {
             size_t res = seed;
             for(auto &p : fields)
                 res = hashUtil::hash_combine_string(
@@ -166,8 +178,6 @@ class BType::RecordType : public AbstractBType {
             return res;
         }
 
-        void accept(Visitor &v) const { v.visitRecordType(fields); }
-        //
         const std::vector<std::pair<std::string,BType>> fields; // invariant: fields are sorted alphabetically
     private:
         std::vector<std::pair<std::string,BType>> sort(const std::vector<std::pair<std::string,BType>> &fields);

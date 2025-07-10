@@ -1,6 +1,6 @@
 /*
    This file is part of BAST.
-   Copyright © CLEARSY 2023
+   Copyright © CLEARSY 2022-2023
    BAST is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
    the Free Software Foundation, either version 3 of the License, or
@@ -18,7 +18,7 @@
 
 #include "pred.h"
 #include "btype.h"
-#include<QDomElement>
+#include "tinyxml2.h"
 
 namespace Xml {
     class PredReaderException : public std::exception
@@ -33,7 +33,7 @@ namespace Xml {
 
     extern const std::map<std::string, Pred::ComparisonOp> comparisonOp; // declared and initialized in predReader.cpp - also used in gpredReader.cpp
 
-    Pred readPredicate(const QDomElement &dom, const std::vector<BType> &typeInfos);
+    Pred readPredicate(const tinyxml2::XMLElement *dom, const std::vector<BType> &typeInfos);
 }
 
 #endif // PREDREADER_H

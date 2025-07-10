@@ -1,6 +1,6 @@
 /*
    This file is part of BAST.
-   Copyright © CLEARSY 2023, 2024
+   Copyright © CLEARSY 2022-2025
    BAST is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
    the Free Software Foundation, either version 3 of the License, or
@@ -511,94 +511,110 @@ Expr::RecordUpdateExpr& Expr::toRecordUpdate() {
     return static_cast<RecordUpdateExpr&>(*desc);
 }
 
-Expr Expr::makeInteger(const std::string &i, const QStringList &bxmlTag){
+Expr Expr::makeInteger(const std::string &i, const std::vector<std::string> &bxmlTag){
     return Expr(
             EKind::IntegerLiteral,
             new IntegerLiteral(i),
             BType::INT,bxmlTag);
 }
 
-Expr Expr::makeString(const std::string &s, const QStringList &bxmlTag){
+Expr Expr::makeString(const std::string &s, const std::vector<std::string> &bxmlTag){
     return Expr(
             EKind::StringLiteral,
             new StringLiteral(s),
             BType::STRING,bxmlTag);
-}
+};
 
-Expr Expr::makeReal(const Decimal &d, const QStringList &bxmlTag){
+Expr Expr::makeReal(const Decimal &d, const std::vector<std::string> &bxmlTag){
     return Expr(
             EKind::RealLiteral,
             new RealLiteral(d),
             BType::REAL,bxmlTag);
-}
+};
 
-Expr Expr::makeIdent(const VarName &id, const BType &type, const QStringList &bxmlTag){
+Expr Expr::makeIdent(const VarName &id, const BType &type, const std::vector<std::string> &bxmlTag){
     return Expr(
             EKind::Id,
             new IdentExpr(id),
             type,bxmlTag);
 }
 
-Expr Expr::makePredecessor(const QStringList &bxmlTag){ return Expr(EKind::Predecessor,nullptr,BType::RELATION_INTEGER,bxmlTag); }
-Expr Expr::makeSuccessor(const QStringList &bxmlTag){ return Expr(EKind::Successor,nullptr,BType::RELATION_INTEGER,bxmlTag); }
-Expr Expr::makeEmptySet(const BType &type, const QStringList &bxmlTag){ return Expr(EKind::EmptySet,nullptr,type,bxmlTag); }
-Expr Expr::makeMaxInt(const QStringList &bxmlTag){ return Expr(EKind::MaxInt,nullptr,BType::INT,bxmlTag); }
-Expr Expr::makeMinInt(const QStringList &bxmlTag){ return Expr(EKind::MinInt,nullptr,BType::INT,bxmlTag); }
-Expr Expr::makeINTEGER(const QStringList &bxmlTag){ return Expr(EKind::INTEGER,nullptr,BType::POW_INT,bxmlTag); }
-Expr Expr::makeNATURAL(const QStringList &bxmlTag){ return Expr(EKind::NATURAL,nullptr,BType::POW_INT,bxmlTag); }
-Expr Expr::makeNATURAL1(const QStringList &bxmlTag){ return Expr(EKind::NATURAL1,nullptr,BType::POW_INT,bxmlTag); }
-Expr Expr::makeINT(const QStringList &bxmlTag){ return Expr(EKind::INT,nullptr,BType::POW_INT,bxmlTag); }
-Expr Expr::makeNAT(const QStringList &bxmlTag){ return Expr(EKind::NAT,nullptr,BType::POW_INT,bxmlTag); }
-Expr Expr::makeNAT1(const QStringList &bxmlTag){ return Expr(EKind::NAT1,nullptr,BType::POW_INT,bxmlTag); }
-Expr Expr::makeSTRING(const QStringList &bxmlTag){ return Expr(EKind::STRING,nullptr,BType::POW_STRING,bxmlTag); }
-Expr Expr::makeBOOL(const QStringList &bxmlTag){ return Expr(EKind::BOOL,nullptr,BType::POW_BOOL,bxmlTag); }
-Expr Expr::makeTRUE(const QStringList &bxmlTag){ return Expr(EKind::TRUE,nullptr,BType::BOOL,bxmlTag); }
-Expr Expr::makeFALSE(const QStringList &bxmlTag){ return Expr(EKind::FALSE,nullptr,BType::BOOL,bxmlTag); }
-Expr Expr::makeREAL(const QStringList &bxmlTag){ return Expr(EKind::REAL,nullptr,BType::POW_REAL,bxmlTag); }
-Expr Expr::makeFLOAT(const QStringList &bxmlTag){ return Expr(EKind::FLOAT,nullptr,BType::POW_FLOAT,bxmlTag); }
+Expr Expr::makePredecessor(const std::vector<std::string> &bxmlTag){ return Expr(EKind::Predecessor,nullptr,BType::RELATION_INTEGER,bxmlTag); };
+Expr Expr::makeSuccessor(const std::vector<std::string> &bxmlTag){ return Expr(EKind::Successor,nullptr,BType::RELATION_INTEGER,bxmlTag); };
+Expr Expr::makeEmptySet(const BType &type, const std::vector<std::string> &bxmlTag){ return Expr(EKind::EmptySet,nullptr,type,bxmlTag); };
+Expr Expr::makeMaxInt(const std::vector<std::string> &bxmlTag){ return Expr(EKind::MaxInt,nullptr,BType::INT,bxmlTag); };
+Expr Expr::makeMinInt(const std::vector<std::string> &bxmlTag){ return Expr(EKind::MinInt,nullptr,BType::INT,bxmlTag); };
+Expr Expr::makeINTEGER(const std::vector<std::string> &bxmlTag){ return Expr(EKind::INTEGER,nullptr,BType::POW_INT,bxmlTag); };
+Expr Expr::makeNATURAL(const std::vector<std::string> &bxmlTag){ return Expr(EKind::NATURAL,nullptr,BType::POW_INT,bxmlTag); };
+Expr Expr::makeNATURAL1(const std::vector<std::string> &bxmlTag){ return Expr(EKind::NATURAL1,nullptr,BType::POW_INT,bxmlTag); };
+Expr Expr::makeINT(const std::vector<std::string> &bxmlTag){ return Expr(EKind::INT,nullptr,BType::POW_INT,bxmlTag); };
+Expr Expr::makeNAT(const std::vector<std::string> &bxmlTag){ return Expr(EKind::NAT,nullptr,BType::POW_INT,bxmlTag); };
+Expr Expr::makeNAT1(const std::vector<std::string> &bxmlTag){ return Expr(EKind::NAT1,nullptr,BType::POW_INT,bxmlTag); };
+Expr Expr::makeSTRING(const std::vector<std::string> &bxmlTag){ return Expr(EKind::STRING,nullptr,BType::POW_STRING,bxmlTag); };
+Expr Expr::makeBOOL(const std::vector<std::string> &bxmlTag){ return Expr(EKind::BOOL,nullptr,BType::POW_BOOL,bxmlTag); };
+Expr Expr::makeTRUE(const std::vector<std::string> &bxmlTag){ return Expr(EKind::TRUE,nullptr,BType::BOOL,bxmlTag); };
+Expr Expr::makeFALSE(const std::vector<std::string> &bxmlTag){ return Expr(EKind::FALSE,nullptr,BType::BOOL,bxmlTag); };
+Expr Expr::makeREAL(const std::vector<std::string> &bxmlTag){ return Expr(EKind::REAL,nullptr,BType::POW_REAL,bxmlTag); };
+Expr Expr::makeFLOAT(const std::vector<std::string> &bxmlTag){ return Expr(EKind::FLOAT,nullptr,BType::POW_FLOAT,bxmlTag); };
 
-Expr Expr::makeBinaryExpr(BinaryOp op, Expr &&lhs, Expr &&rhs, const BType &type, const QStringList &bxmlTag){
+Expr Expr::makeBinaryExpr(BinaryOp op, Expr &&lhs, Expr &&rhs, const BType &type, const std::vector<std::string> &bxmlTag){
     return Expr( EKind::BinaryExpr, new BinaryExpr(op,std::move(lhs),std::move(rhs)), type,bxmlTag);
 }
-Expr Expr::makeTernaryExpr(TernaryOp op, Expr &&fst, Expr &&snd, Expr &&thd, const BType &type, const QStringList &bxmlTag){
+
+Expr Expr::makeTernaryExpr(TernaryOp op, Expr &&fst, Expr &&snd, Expr &&thd, const BType &type, const std::vector<std::string> &bxmlTag){
     return Expr( EKind::TernaryExpr, new TernaryExpr(op,std::move(fst),std::move(snd),std::move(thd)), type,bxmlTag);
 }
-Expr Expr::makeUnaryExpr(UnaryOp op, Expr &&e, const BType &type, const QStringList &bxmlTag){
+
+Expr Expr::makeUnaryExpr(UnaryOp op, Expr &&e, const BType &type, const std::vector<std::string> &bxmlTag){
     return Expr( EKind::UnaryExpr, new UnaryExpr(op,std::move(e)), type,bxmlTag);
 }
-Expr Expr::makeNaryExpr(NaryOp op, std::vector<Expr> &&vec, const BType &type, const QStringList &bxmlTag){
+
+Expr Expr::makeNaryExpr(NaryOp op, std::vector<Expr> &&vec, const BType &type, const std::vector<std::string> &bxmlTag){
     return Expr( EKind::NaryExpr, new NaryExpr(op,std::move(vec)), type,bxmlTag);
 }
-Expr Expr::makeBooleanExpr(Pred &&p, const QStringList &bxmlTag){
+
+Expr Expr::makeBooleanExpr(Pred &&p, const std::vector<std::string> &bxmlTag){
     return Expr( EKind::BooleanExpr, new BooleanExpr(std::move(p)), BType::BOOL,bxmlTag);
 }
-Expr Expr::makeRecord(std::vector<std::pair<std::string,Expr>> &&fds, const BType &type, const QStringList &bxmlTag){
+
+Expr Expr::makeRecord(std::vector<std::pair<std::string,Expr>> &&fds, const BType &type, const std::vector<std::string> &bxmlTag){
     return Expr( EKind::Record, new RecordExpr(std::move(fds)),type,bxmlTag);
 }
-Expr Expr::makeStruct(std::vector<std::pair<std::string,Expr>> &&fds, const BType &type, const QStringList &bxmlTag){
+
+Expr Expr::makeStruct(std::vector<std::pair<std::string,Expr>> &&fds, const BType &type, const std::vector<std::string> &bxmlTag){
     return Expr( EKind::Struct, new StructExpr(std::move(fds)),type,bxmlTag);
 }
-Expr Expr::makeQuantifiedExpr(QuantifiedOp op,const std::vector<TypedVar> vars, Pred &&cond, Expr &&body, const BType &type, const QStringList &bxmlTag){
+
+Expr
+Expr::makeQuantifiedExpr
+(QuantifiedOp op,
+ const std::vector<TypedVar> vars,
+ Pred &&cond, Expr &&body,
+ const BType &type,
+ const std::vector<std::string> &bxmlTag){
     return Expr( EKind::QuantifiedExpr, new QuantifiedExpr(op,vars,std::move(cond),std::move(body)),type,bxmlTag);
 }
-Expr Expr::makeQuantifiedSet(const std::vector<TypedVar> vars, Pred &&cond, const BType &type, const QStringList &bxmlTag){
+
+Expr Expr::makeQuantifiedSet(const std::vector<TypedVar> vars, Pred &&cond, const BType &type, const std::vector<std::string> &bxmlTag){
     return Expr( EKind::QuantifiedSet, new QuantifiedSet(vars,std::move(cond)),type,bxmlTag);
 }
-Expr Expr::makeRecordFieldUpdate(Expr &&rec, const std::string &label, Expr &&value, const BType &type, const QStringList &bxmlTag){
+
+Expr Expr::makeRecordFieldUpdate(Expr &&rec, const std::string &label, Expr &&value, const BType &type, const std::vector<std::string> &bxmlTag){
     return Expr(EKind::Record_Field_Update, new RecordUpdateExpr(std::move(rec),label,std::move(value)) ,type,bxmlTag);
 }
-Expr Expr::makeRecordFieldAccess(Expr &&rec, const std::string &label, const BType &type, const QStringList &bxmlTag){
+
+Expr Expr::makeRecordFieldAccess(Expr &&rec, const std::string &label, const BType &type, const std::vector<std::string> &bxmlTag){
     return Expr(EKind::Record_Field_Access, new RecordAccessExpr(std::move(rec),label) ,type,bxmlTag);
 }
 
-void Expr::addBxmlTags(const QStringList &bxmlTag){
-    this->bxmlTag << bxmlTag;
+void Expr::addBxmlTags(const std::vector<std::string> &bxmlTag){
+    this->bxmlTag.insert(this->bxmlTag.end(),bxmlTag.begin(),bxmlTag.end());
 }
 
 int compare_field_vec(const std::vector<std::pair<std::string,Expr>>& lhs, const std::vector<std::pair<std::string,Expr>>& rhs){
     if(lhs.size() == rhs.size()){
-        size_t i = 0;
-        while(i<lhs.size()){
+        int i = 0;
+        while(i < lhs.size()){
             auto &p1 = lhs.at(i);
             auto &p2 = rhs.at(i);
             int res = p1.first.compare(p2.first);
@@ -798,7 +814,7 @@ int Expr::compare(const Expr& e1, const Expr& e2){
 
 int Expr::vec_compare(const std::vector<Expr>& lhs, const std::vector<Expr>& rhs){
     if(lhs.size() == rhs.size()){
-        size_t i = 0;
+        int i = 0;
         while(i<lhs.size()){
             int res = compare(lhs.at(i),rhs.at(i));
             if(res != 0) return res;
@@ -868,8 +884,7 @@ std::string Expr::to_string(UnaryOp op){
         case UnaryOp::Bin: return "bin";
     };
     assert(false); // unreachable
-    return "";
-}
+};
 
 std::string Expr::to_string(BinaryOp op){
     switch(op){
@@ -1015,7 +1030,7 @@ std::string Expr::show() const {
                 auto& q = toQuantifiedSet();
                 assert(q.vars.size()>0);
                 auto vars = q.vars[0].name.show();
-                for(size_t i=1;i<q.vars.size();++i)
+                for(int i=1;i<q.vars.size();++i)
                     vars += " " + q.vars[i].name.show();
                 return "(QSet (" + vars + ") " + q.cond.show() + ")";
             }
@@ -1024,7 +1039,7 @@ std::string Expr::show() const {
                 auto& q = toQuantiedExpr();
                 assert(q.vars.size()>0);
                 auto vars = q.vars[0].name.show();
-                for(size_t i=1;i<q.vars.size();++i)
+                for(int i=1;i<q.vars.size();++i)
                     vars += " " + q.vars[i].name.show();
                 return "(" + to_string(q.op) + " (" + vars + ") "
                     + q.cond.show() + " " + q.body.show() + ")";
@@ -1057,11 +1072,9 @@ std::string Expr::show() const {
                         return "(Seq" + accu + ")";
                     case Expr::NaryOp::Set:
                         return "(Set" + accu + ")";
-                    default:
-                        assert(false); // unreachable
-                        return "";
                 }
-        }
+                assert(false); // unreachable
+            }
         case EKind::BooleanExpr:
             return "(bool " + toBooleanExpr().show() + ")";
         case EKind::Struct:
@@ -1124,7 +1137,7 @@ void Expr::subst(const std::map<VarName,Expr> &map) {
                    if(it != map.end()){
                        tag = it->second.tag;
                        //type = it->second.type;
-                       bxmlTag << it->second.bxmlTag;
+                       bxmlTag.insert(bxmlTag.end(), it->second.bxmlTag.begin(), it->second.bxmlTag.end());
                        if(it->second.desc != nullptr)
                            desc = std::unique_ptr<ExprDesc>(it->second.desc->copy());
                        else

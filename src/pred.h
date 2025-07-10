@@ -1,6 +1,6 @@
 /*
    This file is part of BAST.
-   Copyright © CLEARSY 2023
+   Copyright © CLEARSY 2022-2025
    BAST is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
    the Free Software Foundation, either version 3 of the License, or
@@ -55,8 +55,8 @@ class Pred {
         static Pred makeDisjunction(std::vector<Pred> &&vec, const std::string &goalTag = "");
         static Pred makeForall(const std::vector<TypedVar> &ids, Pred &&body, const std::string &goalTag = "");
         static Pred makeExists(const std::vector<TypedVar> &ids, Pred &&body, const std::string &goalTag = "");
-        static Pred makeTrue(const std::string &goalTag = ""); 
-        static Pred makeFalse(const std::string &goalTag = ""); 
+        static Pred makeTrue(const std::string &goalTag = "");
+        static Pred makeFalse(const std::string &goalTag = "");
 
         static Pred makeExistsForWitness(const std::vector<TypedVar> &ids, Pred &&body, const std::string &goalTag = "");
 

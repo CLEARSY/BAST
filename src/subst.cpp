@@ -1,6 +1,6 @@
 /*
    This file is part of BAST.
-   Copyright © CLEARSY 2023, 2024
+   Copyright © CLEARSY 2023-2025
    BAST is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
    the Free Software Foundation, either version 3 of the License, or
@@ -31,7 +31,7 @@ Subst Subst::copy() const {
 }
 class Subst::BlockSubst : public SubstDesc {
     public:
-        BlockSubst(Subst &&s):content{std::move(s)}{}
+        BlockSubst(Subst &&s):content{std::move(s)}{};
         Subst content;
         size_t hash_combine(size_t seed) const {
             return content.hash_combine(seed);
@@ -406,7 +406,7 @@ void Subst::getModifiedVars(const std::set<VarName> &boundVars, std::set<TypedVa
 std::map<VarName,Expr> Subst::SimpleAssignmentSubst::toMap() const {
     assert(vars.size() == exprs.size());
     std::map<VarName,Expr> map;
-    for(size_t i = 0;i<vars.size();i++)
+    for(int i = 0;i<vars.size();i++)
         map[vars.at(i).name] = exprs.at(i).copy();
     return map;
 }

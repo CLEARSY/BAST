@@ -1,4 +1,5 @@
-project(BASTLIB)
+cmake_minimum_required(VERSION 3.15)
+project(LIBBAST)
 
 if (MSVC)
     # warning level 4
@@ -17,59 +18,54 @@ set(BAST_HEADERS
     exprDesc.h
     predDesc.h
     subst.h
+    btypeReader.h
     exprReader.h
     predReader.h
     gpredReader.h
     substReader.h
     exprWriter.h
     predWriter.h
+    btypeXmlWriter.h
+    btypePrinter.h
+    exprPrinter.h
+    predPrinter.h
     hash.h
 )
 
-set(BAST_SOURCES
+set(BAST_SRC
     btype.cpp
     vars.cpp
     expr.cpp
     pred.cpp
     gpred.cpp
-    exprDesc.cpp
     subst.cpp
+    btypeReader.cpp
     exprReader.cpp
     predReader.cpp
+    predPrinter.h
     gpredReader.cpp
     substReader.cpp
     exprWriter.cpp
     predWriter.cpp
+    btypeXmlWriter.cpp
+    btypePrinter.cpp
+    exprPrinter.cpp
+    predPrinter.cpp
 )
 
-find_package(Qt6 COMPONENTS Core Xml)
-if(Qt6_FOUND)
-    message(STATUS "Using Qt6")
-    set(QT_VERSION 6)
-else()
-    find_package(Qt5 COMPONENTS Core Xml REQUIRED)
-    if(Qt5_FOUND)
-        message(STATUS "Using Qt5")
-        set(QT_VERSION 5)
-    else()
-        message(FATAL_ERROR "Neither Qt5 nor Qt6 found")
-    endif()
-endif()
-
+set(TINYXML2
+  tinyxml2.cpp tinyxml2.h
+)
 include_directories(
         ${CMAKE_CURRENT_BINARY_DIR}
         ${BAST_SOURCE_DIR}
 )
 
-add_library(BAST_LIB STATIC ${BAST_SOURCES} ${BAST_HEADERS})
+add_library(BAST
+    ${BAST_SRC}
+    ${BAST_HEADERS}
+    ${TINYXML2}
+)
 
-# Set up the executable
-if(QT_VERSION EQUAL 6)
-    target_link_libraries(BAST_LIB PRIVATE Qt6::Core Qt6::Xml)
-elseif(QT_VERSION EQUAL 5)
-    target_link_libraries(BAST_LIB PRIVATE Qt5::Core Qt5::Xml)
-endif()
-
-
-target_compile_features(BAST_LIB PUBLIC cxx_std_17)
-set_target_properties(BAST_LIB PROPERTIES PREFIX "lib" OUTPUT_NAME "BAST")
+target_compile_features(BAST PUBLIC cxx_std_17)
+set_target_properties(BAST PROPERTIES PREFIX "lib" OUTPUT_NAME "BAST")

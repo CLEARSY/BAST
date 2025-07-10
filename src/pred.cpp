@@ -1,6 +1,6 @@
 /*
    This file is part of BAST.
-   Copyright © CLEARSY 2023, 2024
+   Copyright © CLEARSY 2022-2025
    BAST is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
    the Free Software Foundation, either version 3 of the License, or
@@ -239,7 +239,7 @@ int Pred::compare(const Pred &p1, const Pred& p2){
 }
 
 int Pred::vec_compare(const std::vector<Pred> &lhs, const std::vector<Pred>& rhs){
-       if(lhs.size() == rhs.size()){
+    if(lhs.size() == rhs.size()){
         size_t i = 0;
         while(i<lhs.size()){
             int res = compare(lhs.at(i),rhs.at(i));
