@@ -1,6 +1,6 @@
 /*
    This file is part of BAST.
-   Copyright © CLEARSY 2022-2025
+   Copyright © CLEARSY 2023-2025
    BAST is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
    the Free Software Foundation, either version 3 of the License, or
@@ -12,26 +12,16 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
+#ifndef PRED_PRINTER_H
+#define PRED_PRINTER_H
 
-#ifndef SUBSTREADER_H
-#define SUBSTREADER_H
+#include<iostream>
 
-#include "tinyxml2.h"
+#include "pred.h"
 
-#include "subst.h"
+/// @brief pretty prints B predicate 
+/// @param stream the output stream where the predicate is printed
+/// @param p the predicate to be printed
+extern void printPredicate(std::ostream &stream, const Pred &p);
 
-namespace Xml {
-    class SubstReaderException : public std::exception
-    {
-        public:
-            SubstReaderException(const std::string desc):description{desc}{};
-            ~SubstReaderException() throw() {};
-            const char *what() const throw(){ return description.c_str(); };
-        private:
-            std::string description;
-    };
-
-    Subst readSubstitution(const tinyxml2::XMLElement *dom, const std::vector<BType> &typeInfos);
-}
-
-#endif // SUBSTREADER_H
+#endif

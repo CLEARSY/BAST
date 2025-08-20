@@ -1,6 +1,6 @@
 /*
    This file is part of BAST.
-   Copyright © CLEARSY 2023, 2024
+   Copyright © CLEARSY 2022-2025
    BAST is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
    the Free Software Foundation, either version 3 of the License, or
@@ -62,7 +62,6 @@ int VarName::vec_compare(const std::vector<VarName> &lhs, const std::vector<VarN
     } else {
         return (lhs.size() - rhs.size());
     }
-    return 0;
 }
 
 VarName VarName::getFreshVar(const std::string &prefix, const std::set<VarName> &set){
@@ -121,5 +120,4 @@ int TypedVar::vec_compare(const std::vector<TypedVar> &lhs, const std::vector<Ty
     } else {
         return (lhs.size() - rhs.size());
     }
-    return 0;
 }

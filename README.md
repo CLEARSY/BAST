@@ -2,50 +2,37 @@
 
 A C++ library to represent B Abstract Syntax Trees
 
-This source code is used as 
+## Scope
 
-- a submodule of AtelierB
+BAST is a C++ library to represent substitutions, predicates, expressions and types. BAST *does not represent B components*.
 
-## Version numbers
+BAST does not try to share identical sub-terms.
 
-There is currently no formal policy to give official identifiers to versions of this code.
+## Assets
 
-## Dependencies
+This repository contains the source files for 
 
-The library depends on the libraries Qt5Core and Qt5Xml. 
+1. the BAST library 
 
-## Compilation
+1. pogPrinter, a utility to print POG files to a more human-readable format.
 
-Compilation is realized with the [CMake](https://cmake.org) software build system.
+## Compiling
 
-The `CMakeLists.txt` file defines the following:
-
-- The target `BAST_LIB` for the static library `libBAST.a`
-- The directory `$BASTLIB_SOURCE_DIR` contains the library headers
-- The directory `$BASTLIB_SOURCE_DIR` contains the static library
-
-Assuming
-
-- `$SOURCE` is the path of the directory where the git repository has been cloned
-- `$BUILD` is the path of the directory where the build is launched
-
-The following commands build the library :
+Compilation may be done with `cmake` thanks to the `CMakeLists.txt`file available in the distribution. The following commands compile the BAST library and the pogPrinter utility.
 
 ```sh
-cd $BUILD
-cmake -G Ninja "$SOURCE"
+mkdir build
+cd build
+cmake ..
 cmake --build .
 ```
 
-### Instructions for Linux
+## Acknowledgments
 
-Package `libqtbase5-dev` (or equivalent) shall have been installed
+BAST includes TinyXML-2 source files.
 
-### Instructions for Windows
+TinyXML-2 is a simple, small, efficient, C++ XML parser that can be easily integrated into other programs.
 
-The library has been successfully build with `MSYS2-Mingw-w64` using the following package environment :
+The master is hosted on github: https://github.com/leethomason/tinyxml2.
 
-```sh
-pacman -S --needed --noconfirm \
-    mingw-w64-ucrt-x86_64-{cmake,ninja,gcc} \
-    mingw-w64-ucrt-x86_64-qt5-base \
+TinyXML-2 has its own license, see the above page (also available in this repository under resources/LICENSE-tinyxml2.txt)

@@ -1,6 +1,6 @@
 /*
    This file is part of BAST.
-   Copyright © CLEARSY 2023
+   Copyright © CLEARSY 2022-2025
    BAST is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
    the Free Software Foundation, either version 3 of the License, or
@@ -17,12 +17,14 @@
 #ifndef EXPRWRITER_H
 #define EXPRWRITER_H
 
+#include "tinyxml2.h"
+
 #include "expr.h"
-#include <QXmlStreamWriter>
 
 namespace Xml {
-    void writeTypedVar(QXmlStreamWriter &stream, std::map<BType,unsigned int> &typeInfos, const TypedVar &v);
-    void writeExpression(QXmlStreamWriter &stream, std::map<BType,unsigned int> &typeInfos, const Expr &p);
+    using TypeMap_t = std::map<BType, size_t>;
+    void writeTypedVar(tinyxml2::XMLPrinter &stream, TypeMap_t &typeInfos, const TypedVar &v);
+    void writeExpression(tinyxml2::XMLPrinter &stream, TypeMap_t &typeInfos, const Expr &p);
 }
 
 #endif // EXPRWRITER_H

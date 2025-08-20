@@ -1,6 +1,6 @@
 /*
    This file is part of BAST.
-   Copyright © CLEARSY 2022-2025
+   Copyright © CLEARSY 2023-2025
    BAST is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
    the Free Software Foundation, either version 3 of the License, or
@@ -13,25 +13,18 @@
    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef SUBSTREADER_H
-#define SUBSTREADER_H
+#ifndef EXPR_PRINTER_H
+#define EXPR_PRINTER_H
 
-#include "tinyxml2.h"
+#include<iostream>
 
-#include "subst.h"
+#include "expr.h"
 
-namespace Xml {
-    class SubstReaderException : public std::exception
-    {
-        public:
-            SubstReaderException(const std::string desc):description{desc}{};
-            ~SubstReaderException() throw() {};
-            const char *what() const throw(){ return description.c_str(); };
-        private:
-            std::string description;
-    };
+extern void printTypedVar(std::ostream &stream, const TypedVar &v);
 
-    Subst readSubstitution(const tinyxml2::XMLElement *dom, const std::vector<BType> &typeInfos);
-}
+/// @brief pretty prints B expression 
+/// @param stream the output stream where the expression is printed
+/// @param p the expression to be printed
+extern void printExpression(std::ostream &stream, const Expr &p);
 
-#endif // SUBSTREADER_H
+#endif // EXPR_PRINTER_H
