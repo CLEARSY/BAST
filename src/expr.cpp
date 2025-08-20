@@ -613,7 +613,7 @@ void Expr::addBxmlTags(const std::vector<std::string> &bxmlTag){
 
 int compare_field_vec(const std::vector<std::pair<std::string,Expr>>& lhs, const std::vector<std::pair<std::string,Expr>>& rhs){
     if(lhs.size() == rhs.size()){
-        int i = 0;
+        size_t i = 0;
         while(i < lhs.size()){
             auto &p1 = lhs.at(i);
             auto &p2 = rhs.at(i);
@@ -814,7 +814,7 @@ int Expr::compare(const Expr& e1, const Expr& e2){
 
 int Expr::vec_compare(const std::vector<Expr>& lhs, const std::vector<Expr>& rhs){
     if(lhs.size() == rhs.size()){
-        int i = 0;
+        size_t i = 0;
         while(i<lhs.size()){
             int res = compare(lhs.at(i),rhs.at(i));
             if(res != 0) return res;
@@ -884,6 +884,8 @@ std::string Expr::to_string(UnaryOp op){
         case UnaryOp::Bin: return "bin";
     };
     assert(false); // unreachable
+    return "";
+    // std::unreachable(); // C++23 only
 };
 
 std::string Expr::to_string(BinaryOp op){
@@ -944,6 +946,7 @@ std::string Expr::to_string(BinaryOp op){
     };
     assert(false); // unreachable
     return "";
+    // std::unreachable(); // C++23 only
 }
 
 std::string Expr::to_string(NaryOp op){
@@ -953,6 +956,7 @@ std::string Expr::to_string(NaryOp op){
     };
     assert(false); // unreachable
     return "";
+    // std::unreachable(); // C++23 only
 }
 
 std::string Expr::to_string(TernaryOp op){
@@ -962,6 +966,7 @@ std::string Expr::to_string(TernaryOp op){
     };
     assert(false); // unreachable
     return "";
+    // std::unreachable(); // C++23 only
 }
 
 std::string Expr::to_string(QuantifiedOp op){
@@ -976,6 +981,7 @@ std::string Expr::to_string(QuantifiedOp op){
     }
     assert(false); // unreachable
     return "";
+    // std::unreachable(); // C++23 only
 }
 
 std::string Expr::show() const {
@@ -1030,7 +1036,7 @@ std::string Expr::show() const {
                 auto& q = toQuantifiedSet();
                 assert(q.vars.size()>0);
                 auto vars = q.vars[0].name.show();
-                for(int i=1;i<q.vars.size();++i)
+                for(size_t i=1;i<q.vars.size();++i)
                     vars += " " + q.vars[i].name.show();
                 return "(QSet (" + vars + ") " + q.cond.show() + ")";
             }
@@ -1039,7 +1045,7 @@ std::string Expr::show() const {
                 auto& q = toQuantiedExpr();
                 assert(q.vars.size()>0);
                 auto vars = q.vars[0].name.show();
-                for(int i=1;i<q.vars.size();++i)
+                for(size_t i=1;i<q.vars.size();++i)
                     vars += " " + q.vars[i].name.show();
                 return "(" + to_string(q.op) + " (" + vars + ") "
                     + q.cond.show() + " " + q.body.show() + ")";
@@ -1074,6 +1080,8 @@ std::string Expr::show() const {
                         return "(Set" + accu + ")";
                 }
                 assert(false); // unreachable
+                return "";
+                // std::unreachable(); // C++23 only
             }
         case EKind::BooleanExpr:
             return "(bool " + toBooleanExpr().show() + ")";
@@ -1105,6 +1113,7 @@ std::string Expr::show() const {
     };
     assert(false); // unreachable
     return "";
+    // std::unreachable(); // C++23 only
 }
 
 void Expr::subst(const std::map<VarName,Expr> &map) {
@@ -1159,7 +1168,8 @@ void Expr::subst(const std::map<VarName,Expr> &map) {
                return desc->subst(map);
        }
        assert(false); // unreachable
-    }
+      // std::unreachable(); // C++23 only
+  }
 }
 
 void Expr::alpha(const std::map<VarName,VarName> &map) {

@@ -21,7 +21,8 @@
 #include "tinyxml2.h"
 
 namespace Xml {
-    void writePredicate(tinyxml2::XMLPrinter &stream, std::map<BType,unsigned int> &typeInfos, const Pred &p);
+    using TypeMap_t = std::map<BType, size_t>;
+    void writePredicate(tinyxml2::XMLPrinter &stream, TypeMap_t &typeInfos, const Pred &p);
 }
 
 #endif // PREDWRITER_H

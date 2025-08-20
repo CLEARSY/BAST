@@ -188,7 +188,7 @@ namespace Xml {
                         vec.push_back(std::move(ch));
                     }
                     const tinyxml2::XMLElement * els = dom->FirstChildElement("Else");
-                    if(els != nullptr)
+                    if(els == nullptr)
                         return Subst::makeCase(readExpression(value->FirstChildElement(),typeInfos),std::move(vec));
                     else {
                         return Subst::makeCaseElse(readExpression(value->FirstChildElement(),typeInfos),
@@ -209,10 +209,10 @@ namespace Xml {
                         vec.push_back(VarNameFromId(ce,typeInfos));
                     }
                     const tinyxml2::XMLElement * pred = dom->FirstChildElement("Pred");
-                    if(pred != nullptr)
+                    if(pred == nullptr)
                         throw SubstReaderException("Missing child 'Pred' in 'ANY_Sub' element.");
                     const tinyxml2::XMLElement * then = dom->FirstChildElement("Then");
-                    if(then != nullptr)
+                    if(then == nullptr)
                         throw SubstReaderException("Missing child 'Then' in 'ANY_Sub' element.");
                     const tinyxml2::XMLElement * fc = then->FirstChildElement();
                     return Subst::makeAny(
@@ -223,11 +223,11 @@ namespace Xml {
             case Subst::SKind::Witness:
                 {
                     const tinyxml2::XMLElement * wt = dom->FirstChildElement("Witnesses");
-                    if(wt != nullptr)
+                    if(wt == nullptr)
                         throw SubstReaderException("Missing child 'Witnesses' in 'Witness' element.");
                     std::map<std::string,Expr> witnesses;
                     const tinyxml2::XMLElement * wt_child = wt->FirstChildElement();
-                    if(wt_child != nullptr)
+                    if(wt_child == nullptr)
                         throw SubstReaderException("Missing child in 'Witnesses' element.");
                     if(0 == strcmp(wt_child->Name(), "Nary_Pred")) {
                         if(0 != strcmp(wt_child->Attribute("op"), "&"))

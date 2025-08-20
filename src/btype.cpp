@@ -128,7 +128,7 @@ int compare_field_vec(const std::vector<std::pair<std::string,BType>>& lhs, cons
         }
         return 0;
     } else {
-        return (lhs.size() - rhs.size());
+        return lhs.size() < rhs.size() ? -1 : 1;
     }
 }
 

@@ -36,6 +36,7 @@ set(BAST_SRC
     btype.cpp
     vars.cpp
     expr.cpp
+    exprDesc.cpp
     pred.cpp
     gpred.cpp
     subst.cpp

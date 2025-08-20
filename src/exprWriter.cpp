@@ -47,7 +47,7 @@ namespace Xml {
     }
 
     /* Gère la détection ou l'ajout des types dans typeInfos */
-    unsigned int getTypRef(std::map<BType,unsigned int> &typeInfos, const BType &ty){
+    size_t getTypRef(TypeMap_t &typeInfos, const BType &ty){
         auto it = typeInfos.find(ty);
 
         switch (ty.getKind()) {
@@ -59,7 +59,7 @@ namespace Xml {
             case BType::Kind::Struct:
                 {
                     if(it == typeInfos.end()){
-                        unsigned int i = typeInfos.size();
+                        size_t i = typeInfos.size();
                         typeInfos.insert({ty,i});
                         return i;
                     } else {
@@ -71,7 +71,7 @@ namespace Xml {
             case BType::Kind::AbstractSet:
             case BType::Kind::EnumeratedSet:
                 {
-                    std::map<BType,unsigned int> copyTypes;
+                    TypeMap_t copyTypes;
                     for (auto pair : typeInfos) {
                         copyTypes.insert(pair);
                     }
@@ -85,7 +85,7 @@ namespace Xml {
                             it2 = copyTypes.find(ty);
                         }
                     }
-                    unsigned int i = typeInfos.size();
+                    size_t i = typeInfos.size();
                     typeInfos.insert({ty, i});
                     return i;
                 }
@@ -99,7 +99,7 @@ namespace Xml {
             const BType &type,
             const std::vector<std::string> &bxmlTag,
             tinyxml2::XMLPrinter &stream,
-            std::map<BType,unsigned int> &typeInfos)
+            TypeMap_t &typeInfos)
     {
         stream.PushAttribute("typref",std::to_string(getTypRef(typeInfos,type)).c_str());
         if(!bxmlTag.empty()){
@@ -113,7 +113,7 @@ namespace Xml {
         }
     }
 
-    void writeTypedVar(tinyxml2::XMLPrinter &stream, std::map<BType,unsigned int> &typeInfos, const TypedVar &v){
+    void writeTypedVar(tinyxml2::XMLPrinter &stream, TypeMap_t &typeInfos, const TypedVar &v){
         stream.OpenElement("Id");
         stream.PushAttribute("value", v.name.prefix().c_str());
         switch(v.name.kind()){
@@ -424,16 +424,16 @@ namespace Xml {
                 stream.CloseElement(); // Record_Field_Access
             }
 
-            ExprWriterVisitor(tinyxml2::XMLPrinter &s, std::map<BType,unsigned int> &typeInfos):
+            ExprWriterVisitor(tinyxml2::XMLPrinter &s, TypeMap_t &typeInfos):
                 stream{s},
                 typeInfos{typeInfos}
             {};
         private:
             tinyxml2::XMLPrinter &stream;
-            std::map<BType,unsigned int> &typeInfos;
+            TypeMap_t &typeInfos;
     };
 
-    void writeExpression(tinyxml2::XMLPrinter &stream, std::map<BType,unsigned int> &typeInfos, const Expr &p){
+    void writeExpression(tinyxml2::XMLPrinter &stream, TypeMap_t &typeInfos, const Expr &p){
         ExprWriterVisitor v(stream,typeInfos);
         p.accept(v);
     }

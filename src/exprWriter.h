@@ -22,8 +22,9 @@
 #include "expr.h"
 
 namespace Xml {
-    void writeTypedVar(tinyxml2::XMLPrinter &stream, std::map<BType,unsigned int> &typeInfos, const TypedVar &v);
-    void writeExpression(tinyxml2::XMLPrinter &stream, std::map<BType,unsigned int> &typeInfos, const Expr &p);
+    using TypeMap_t = std::map<BType, size_t>;
+    void writeTypedVar(tinyxml2::XMLPrinter &stream, TypeMap_t &typeInfos, const TypedVar &v);
+    void writeExpression(tinyxml2::XMLPrinter &stream, TypeMap_t &typeInfos, const Expr &p);
 }
 
 #endif // EXPRWRITER_H

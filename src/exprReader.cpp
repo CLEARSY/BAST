@@ -354,6 +354,8 @@ namespace Xml {
                             return Expr::makePredecessor(bxmlTag);
                         default:
                             assert(false); // unreachable
+                            return Expr::makeFALSE(bxmlTag); // to avoid compiler warning
+                            // unreachable(); // C++23 only
                     }
                 }
             case Expr::EKind::IntegerLiteral:

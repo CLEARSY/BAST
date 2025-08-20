@@ -95,16 +95,16 @@ namespace Xml {
                 stream.PushAttribute("op","or");
                 stream.CloseElement(); // Nary_Pred
             };
-            PredWriterVisitor(tinyxml2::XMLPrinter &s,std::map<BType,unsigned int> &typeInfos):
+            PredWriterVisitor(tinyxml2::XMLPrinter &s, TypeMap_t &typeInfos):
                 stream{s},
                 typeInfos{typeInfos}
             {};
         private:
             tinyxml2::XMLPrinter &stream;
-            std::map<BType,unsigned int> &typeInfos;
+            TypeMap_t &typeInfos;
     };
 
-    void writePredicate(tinyxml2::XMLPrinter &stream, std::map<BType,unsigned int> &typeInfos, const Pred &p){
+    void writePredicate(tinyxml2::XMLPrinter &stream, TypeMap_t &typeInfos, const Pred &p){
         PredWriterVisitor v(stream, typeInfos);
         p.accept(v);
     }
