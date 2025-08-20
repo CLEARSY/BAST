@@ -64,7 +64,7 @@ namespace Xml {
                 {
                     const tinyxml2::XMLElement *fst = dom->FirstChildElement();
                     const tinyxml2::XMLElement *snd = fst->NextSiblingElement();
-                    bool overflow = (0 == strcmp(dom->Attribute("overflow"), "true"));
+                    bool overflow = (dom->Attribute("overflow") != nullptr&& 0 == strcmp(dom->Attribute("overflow"), "true"));
                     return GPred::makeSub
                         (readSubstitution(fst,typeInfos),readGPredicate(snd,typeInfos),overflow);
                 }

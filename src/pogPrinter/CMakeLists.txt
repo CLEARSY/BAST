@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.15)
-project(pogPrinter 
+project(pogPrinter
     VERSION 1.0
 )
 
@@ -13,9 +13,9 @@ add_executable(pogPrinter
 )
 
 target_include_directories(pogPrinter
-    PUBLIC "${PROJECT_BINARY_DIR}" "${LIBBAST_SOURCE_DIR}"
+    PUBLIC "${PROJECT_BINARY_DIR}"
 )
 
 target_link_libraries(pogPrinter
-    PUBLIC BAST
+    PUBLIC BAST_LIB
 )

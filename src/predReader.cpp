@@ -108,6 +108,7 @@ namespace Xml {
             case Pred::PKind::Forall:
             case Pred::PKind::Exists:
                 {
+                    const std::string op = dom->Attribute("type");
                     const tinyxml2::XMLElement * vars {dom->FirstChildElement("Variables")};
                     if(nullptr == vars)
                         throw PredReaderException
@@ -120,10 +121,10 @@ namespace Xml {
                         vec.push_back(VarNameFromId(ce,typeInfos));
                     }
 
-                    if(it->second == Pred::PKind::Forall){
+                    if(op == "!"){
                         return Pred::makeForall(vec,
                                 readPredicate(dom->FirstChildElement("Body")->FirstChildElement(),typeInfos));
-                    } else if (it->second == Pred::PKind::Exists){
+                    } else if (op == "#"){
                         return Pred::makeExists(vec,
                                 readPredicate(dom->FirstChildElement("Body")->FirstChildElement(),typeInfos));
                     } else

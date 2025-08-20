@@ -369,6 +369,10 @@ namespace Xml {
                     std::string integralPart;
                     std::string decimalPart;
                     splitDecimal(val, &integralPart, &decimalPart);
+                    if (!integralPart.empty())
+                        lst.push_back(integralPart);
+                    if (!decimalPart.empty())
+                        lst.push_back(decimalPart);
                     if(lst.size() == 1 || lst.size() == 2){
                         std::string integerPart = lst[0];
                         if(lst.size() == 1){
@@ -541,18 +545,15 @@ static bool strEqCaseInsensitive(const char * lhs, const char * rhs) {
 void splitDecimal(const char *str, std::string *integralPart, std::string *decimalPart)
 {
     unsigned pos1 = 0;
-    const char *p;
-    p = str;
+    const char *p = str;
     while (*p != '\0' && *p != '.') {
         ++p; ++pos1;
     }
     *integralPart = std::string(str, pos1);
-    unsigned pos2 = 0;
-    while (*p != '\0') {
-        ++p; ++pos2;
-    }
-    if(pos2 == 0)
+    if (*p == '.') {
+        ++p;
+        *decimalPart = std::string(p);
+    } else {
         *decimalPart = std::string();
-    else
-        *decimalPart = std::string(str+pos1+1, pos2);
+    }
 }

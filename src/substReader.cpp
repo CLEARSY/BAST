@@ -249,10 +249,10 @@ namespace Xml {
                         }
                     }
                     else if(0 == strcmp(wt_child->Name(), "Exp_Comparison")){
-                        if(0 == strcmp(wt_child->Attribute("op"), "="))
+                        if(0 != strcmp(wt_child->Attribute("op"), "="))
                             throw SubstReaderException("Expected Exp_Comparison with attribute op '='.");
                         const tinyxml2::XMLElement * id = wt_child->FirstChildElement();
-                        if(0 == strcmp(id->Name(), "Id"))
+                        if(0 != strcmp(id->Name(), "Id"))
                             throw SubstReaderException("Id element expected.");
                         if(nullptr == id->Attribute("value"))
                             throw SubstReaderException("value attribute expected.");
