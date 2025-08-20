@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.15)
-project(LIBBAST)
+project(BASTLIB)
 
 if (MSVC)
     # warning level 4
@@ -62,11 +62,14 @@ include_directories(
         ${BAST_SOURCE_DIR}
 )
 
-add_library(BAST
+add_library(BAST_LIB
     ${BAST_SRC}
     ${BAST_HEADERS}
     ${TINYXML2}
 )
 
-target_compile_features(BAST PUBLIC cxx_std_17)
-set_target_properties(BAST PROPERTIES PREFIX "lib" OUTPUT_NAME "BAST")
+target_compile_features(BAST_LIB PUBLIC cxx_std_17)
+target_include_directories(BAST_LIB
+    PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}
+)
+set_target_properties(BAST_LIB PROPERTIES PREFIX "lib" OUTPUT_NAME "BAST")
