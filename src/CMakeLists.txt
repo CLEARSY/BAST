@@ -42,7 +42,19 @@ set(BAST_SOURCES
     predWriter.cpp
 )
 
-find_package(Qt5 REQUIRED COMPONENTS Core Xml)
+find_package(Qt6 COMPONENTS Core Xml)
+if(Qt6_FOUND)
+    message(STATUS "Using Qt6")
+    set(QT_VERSION 6)
+else()
+    find_package(Qt5 COMPONENTS Core Xml REQUIRED)
+    if(Qt5_FOUND)
+        message(STATUS "Using Qt5")
+        set(QT_VERSION 5)
+    else()
+        message(FATAL_ERROR "Neither Qt5 nor Qt6 found")
+    endif()
+endif()
 
 include_directories(
         ${CMAKE_CURRENT_BINARY_DIR}
@@ -50,7 +62,14 @@ include_directories(
 )
 
 add_library(BAST_LIB STATIC ${BAST_SOURCES} ${BAST_HEADERS})
-target_link_libraries(BAST_LIB PRIVATE Qt5::Core Qt5::Xml)
 
-target_compile_features(BAST_LIB PUBLIC cxx_std_20)
+# Set up the executable
+if(QT_VERSION EQUAL 6)
+    target_link_libraries(BAST_LIB PRIVATE Qt6::Core Qt6::Xml)
+elseif(QT_VERSION EQUAL 5)
+    target_link_libraries(BAST_LIB PRIVATE Qt5::Core Qt5::Xml)
+endif()
+
+
+target_compile_features(BAST_LIB PUBLIC cxx_std_17)
 set_target_properties(BAST_LIB PROPERTIES PREFIX "lib" OUTPUT_NAME "BAST")
