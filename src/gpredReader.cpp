@@ -184,4 +184,4 @@ namespace Xml {
         };
         throw GPredReaderException("Unreachable code executed");
     }
-}; // namespace Xml
+} // namespace Xml

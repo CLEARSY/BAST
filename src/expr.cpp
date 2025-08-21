@@ -523,14 +523,14 @@ Expr Expr::makeString(const std::string &s, const std::vector<std::string> &bxml
             EKind::StringLiteral,
             new StringLiteral(s),
             BType::STRING,bxmlTag);
-};
+}
 
 Expr Expr::makeReal(const Decimal &d, const std::vector<std::string> &bxmlTag){
     return Expr(
             EKind::RealLiteral,
             new RealLiteral(d),
             BType::REAL,bxmlTag);
-};
+}
 
 Expr Expr::makeIdent(const VarName &id, const BType &type, const std::vector<std::string> &bxmlTag){
     return Expr(
@@ -539,23 +539,23 @@ Expr Expr::makeIdent(const VarName &id, const BType &type, const std::vector<std
             type,bxmlTag);
 }
 
-Expr Expr::makePredecessor(const std::vector<std::string> &bxmlTag){ return Expr(EKind::Predecessor,nullptr,BType::RELATION_INTEGER,bxmlTag); };
-Expr Expr::makeSuccessor(const std::vector<std::string> &bxmlTag){ return Expr(EKind::Successor,nullptr,BType::RELATION_INTEGER,bxmlTag); };
-Expr Expr::makeEmptySet(const BType &type, const std::vector<std::string> &bxmlTag){ return Expr(EKind::EmptySet,nullptr,type,bxmlTag); };
-Expr Expr::makeMaxInt(const std::vector<std::string> &bxmlTag){ return Expr(EKind::MaxInt,nullptr,BType::INT,bxmlTag); };
-Expr Expr::makeMinInt(const std::vector<std::string> &bxmlTag){ return Expr(EKind::MinInt,nullptr,BType::INT,bxmlTag); };
-Expr Expr::makeINTEGER(const std::vector<std::string> &bxmlTag){ return Expr(EKind::INTEGER,nullptr,BType::POW_INT,bxmlTag); };
-Expr Expr::makeNATURAL(const std::vector<std::string> &bxmlTag){ return Expr(EKind::NATURAL,nullptr,BType::POW_INT,bxmlTag); };
-Expr Expr::makeNATURAL1(const std::vector<std::string> &bxmlTag){ return Expr(EKind::NATURAL1,nullptr,BType::POW_INT,bxmlTag); };
-Expr Expr::makeINT(const std::vector<std::string> &bxmlTag){ return Expr(EKind::INT,nullptr,BType::POW_INT,bxmlTag); };
-Expr Expr::makeNAT(const std::vector<std::string> &bxmlTag){ return Expr(EKind::NAT,nullptr,BType::POW_INT,bxmlTag); };
-Expr Expr::makeNAT1(const std::vector<std::string> &bxmlTag){ return Expr(EKind::NAT1,nullptr,BType::POW_INT,bxmlTag); };
-Expr Expr::makeSTRING(const std::vector<std::string> &bxmlTag){ return Expr(EKind::STRING,nullptr,BType::POW_STRING,bxmlTag); };
-Expr Expr::makeBOOL(const std::vector<std::string> &bxmlTag){ return Expr(EKind::BOOL,nullptr,BType::POW_BOOL,bxmlTag); };
-Expr Expr::makeTRUE(const std::vector<std::string> &bxmlTag){ return Expr(EKind::TRUE,nullptr,BType::BOOL,bxmlTag); };
-Expr Expr::makeFALSE(const std::vector<std::string> &bxmlTag){ return Expr(EKind::FALSE,nullptr,BType::BOOL,bxmlTag); };
-Expr Expr::makeREAL(const std::vector<std::string> &bxmlTag){ return Expr(EKind::REAL,nullptr,BType::POW_REAL,bxmlTag); };
-Expr Expr::makeFLOAT(const std::vector<std::string> &bxmlTag){ return Expr(EKind::FLOAT,nullptr,BType::POW_FLOAT,bxmlTag); };
+Expr Expr::makePredecessor(const std::vector<std::string> &bxmlTag){ return Expr(EKind::Predecessor,nullptr,BType::RELATION_INTEGER,bxmlTag); }
+Expr Expr::makeSuccessor(const std::vector<std::string> &bxmlTag){ return Expr(EKind::Successor,nullptr,BType::RELATION_INTEGER,bxmlTag); }
+Expr Expr::makeEmptySet(const BType &type, const std::vector<std::string> &bxmlTag){ return Expr(EKind::EmptySet,nullptr,type,bxmlTag); }
+Expr Expr::makeMaxInt(const std::vector<std::string> &bxmlTag){ return Expr(EKind::MaxInt,nullptr,BType::INT,bxmlTag); }
+Expr Expr::makeMinInt(const std::vector<std::string> &bxmlTag){ return Expr(EKind::MinInt,nullptr,BType::INT,bxmlTag); }
+Expr Expr::makeINTEGER(const std::vector<std::string> &bxmlTag){ return Expr(EKind::INTEGER,nullptr,BType::POW_INT,bxmlTag); }
+Expr Expr::makeNATURAL(const std::vector<std::string> &bxmlTag){ return Expr(EKind::NATURAL,nullptr,BType::POW_INT,bxmlTag); }
+Expr Expr::makeNATURAL1(const std::vector<std::string> &bxmlTag){ return Expr(EKind::NATURAL1,nullptr,BType::POW_INT,bxmlTag); }
+Expr Expr::makeINT(const std::vector<std::string> &bxmlTag){ return Expr(EKind::INT,nullptr,BType::POW_INT,bxmlTag); }
+Expr Expr::makeNAT(const std::vector<std::string> &bxmlTag){ return Expr(EKind::NAT,nullptr,BType::POW_INT,bxmlTag); }
+Expr Expr::makeNAT1(const std::vector<std::string> &bxmlTag){ return Expr(EKind::NAT1,nullptr,BType::POW_INT,bxmlTag); }
+Expr Expr::makeSTRING(const std::vector<std::string> &bxmlTag){ return Expr(EKind::STRING,nullptr,BType::POW_STRING,bxmlTag); }
+Expr Expr::makeBOOL(const std::vector<std::string> &bxmlTag){ return Expr(EKind::BOOL,nullptr,BType::POW_BOOL,bxmlTag); }
+Expr Expr::makeTRUE(const std::vector<std::string> &bxmlTag){ return Expr(EKind::TRUE,nullptr,BType::BOOL,bxmlTag); }
+Expr Expr::makeFALSE(const std::vector<std::string> &bxmlTag){ return Expr(EKind::FALSE,nullptr,BType::BOOL,bxmlTag); }
+Expr Expr::makeREAL(const std::vector<std::string> &bxmlTag){ return Expr(EKind::REAL,nullptr,BType::POW_REAL,bxmlTag); }
+Expr Expr::makeFLOAT(const std::vector<std::string> &bxmlTag){ return Expr(EKind::FLOAT,nullptr,BType::POW_FLOAT,bxmlTag); }
 
 Expr Expr::makeBinaryExpr(BinaryOp op, Expr &&lhs, Expr &&rhs, const BType &type, const std::vector<std::string> &bxmlTag){
     return Expr( EKind::BinaryExpr, new BinaryExpr(op,std::move(lhs),std::move(rhs)), type,bxmlTag);
@@ -886,7 +886,7 @@ std::string Expr::to_string(UnaryOp op){
     assert(false); // unreachable
     return "";
     // std::unreachable(); // C++23 only
-};
+}
 
 std::string Expr::to_string(BinaryOp op){
     switch(op){
