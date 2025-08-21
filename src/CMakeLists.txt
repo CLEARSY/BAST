@@ -62,7 +62,7 @@ include_directories(
         ${BAST_SOURCE_DIR}
 )
 
-add_library(BAST_LIB
+add_library(BAST_LIB STATIC
     ${BAST_SRC}
     ${BAST_HEADERS}
     ${TINYXML2}
