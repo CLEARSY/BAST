@@ -530,8 +530,8 @@ namespace Xml {
         };
         assert(false); // unreachable
         return Expr::makeEmptySet(type, bxmlTag); // unreachable
-    };
-}
+    }
+} // namespace Xml
 
 static bool strEqCaseInsensitive(const char * lhs, const char * rhs) {
     const char *pl {lhs};
