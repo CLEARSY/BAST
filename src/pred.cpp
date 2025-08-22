@@ -248,7 +248,7 @@ int Pred::vec_compare(const std::vector<Pred> &lhs, const std::vector<Pred>& rhs
         }
         return 0;
     } else {
-        return (lhs.size() - rhs.size());
+        return (lhs.size() < rhs.size()) ? -1 : 1;
     }
     return 0;
 }

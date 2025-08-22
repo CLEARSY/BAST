@@ -16,18 +16,18 @@
 #include "subst.h"
 
 void Subst::alpha(const std::map<VarName,VarName> &map){
-    if(desc != nullptr)
-        desc->alpha(map);
+    if(m_desc != nullptr)
+        m_desc->alpha(map);
 }
 void Subst::getInnerFreeVars(std::set<VarName> &accu) const {
-    if(desc != nullptr)
-        desc->getInnerFreeVars(accu);
+    if(m_desc != nullptr)
+        m_desc->getInnerFreeVars(accu);
 }
 Subst Subst::copy() const {
-    if(tag == SKind::Skip)
+    if(m_tag == SKind::Skip)
         return makeSkip();
     else
-        return Subst(tag,desc->copy());
+        return Subst(m_tag,m_desc->copy());
 }
 class Subst::BlockSubst : public SubstDesc {
     public:
@@ -155,16 +155,16 @@ Subst Subst::makeChoice(std::vector<Subst> &&vec){
     return Subst(SKind::Choice, new NarySubst(std::move(vec)) );
 }
 void Subst::accept(Visitor &visitor) const {
-    switch(tag){
+    switch(m_tag){
         case Subst::SKind::Any:
             {
-                AnySubst &e = static_cast<AnySubst&>(*desc);
+                AnySubst &e = static_cast<AnySubst&>(*m_desc);
                 visitor.visitAny(e.vars,e.p,e.body);
                 break;
             }
         case Subst::SKind::Block:
             {
-                BlockSubst &e = static_cast<BlockSubst&>(*desc);
+                BlockSubst &e = static_cast<BlockSubst&>(*m_desc);
                 visitor.visitBlock(e.content);
                 break;
             }
@@ -175,232 +175,232 @@ void Subst::accept(Visitor &visitor) const {
             }
         case Subst::SKind::Assert:
             {
-                AssertSubst &e = static_cast<AssertSubst&>(*desc);
+                AssertSubst &e = static_cast<AssertSubst&>(*m_desc);
                 visitor.visitAssert(e.condition,e.content);
                 break;
             }
         case Subst::SKind::IfThen:
             {
-                IfThenSubst &e = static_cast<IfThenSubst&>(*desc);
+                IfThenSubst &e = static_cast<IfThenSubst&>(*m_desc);
                 visitor.visitIfThen(e.condition,e.s_if);
                 break;
             }
         case Subst::SKind::IfThenElse:
             {
-                IfThenElseSubst &e = static_cast<IfThenElseSubst&>(*desc);
+                IfThenElseSubst &e = static_cast<IfThenElseSubst&>(*m_desc);
                 visitor.visitIfThenElse(e.condition,e.s_if,e.s_else);
                 break;
             }
         case Subst::SKind::Select:
             {
-                SelectSubst &e = static_cast<SelectSubst&>(*desc);
+                SelectSubst &e = static_cast<SelectSubst&>(*m_desc);
                 visitor.visitSelect(e.clauses);
                 break;
             }
         case Subst::SKind::SelectElse:
             {
-                SelectElseSubst &e = static_cast<SelectElseSubst&>(*desc);
+                SelectElseSubst &e = static_cast<SelectElseSubst&>(*m_desc);
                 visitor.visitSelectElse(e.clauses,e.s_else);
                 break;
             }
         case Subst::SKind::Case:
             {
-                CaseSubst &e = static_cast<CaseSubst&>(*desc);
-                visitor.visitCase(e.e,e.cases);
+                CaseSubst &e = static_cast<CaseSubst&>(*m_desc);
+                visitor.visitCase(e.m_expr,e.m_cases);
                 break;
             }
         case Subst::SKind::CaseElse:
             {
-                CaseElseSubst &e = static_cast<CaseElseSubst&>(*desc);
-                visitor.visitCaseElse(e.e,e.cases,e.s_else);
+                CaseElseSubst &e = static_cast<CaseElseSubst&>(*m_desc);
+                visitor.visitCaseElse(e.m_expr,e.m_cases,e.m_else);
                 break;
             }
         case Subst::SKind::OperationCall:
             {
-                OpCallSubst &e = static_cast<OpCallSubst&>(*desc);
+                OpCallSubst &e = static_cast<OpCallSubst&>(*m_desc);
                 visitor.visitOpCall(e.name,e.input,e.output,e.op_input,e.op_output,e.op_precondition,e.op_body);
                 break;
             }
         case Subst::SKind::While:
             {
-                WhileSubst &e = static_cast<WhileSubst&>(*desc);
+                WhileSubst &e = static_cast<WhileSubst&>(*m_desc);
                 visitor.visitWhile(e.cond,e.body,e.inv,e.var);
                 break;
             }
         case Subst::SKind::Sequence:
             {
-                NarySubst &e = static_cast<NarySubst&>(*desc);
+                NarySubst &e = static_cast<NarySubst&>(*m_desc);
                 visitor.visitSequence(e.content);
                 break;
             }
         case Subst::SKind::Parallel:
             {
-                NarySubst &e = static_cast<NarySubst&>(*desc);
+                NarySubst &e = static_cast<NarySubst&>(*m_desc);
                 visitor.visitParallel(e.content);
                 break;
             }
         case Subst::SKind::Choice:
             {
-                NarySubst &e = static_cast<NarySubst&>(*desc);
+                NarySubst &e = static_cast<NarySubst&>(*m_desc);
                 visitor.visitChoice(e.content);
                 break;
             }
         case Subst::SKind::SimpleAssignment:
             {
-                SimpleAssignmentSubst &e = static_cast<SimpleAssignmentSubst&>(*desc);
+                SimpleAssignmentSubst &e = static_cast<SimpleAssignmentSubst&>(*m_desc);
                 visitor.visitSimpleAssignment(e.vars,e.exprs);
                 break;
             }
         case Subst::SKind::Witness:
             {
-                WitnessSubst &e = static_cast<WitnessSubst&>(*desc);
+                WitnessSubst &e = static_cast<WitnessSubst&>(*m_desc);
                 visitor.visitWitness(e.witnesses,e.body);
                 break;
             }
     };
 }
 const Subst& Subst::toBlock() const {
-    assert(tag == SKind::Block);
-    return static_cast<BlockSubst&>(*desc).content;
+    assert(m_tag == SKind::Block);
+    return static_cast<BlockSubst&>(*m_desc).content;
 }
 const Subst::AssertSubst& Subst::toAssert() const {
-    assert(tag == SKind::Assert);
-    return static_cast<AssertSubst&>(*desc);
+    assert(m_tag == SKind::Assert);
+    return static_cast<AssertSubst&>(*m_desc);
 }
 const Subst::IfThenSubst& Subst::toIfThen() const {
-    assert(tag == SKind::IfThen);
-    return static_cast<IfThenSubst&>(*desc);
+    assert(m_tag == SKind::IfThen);
+    return static_cast<IfThenSubst&>(*m_desc);
 }
 const Subst::IfThenElseSubst& Subst::toIfThenElse() const {
-    assert(tag == SKind::IfThenElse);
-    return static_cast<IfThenElseSubst&>(*desc);
+    assert(m_tag == SKind::IfThenElse);
+    return static_cast<IfThenElseSubst&>(*m_desc);
 }
 const Subst::SimpleAssignmentSubst& Subst::toSimpleAssignment() const {
-    assert(tag == SKind::SimpleAssignment);
-    return static_cast<SimpleAssignmentSubst&>(*desc);
+    assert(m_tag == SKind::SimpleAssignment);
+    return static_cast<SimpleAssignmentSubst&>(*m_desc);
 }
 const Subst::SelectSubst& Subst::toSelect() const {
-    assert(tag == SKind::Select);
-    return static_cast<SelectSubst&>(*desc);
+    assert(m_tag == SKind::Select);
+    return static_cast<SelectSubst&>(*m_desc);
 }
 const Subst::SelectElseSubst& Subst::toSelectElse() const {
-    assert(tag == SKind::SelectElse);
-    return static_cast<SelectElseSubst&>(*desc);
+    assert(m_tag == SKind::SelectElse);
+    return static_cast<SelectElseSubst&>(*m_desc);
 }
 const Subst::CaseSubst& Subst::toCase() const {
-    assert(tag == SKind::Case);
-    return static_cast<CaseSubst&>(*desc);
+    assert(m_tag == SKind::Case);
+    return static_cast<CaseSubst&>(*m_desc);
 }
 const Subst::CaseElseSubst& Subst::toCaseElse() const {
-    assert(tag == SKind::CaseElse);
-    return static_cast<CaseElseSubst&>(*desc);
+    assert(m_tag == SKind::CaseElse);
+    return static_cast<CaseElseSubst&>(*m_desc);
 }
 const Subst::AnySubst& Subst::toAny() const {
-    assert(tag == SKind::Any);
-    return static_cast<AnySubst&>(*desc);
+    assert(m_tag == SKind::Any);
+    return static_cast<AnySubst&>(*m_desc);
 }
 const Subst::OpCallSubst& Subst::toOpCall() const {
-    assert(tag == SKind::OperationCall);
-    return static_cast<OpCallSubst&>(*desc);
+    assert(m_tag == SKind::OperationCall);
+    return static_cast<OpCallSubst&>(*m_desc);
 }
 const Subst::WhileSubst& Subst::toWhile() const {
-    assert(tag == SKind::While);
-    return static_cast<WhileSubst&>(*desc);
+    assert(m_tag == SKind::While);
+    return static_cast<WhileSubst&>(*m_desc);
 }
 const std::vector<Subst>& Subst::toSequence() const {
-    assert(tag == SKind::Sequence);
-    return static_cast<NarySubst&>(*desc).content;
+    assert(m_tag == SKind::Sequence);
+    return static_cast<NarySubst&>(*m_desc).content;
 }
 const std::vector<Subst>& Subst::toParallel() const {
-    assert(tag == SKind::Parallel);
-    return static_cast<NarySubst&>(*desc).content;
+    assert(m_tag == SKind::Parallel);
+    return static_cast<NarySubst&>(*m_desc).content;
 }
 const std::vector<Subst>& Subst::toChoice() const {
-    assert(tag == SKind::Choice);
-    return static_cast<NarySubst&>(*desc).content;
+    assert(m_tag == SKind::Choice);
+    return static_cast<NarySubst&>(*m_desc).content;
 }
 const Subst::WitnessSubst& Subst::toWitness() const {
-    assert(tag == SKind::Witness);
-    return static_cast<WitnessSubst&>(*desc);
+    assert(m_tag == SKind::Witness);
+    return static_cast<WitnessSubst&>(*m_desc);
 }
 
 Subst& Subst::toBlock() {
-    assert(tag == SKind::Block);
-    return static_cast<BlockSubst&>(*desc).content;
+    assert(m_tag == SKind::Block);
+    return static_cast<BlockSubst&>(*m_desc).content;
 }
 Subst::AssertSubst& Subst::toAssert() {
-    assert(tag == SKind::Assert);
-    return static_cast<AssertSubst&>(*desc);
+    assert(m_tag == SKind::Assert);
+    return static_cast<AssertSubst&>(*m_desc);
 }
 Subst::IfThenSubst& Subst::toIfThen() {
-    assert(tag == SKind::IfThen);
-    return static_cast<IfThenSubst&>(*desc);
+    assert(m_tag == SKind::IfThen);
+    return static_cast<IfThenSubst&>(*m_desc);
 }
 Subst::IfThenElseSubst& Subst::toIfThenElse() {
-    assert(tag == SKind::IfThenElse);
-    return static_cast<IfThenElseSubst&>(*desc);
+    assert(m_tag == SKind::IfThenElse);
+    return static_cast<IfThenElseSubst&>(*m_desc);
 }
 Subst::SimpleAssignmentSubst& Subst::toSimpleAssignment() {
-    assert(tag == SKind::SimpleAssignment);
-    return static_cast<SimpleAssignmentSubst&>(*desc);
+    assert(m_tag == SKind::SimpleAssignment);
+    return static_cast<SimpleAssignmentSubst&>(*m_desc);
 }
 Subst::SelectSubst& Subst::toSelect() {
-    assert(tag == SKind::Select);
-    return static_cast<SelectSubst&>(*desc);
+    assert(m_tag == SKind::Select);
+    return static_cast<SelectSubst&>(*m_desc);
 }
 Subst::SelectElseSubst& Subst::toSelectElse() {
-    assert(tag == SKind::SelectElse);
-    return static_cast<SelectElseSubst&>(*desc);
+    assert(m_tag == SKind::SelectElse);
+    return static_cast<SelectElseSubst&>(*m_desc);
 }
 Subst::CaseSubst& Subst::toCase() {
-    assert(tag == SKind::Case);
-    return static_cast<CaseSubst&>(*desc);
+    assert(m_tag == SKind::Case);
+    return static_cast<CaseSubst&>(*m_desc);
 }
 Subst::CaseElseSubst& Subst::toCaseElse() {
-    assert(tag == SKind::CaseElse);
-    return static_cast<CaseElseSubst&>(*desc);
+    assert(m_tag == SKind::CaseElse);
+    return static_cast<CaseElseSubst&>(*m_desc);
 }
 Subst::AnySubst& Subst::toAny() {
-    assert(tag == SKind::Any);
-    return static_cast<AnySubst&>(*desc);
+    assert(m_tag == SKind::Any);
+    return static_cast<AnySubst&>(*m_desc);
 }
 Subst::OpCallSubst& Subst::toOpCall() {
-    assert(tag == SKind::OperationCall);
-    return static_cast<OpCallSubst&>(*desc);
+    assert(m_tag == SKind::OperationCall);
+    return static_cast<OpCallSubst&>(*m_desc);
 }
 Subst::WhileSubst& Subst::toWhile() {
-    assert(tag == SKind::While);
-    return static_cast<WhileSubst&>(*desc);
+    assert(m_tag == SKind::While);
+    return static_cast<WhileSubst&>(*m_desc);
 }
 std::vector<Subst>& Subst::toSequence() {
-    assert(tag == SKind::Sequence);
-    return static_cast<NarySubst&>(*desc).content;
+    assert(m_tag == SKind::Sequence);
+    return static_cast<NarySubst&>(*m_desc).content;
 }
 std::vector<Subst>& Subst::toParallel() {
-    assert(tag == SKind::Parallel);
-    return static_cast<NarySubst&>(*desc).content;
+    assert(m_tag == SKind::Parallel);
+    return static_cast<NarySubst&>(*m_desc).content;
 }
 std::vector<Subst>& Subst::toChoice() {
-    assert(tag == SKind::Choice);
-    return static_cast<NarySubst&>(*desc).content;
+    assert(m_tag == SKind::Choice);
+    return static_cast<NarySubst&>(*m_desc).content;
 }
 Subst::WitnessSubst& Subst::toWitness() {
-    assert(tag == SKind::Witness);
-    return static_cast<WitnessSubst&>(*desc);
+    assert(m_tag == SKind::Witness);
+    return static_cast<WitnessSubst&>(*m_desc);
 }
 
 void Subst::getFreeVars(const std::set<VarName> &boundVars, std::set<VarName> &accu) const {
-    if(desc != nullptr)
-        desc->getFreeVars(boundVars,accu);
+    if(m_desc != nullptr)
+        m_desc->getFreeVars(boundVars,accu);
 }
 void Subst::getAllVars(std::set<VarName> &accu) const {
-    if(desc != nullptr)
-        desc->getAllVars(accu);
+    if(m_desc != nullptr)
+        m_desc->getAllVars(accu);
 }
 
 void Subst::getModifiedVars(const std::set<VarName> &boundVars, std::set<TypedVar> &accu) const {
-    if(desc != nullptr)
-        desc->getModifiedVars(boundVars,accu);
+    if(m_desc != nullptr)
+        m_desc->getModifiedVars(boundVars,accu);
 }
 
 std::map<VarName,Expr> Subst::SimpleAssignmentSubst::toMap() const {
@@ -412,12 +412,12 @@ std::map<VarName,Expr> Subst::SimpleAssignmentSubst::toMap() const {
 }
 
 size_t Subst::hash_combine(size_t seed) const {
-    if(desc != nullptr)
-        seed = desc->hash_combine(seed);
-    return hashUtil::hash_combine_int(static_cast<int>(tag),seed);
+    if(m_desc != nullptr)
+        seed = m_desc->hash_combine(seed);
+    return hashUtil::hash_combine_int(static_cast<int>(m_tag),seed);
 }
 
 void Subst::substFreshId(const std::string &id, const VarName &v){
-    if(desc != nullptr)
-        desc->substFreshId(id,v);
+    if(m_desc != nullptr)
+        m_desc->substFreshId(id,v);
 }

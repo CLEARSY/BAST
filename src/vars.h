@@ -21,8 +21,6 @@
 #include <cassert>
 #include "btype.h"
 
-int mkPrefix(const std::string &s);
-
 struct VarName {
     enum class Kind {
         NoSuffix, // Ident without suffix (ex: toto)
@@ -37,22 +35,22 @@ struct VarName {
     static VarName makeTmp(const std::string &p);
     // Accessors
     const std::string &prefix() const;
-    int suffix() const { return _suffix; };
+    int suffix() const { return m_suffix; };
     Kind kind() const {
-        assert(_suffix != 0);
-        if(_suffix == -1) return Kind::NoSuffix;
-        if(_suffix == -2) return Kind::FreshId;
-        if(_suffix > 0) return Kind::WithSuffix;
+        assert(m_suffix != 0);
+        if(m_suffix == -1) return Kind::NoSuffix;
+        if(m_suffix == -2) return Kind::FreshId;
+        if(m_suffix > 0) return Kind::WithSuffix;
         /* _suffix < -2 */
         return Kind::Tmp;
     };
     std::string show() const { // for debug
-        assert(_suffix != 0);
-        if(_suffix == -1) return prefix();
-        if(_suffix == -2) return "_freshId_" + prefix();
-        if(_suffix > 0) return prefix() + "$" + std::to_string(_suffix);
+        assert(m_suffix != 0);
+        if(m_suffix == -1) return prefix();
+        if(m_suffix == -2) return "_freshId_" + prefix();
+        if(m_suffix > 0) return prefix() + "$" + std::to_string(m_suffix);
         /* _suffix < -2 */
-        return "_tmpId_" + prefix() + "$" + std::to_string(-_suffix);
+        return "_tmpId_" + prefix() + "$" + std::to_string(-m_suffix);
     }
 
         // Comparisons
@@ -71,17 +69,20 @@ struct VarName {
     static VarName getFreshVar(const VarName &v, const std::set<VarName> &set);
   private:
     // Members
-    int _prefix;
-    int _suffix; // -1 means no suffix
+    size_t m_prefix;
+    int m_suffix; // -1 means no suffix
     //             -2 is used to managed the Fresh_Id tag
     //             0 should not be used to avoid confusion with dollar0
     //             > 0 variable with suffix (ex toto$1)
     //             < -2 temporary fresh variable
     // Constructor
     VarName(const std::string &p,int s):
-        _prefix{mkPrefix(p)},
-        _suffix{s}{ };
-};
+        m_prefix{mkPrefix(p)},
+        m_suffix{s}{ };
+
+    static size_t mkPrefix(const std::string &s);
+
+  };
 
 struct TypedVar {
     VarName name;

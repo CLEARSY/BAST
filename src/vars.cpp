@@ -16,13 +16,13 @@
 #include "vars.h"
 #include <unordered_map>
 
-std::unordered_map<std::string,int> stringToPrefix;
+static std::unordered_map<std::string, size_t> stringToPrefix;
 std::vector<std::string> prefixToString;
 
-int mkPrefix(const std::string &s){
+size_t VarName::mkPrefix(const std::string &s){
     auto it = stringToPrefix.find(s);
     if(it == stringToPrefix.end()){
-        int res = prefixToString.size();
+        size_t res = prefixToString.size();
         prefixToString.push_back(s);
         stringToPrefix[s] = res;
         return res;
@@ -31,13 +31,13 @@ int mkPrefix(const std::string &s){
     }
 }
 
-const std::string &VarName::prefix() const { return prefixToString[_prefix]; }
+const std::string &VarName::prefix() const { return prefixToString[m_prefix]; }
 
 static int varname_cpt = -2;
 VarName VarName::makeTmp(const std::string &p){ varname_cpt--; return VarName(p,varname_cpt); }
 
 size_t VarName::hash_combine(size_t seed) const {
-    return hashUtil::hash_combine_int(_suffix,hashUtil::hash_combine_string(prefix(),seed));
+    return hashUtil::hash_combine_int(m_suffix,hashUtil::hash_combine_string(prefix(),seed));
 }
 
 size_t TypedVar::hash_combine(size_t seed) const {
@@ -45,9 +45,9 @@ size_t TypedVar::hash_combine(size_t seed) const {
 }
 
 int VarName::compare(const VarName &v1, const VarName& v2){
-    int i = v1._prefix - v2._prefix;
-    if(i != 0) return i;
-    return v1._suffix - v2._suffix;
+    if (v1.m_prefix != v2.m_prefix)
+        return (v1.m_prefix < v2.m_prefix) ? -1 : 1;
+    return v1.m_suffix - v2.m_suffix;
 }
 
 int VarName::vec_compare(const std::vector<VarName> &lhs, const std::vector<VarName>& rhs) {
@@ -60,7 +60,7 @@ int VarName::vec_compare(const std::vector<VarName> &lhs, const std::vector<VarN
         }
         return 0;
     } else {
-        return (lhs.size() - rhs.size());
+        return lhs.size() < rhs.size() ? -1 : 1;
     }
 }
 
@@ -70,7 +70,7 @@ VarName VarName::getFreshVar(const std::string &prefix, const std::set<VarName> 
         return v;
     v = VarName::makeVar(prefix,1);
     while(set.find(v) != set.end())
-        v._suffix++;
+        v.m_suffix++;
     return v;
 }
 
@@ -83,14 +83,14 @@ VarName VarName::getFreshVar(const VarName &v, const std::set<VarName> &set){
             {
                 VarName nv = VarName::makeVar(v.prefix(),1);
                 while(set.find(nv) != set.end())
-                    nv._suffix++;
+                    nv.m_suffix++;
                 return nv;
             }
         case Kind::WithSuffix:
             {
                 VarName nv = VarName::makeVar(v.prefix(),v.suffix()+1);
                 while(set.find(nv) != set.end())
-                    nv._suffix++;
+                    nv.m_suffix++;
                 return nv;
             }
         case Kind::FreshId:
@@ -118,6 +118,6 @@ int TypedVar::vec_compare(const std::vector<TypedVar> &lhs, const std::vector<Ty
         }
         return 0;
     } else {
-        return (lhs.size() - rhs.size());
+        return lhs.size() < rhs.size() ? -1 : 1;
     }
 }

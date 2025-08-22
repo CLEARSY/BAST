@@ -86,12 +86,12 @@ namespace Xml {
             case GPred::Kind::ExprComparison:
                 {
                     const auto op = dom->Attribute("op");
-                    auto it = comparisonOp.find(op);
+                    auto it2 = comparisonOp.find(op);
                     const tinyxml2::XMLElement *fst = dom->FirstChildElement();
                     const tinyxml2::XMLElement *snd = fst->NextSiblingElement();
-                    if(it != comparisonOp.end())
+                    if(it2 != comparisonOp.end())
                         return GPred::makeExprComparison
-                            (it->second,readExpression(fst,typeInfos),readExpression(snd,typeInfos));
+                            (it2->second,readExpression(fst,typeInfos),readExpression(snd,typeInfos));
                     if (0 == strcmp(op, "/:"))
                         return GPred::makeNegationPred (GPred::makeExprComparison
                                 (Pred::ComparisonOp::Membership,

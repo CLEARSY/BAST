@@ -254,21 +254,21 @@ namespace Xml {
             case Expr::EKind::BinaryExpr:
                 {
                     auto op = dom->Attribute("op");
-                    auto it = binaryExpOp.find(op);
-                    if(it == binaryExpOp.end())
+                    auto it2 = binaryExpOp.find(op);
+                    if(it2 == binaryExpOp.end())
                         throw ExprReaderException
                             ("Unknown binary expression operator '" + std::string(op) + "'.", dom->GetLineNum());
                     const tinyxml2::XMLElement *fst {dom->FirstChildElement()};
                     const tinyxml2::XMLElement * snd {fst->NextSiblingElement()};
                     Expr lhs = readExpression(fst,typeInfos);
                     Expr rhs = readExpression(snd,typeInfos);
-                    return Expr::makeBinaryExpr(it->second,std::move(lhs),std::move(rhs),type,bxmlTag);
+                    return Expr::makeBinaryExpr(it2->second,std::move(lhs),std::move(rhs),type,bxmlTag);
                 }
             case Expr::EKind::TernaryExpr:
                 {
                     auto op = dom->Attribute("op");
-                    auto it = ternaryExpOp.find(op);
-                    if(it == ternaryExpOp.end())
+                    auto it2 = ternaryExpOp.find(op);
+                    if(it2 == ternaryExpOp.end())
                         throw ExprReaderException
                             ("Unknown ternary expression operator '" + std::string(op) + "'.", dom->GetLineNum());
                     const tinyxml2::XMLElement * fst = dom->FirstChildElement();
@@ -277,13 +277,13 @@ namespace Xml {
                     Expr efst = readExpression(fst,typeInfos);
                     Expr esnd = readExpression(snd,typeInfos);
                     Expr ethd = readExpression(thd,typeInfos);
-                    return Expr::makeTernaryExpr(it->second,std::move(efst),std::move(esnd),std::move(ethd),type,bxmlTag);
+                    return Expr::makeTernaryExpr(it2->second,std::move(efst),std::move(esnd),std::move(ethd),type,bxmlTag);
                 }
             case Expr::EKind::NaryExpr:
                 {
                     auto op = dom->Attribute("op");
-                    auto it = naryExpOp.find(op);
-                    if(it == naryExpOp.end())
+                    auto it2 = naryExpOp.find(op);
+                    if(it2 == naryExpOp.end())
                         throw ExprReaderException
                             ("Unknown n-ary expression operator '" + std::string(op) + "'.",dom->GetLineNum());
                     std::vector<Expr> lst;
@@ -292,7 +292,7 @@ namespace Xml {
                         lst.push_back(readExpression(ce,typeInfos));
                         ce = ce->NextSiblingElement();
                     }
-                    return Expr::makeNaryExpr(it->second,std::move(lst),type, bxmlTag);
+                    return Expr::makeNaryExpr(it2->second,std::move(lst),type, bxmlTag);
                 }
             case Expr::EKind::BooleanExpr:
                 {
@@ -312,14 +312,14 @@ namespace Xml {
                     }
 
                     auto v = dom->Attribute("value");
-                    auto it = constantExpr.find(v);
+                    auto it2 = constantExpr.find(v);
 
-                    if(it == constantExpr.end()){
+                    if(it2 == constantExpr.end()){
                         TypedVar tv = VarNameFromId(dom,typeInfos);
                         return Expr::makeIdent(tv.name, tv.type, bxmlTag);
                     }
 
-                    switch (it->second){
+                    switch (it2->second){
                         case Expr::EKind::MaxInt:
                             return Expr::makeMaxInt(bxmlTag);
                         case Expr::EKind::MinInt:
@@ -374,12 +374,10 @@ namespace Xml {
                     if (!decimalPart.empty())
                         lst.push_back(decimalPart);
                     if(lst.size() == 1 || lst.size() == 2){
-                        std::string integerPart = lst[0];
                         if(lst.size() == 1){
-                            return Expr::makeReal(Expr::Decimal(integerPart),bxmlTag);
+                            return Expr::makeReal(Expr::Decimal(lst[0]),bxmlTag);
                         } else /* lst.size() == 2 */ {
-                            std::string decimalPart = lst[1];
-                            return Expr::makeReal(Expr::Decimal(integerPart,decimalPart),bxmlTag);
+                            return Expr::makeReal(Expr::Decimal(lst[0],lst[1]),bxmlTag);
                         }
                     } else {
                         throw ExprReaderException("Incorrect decimal value ("+ std::string(dom->Attribute("value")) + ").",dom->GetLineNum());
@@ -392,8 +390,8 @@ namespace Xml {
             case Expr::EKind::QuantifiedExpr:
                 {
                     auto op = dom->Attribute("type");
-                    auto it = quantifiedExprOp.find(op);
-                    if(it == quantifiedExprOp.end())
+                    auto it2 = quantifiedExprOp.find(op);
+                    if(it2 == quantifiedExprOp.end())
                         throw ExprReaderException
                             ("Unknown type of quantified expression '" + std::string(op) + "'.",dom->GetLineNum());
 
@@ -410,7 +408,7 @@ namespace Xml {
                     }
                     Pred pre = readPredicate(dom->FirstChildElement("Pred")->FirstChildElement(),typeInfos);
                     Expr body = readExpression(dom->FirstChildElement("Body")->FirstChildElement(),typeInfos);
-                    return Expr::makeQuantifiedExpr(it->second,ids,std::move(pre),std::move(body),type,bxmlTag );
+                    return Expr::makeQuantifiedExpr(it2->second,ids,std::move(pre),std::move(body),type,bxmlTag );
                 }
             case Expr::EKind::QuantifiedSet:
                 {
@@ -442,12 +440,12 @@ namespace Xml {
                           readExpression(dom->FirstChildElement(), typeInfos),
                           type, bxmlTag);
                     } else {
-                      auto it = unaryExpOp.find(op);
-                      if(it == unaryExpOp.end())
+                      auto it2 = unaryExpOp.find(op);
+                      if(it2 == unaryExpOp.end())
                         throw ExprReaderException
                             ("Unknown unary expression operator '" + std::string(op) + "'.",dom->GetLineNum());
                       Expr content = readExpression(dom->FirstChildElement(),typeInfos);
-                      return Expr::makeUnaryExpr(it->second,std::move(content),type,bxmlTag);
+                      return Expr::makeUnaryExpr(it2->second,std::move(content),type,bxmlTag);
                     }
                 }
             case Expr::EKind::Struct:
