@@ -374,12 +374,10 @@ namespace Xml {
                     if (!decimalPart.empty())
                         lst.push_back(decimalPart);
                     if(lst.size() == 1 || lst.size() == 2){
-                        std::string integerPart = lst[0];
                         if(lst.size() == 1){
-                            return Expr::makeReal(Expr::Decimal(integerPart),bxmlTag);
+                            return Expr::makeReal(Expr::Decimal(lst[0]),bxmlTag);
                         } else /* lst.size() == 2 */ {
-                            std::string decimalPart = lst[1];
-                            return Expr::makeReal(Expr::Decimal(integerPart,decimalPart),bxmlTag);
+                            return Expr::makeReal(Expr::Decimal(lst[0],lst[1]),bxmlTag);
                         }
                     } else {
                         throw ExprReaderException("Incorrect decimal value ("+ std::string(dom->Attribute("value")) + ").",dom->GetLineNum());

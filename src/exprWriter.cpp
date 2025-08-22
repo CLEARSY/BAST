@@ -14,6 +14,7 @@
 */
 
 #include <numeric>
+#include <stdexcept>
 
 #include "exprWriter.h"
 #include "btype.h"
@@ -92,7 +93,7 @@ namespace Xml {
 
         }
         // unreachable
-        return -1;
+        throw std::runtime_error("Inconsistency in type registry");
     }
 
     void writeExprAttributes(
