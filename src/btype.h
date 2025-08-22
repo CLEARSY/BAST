@@ -165,20 +165,20 @@ class BType::EnumeratedSet : public AbstractSet {
 class BType::RecordType : public AbstractBType {
     public:
         RecordType(const std::vector<std::pair<std::string,BType>> &fields):
-            fields{sort(fields)}{ };
+        m_fields{sort(fields)}{ };
         virtual ~RecordType() = default;
 
-        void accept(Visitor &v) const override { v.visitRecordType(fields); }
+        void accept(Visitor &v) const override { v.visitRecordType(m_fields); }
         size_t hash_combine(size_t seed) const override {
             size_t res = seed;
-            for(auto &p : fields)
+            for(auto &p : m_fields)
                 res = hashUtil::hash_combine_string(
                         p.first,
                         p.second.hash_combine(res) );
             return res;
         }
 
-        const std::vector<std::pair<std::string,BType>> fields; // invariant: fields are sorted alphabetically
+        const std::vector<std::pair<std::string,BType>> m_fields; // invariant: fields are sorted alphabetically
     private:
         std::vector<std::pair<std::string,BType>> sort(const std::vector<std::pair<std::string,BType>> &fields);
 };

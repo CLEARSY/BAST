@@ -22,13 +22,13 @@
 
 class Subst {
     public:
-        enum class SKind { 
+        enum class SKind {
             Block, Skip, Assert, IfThen, IfThenElse, Select,
             SelectElse, Case, CaseElse, Any, OperationCall,
             While, Sequence, Parallel, Choice, SimpleAssignment, Witness };
 
-        Subst():tag{SKind::Skip},desc{}{}
-        SKind getTag() const { return tag; };
+        Subst():m_tag{SKind::Skip},m_desc{}{}
+        SKind getTag() const { return m_tag; };
 
         struct CaseChoice;
 
@@ -169,10 +169,10 @@ class Subst {
 
         Subst copy() const;
     private:
-        SKind tag; // The 'kind' of the substitution. Determine the class of desc
-        std::unique_ptr<SubstDesc> desc; // the content of the substitution (may be null if the substitution is Skip).
+        SKind m_tag; // The 'kind' of the substitution. Determine the class of m_desc
+        std::unique_ptr<SubstDesc> m_desc; // the content of the substitution (may be null if the substitution is Skip).
         // Constructor
-        Subst(SKind tag,SubstDesc *desc):tag{tag},desc{desc}{};
+        Subst(SKind tag,SubstDesc *desc):m_tag{tag},m_desc{desc}{};
 };
 
 struct Subst::CaseChoice {
@@ -534,55 +534,55 @@ class Subst::CaseSubst : public SubstDesc {
     public:
         // Constructor
         CaseSubst(Expr &&e, std::vector<CaseChoice> &&cases):
-            e{std::move(e)}, cases{std::move(cases)}{};
+            m_expr{std::move(e)}, m_cases{std::move(cases)}{};
         // Members
-        Expr e;
-        std::vector<CaseChoice> cases;
+        Expr m_expr;
+        std::vector<CaseChoice> m_cases;
         // Methods
         size_t hash_combine(size_t seed) const {
-            for(auto &ch : cases){
+            for(auto &ch : m_cases){
                 seed = ch.body.hash_combine(seed);
                 for(auto &e : ch.values)
                     seed = e.hash_combine(seed);
             }
-            return e.hash_combine(seed);
+            return m_expr.hash_combine(seed);
         }
         void getFreeVars(const std::set<VarName> &boundVars, std::set<VarName> &accu) const {
-            e.getFreeVars(boundVars,accu);
-            for(auto &ch: cases){
+            m_expr.getFreeVars(boundVars,accu);
+            for(auto &ch: m_cases){
                 for(auto &e : ch.values)
                     e.getFreeVars(boundVars,accu);
                 ch.body.getFreeVars(boundVars,accu);
             }
         }
         void getAllVars(std::set<VarName> &accu) const {
-            e.getAllVars(accu);
-            for(auto &ch: cases){
+            m_expr.getAllVars(accu);
+            for(auto &ch: m_cases){
                 for(auto &e : ch.values)
                     e.getAllVars(accu);
                 ch.body.getAllVars(accu);
             }
         }
         void getModifiedVars(const std::set<VarName> &boundVars, std::set<TypedVar> &accu) const {
-            for(auto &ch: cases)
+            for(auto &ch: m_cases)
                 ch.body.getModifiedVars(boundVars,accu);
         }
 
         void alpha(const std::map<VarName,VarName> &map){
-            e.alpha(map);
-            for(auto &ch: cases){
+            m_expr.alpha(map);
+            for(auto &ch: m_cases){
                 for(auto &e : ch.values)
                     e.alpha(map);
                 ch.body.alpha(map);
             }
         }
         void getInnerFreeVars(std::set<VarName> &accu) const {
-            for(auto &ch: cases)
+            for(auto &ch: m_cases)
                 ch.body.getInnerFreeVars(accu);
         }
         void substFreshId(const std::string &id, const VarName &v){
-            e.substFreshId(id,v);
-            for(auto &ch: cases){
+            m_expr.substFreshId(id,v);
+            for(auto &ch: m_cases){
                 for(auto &e : ch.values)
                     e.substFreshId(id,v);
                 ch.body.substFreshId(id,v);
@@ -590,14 +590,14 @@ class Subst::CaseSubst : public SubstDesc {
         }
         SubstDesc* copy() const {
             std::vector<CaseChoice> cases2;
-            for(auto &ch: cases){
+            for(auto &ch: m_cases){
                 CaseChoice ch2;
                 for(auto &e : ch.values)
                     ch2.values.push_back(e.copy());
                 ch2.body = ch.body.copy();
                 cases2.push_back(std::move(ch2));
             }
-            return new CaseSubst(e.copy(),std::move(cases2));
+            return new CaseSubst(m_expr.copy(),std::move(cases2));
         }
 };
 
@@ -605,76 +605,76 @@ class Subst::CaseElseSubst : public SubstDesc {
     public:
         // Constructor
         CaseElseSubst(Expr &&e, std::vector<CaseChoice> &&cases, Subst &&els):
-            e{std::move(e)}, cases{std::move(cases)},s_else{std::move(els)} {};
+            m_expr{std::move(e)}, m_cases{std::move(cases)},m_else{std::move(els)} {};
         // Members
-        Expr e;
-        std::vector<CaseChoice> cases;
-        Subst s_else;
+        Expr m_expr;
+        std::vector<CaseChoice> m_cases;
+        Subst m_else;
         // Methods
         size_t hash_combine(size_t seed) const {
-            for(auto &ch : cases){
+            for(auto &ch : m_cases){
                 for(auto &e : ch.values)
                     seed = e.hash_combine(seed);
                 seed = ch.body.hash_combine(seed);
             }
-            return e.hash_combine(s_else.hash_combine(seed));
+            return m_expr.hash_combine(m_else.hash_combine(seed));
         }
         void getFreeVars(const std::set<VarName> &boundVars, std::set<VarName> &accu) const {
-            e.getFreeVars(boundVars,accu);
-            for(auto &ch: cases){
+            m_expr.getFreeVars(boundVars,accu);
+            for(auto &ch: m_cases){
                 for(auto &e :ch.values)
                     e.getFreeVars(boundVars,accu);
                 ch.body.getFreeVars(boundVars,accu);
             }
-            s_else.getFreeVars(boundVars,accu);
+            m_else.getFreeVars(boundVars,accu);
         }
         void getAllVars(std::set<VarName> &accu) const {
-            e.getAllVars(accu);
-            for(auto &ch: cases){
+            m_expr.getAllVars(accu);
+            for(auto &ch: m_cases){
                 for(auto &e : ch.values)
                     e.getAllVars(accu);
                 ch.body.getAllVars(accu);
             }
-            s_else.getAllVars(accu);
+            m_else.getAllVars(accu);
         }
         void getModifiedVars(const std::set<VarName> &boundVars, std::set<TypedVar> &accu) const {
-            for(auto &ch: cases)
+            for(auto &ch: m_cases)
                 ch.body.getModifiedVars(boundVars,accu);
-            s_else.getModifiedVars(boundVars,accu);
+            m_else.getModifiedVars(boundVars,accu);
         }
         void alpha(const std::map<VarName,VarName> &map){
-            e.alpha(map);
-            for(auto &ch: cases){
+            m_expr.alpha(map);
+            for(auto &ch: m_cases){
                 for(auto &e : ch.values)
                     e.alpha(map);
                 ch.body.alpha(map);
             }
-            s_else.alpha(map);
+            m_else.alpha(map);
         }
         void getInnerFreeVars(std::set<VarName> &accu) const {
-            for(auto &ch: cases)
+            for(auto &ch: m_cases)
                 ch.body.getInnerFreeVars(accu);
-            s_else.getInnerFreeVars(accu);
+            m_else.getInnerFreeVars(accu);
         }
         void substFreshId(const std::string &id, const VarName &v){
-            e.substFreshId(id,v);
-            for(auto &ch: cases){
+            m_expr.substFreshId(id,v);
+            for(auto &ch: m_cases){
                 for(auto &e : ch.values)
                     e.substFreshId(id,v);
                 ch.body.substFreshId(id,v);
             }
-            s_else.substFreshId(id,v);
+            m_else.substFreshId(id,v);
         }
         SubstDesc* copy() const {
             std::vector<CaseChoice> cases2;
-            for(auto &ch: cases){
+            for(auto &ch: m_cases){
                 CaseChoice ch2;
                 for(auto &e : ch.values)
                     ch2.values.push_back(e.copy());
                 ch2.body = ch.body.copy();
                 cases2.push_back(std::move(ch2));
             }
-            return new CaseElseSubst(e.copy(),std::move(cases2),s_else.copy());
+            return new CaseElseSubst(m_expr.copy(),std::move(cases2),m_else.copy());
         }
 };
 

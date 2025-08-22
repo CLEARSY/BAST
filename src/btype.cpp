@@ -154,7 +154,7 @@ int BType::compare(const BType &ty1, const BType& ty2){
                         return res;
                 }
             case Kind::Struct:
-                return compare_field_vec(ty1.toRecordType().fields,ty2.toRecordType().fields);
+                return compare_field_vec(ty1.toRecordType().m_fields,ty2.toRecordType().m_fields);
             case Kind::AbstractSet:
                 {
                     return ty1.toAbstractSetType().getName().compare(ty2.toAbstractSetType().getName().c_str());
@@ -223,7 +223,7 @@ std::string BType::to_string() const {
         case Kind::Struct:
             {
                 std::string accu = "STRUCT(";
-                for(auto &fd : toRecordType().fields)
+                for(auto &fd : toRecordType().m_fields)
                     accu += fd.first + ":" + fd.second.to_string() + ", ";
                 return accu + ")";
             }

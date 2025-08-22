@@ -607,8 +607,8 @@ Expr Expr::makeRecordFieldAccess(Expr &&rec, const std::string &label, const BTy
     return Expr(EKind::Record_Field_Access, new RecordAccessExpr(std::move(rec),label) ,type,bxmlTag);
 }
 
-void Expr::addBxmlTags(const std::vector<std::string> &bxmlTag){
-    this->bxmlTag.insert(this->bxmlTag.end(),bxmlTag.begin(),bxmlTag.end());
+void Expr::addBxmlTags(const std::vector<std::string> &tags){
+    this->bxmlTag.insert(this->bxmlTag.end(),tags.begin(),tags.end());
 }
 
 int compare_field_vec(const std::vector<std::pair<std::string,Expr>>& lhs, const std::vector<std::pair<std::string,Expr>>& rhs){
@@ -625,7 +625,7 @@ int compare_field_vec(const std::vector<std::pair<std::string,Expr>>& lhs, const
         }
         return 0;
     } else {
-        return (lhs.size() - rhs.size());
+        return (lhs.size() < rhs.size()) ? -1 : 1;
     }
 }
 
@@ -822,7 +822,7 @@ int Expr::vec_compare(const std::vector<Expr>& lhs, const std::vector<Expr>& rhs
         }
         return 0;
     } else {
-        return (lhs.size() - rhs.size());
+        return (lhs.size() < rhs.size()) ? -1 : 1;
     }
 }
 

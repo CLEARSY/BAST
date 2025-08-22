@@ -76,12 +76,12 @@ namespace Xml {
                 }
             case Pred::PKind::ExprComparison:
                 {
-                    auto it {comparisonOp.find(op)};
+                    auto it2 {comparisonOp.find(op)};
                     const tinyxml2::XMLElement *fst {dom->FirstChildElement()};
                     const tinyxml2::XMLElement *snd {fst->NextSiblingElement()};
-                    if(it != comparisonOp.end())
+                    if(it2 != comparisonOp.end())
                         return Pred::makeExprComparison
-                            (it->second,readExpression(fst,typeInfos),readExpression(snd,typeInfos));
+                            (it2->second,readExpression(fst,typeInfos),readExpression(snd,typeInfos));
                     if (0 == strcmp(op, "/:"))
                         return Pred::makeNegation (Pred::makeExprComparison
                                 (Pred::ComparisonOp::Membership,
@@ -108,7 +108,7 @@ namespace Xml {
             case Pred::PKind::Forall:
             case Pred::PKind::Exists:
                 {
-                    const std::string op = dom->Attribute("type");
+                    const std::string quantifier = dom->Attribute("type");
                     const tinyxml2::XMLElement * vars {dom->FirstChildElement("Variables")};
                     if(nullptr == vars)
                         throw PredReaderException
@@ -121,15 +121,15 @@ namespace Xml {
                         vec.push_back(VarNameFromId(ce,typeInfos));
                     }
 
-                    if(op == "!"){
+                    if(quantifier == "!"){
                         return Pred::makeForall(vec,
                                 readPredicate(dom->FirstChildElement("Body")->FirstChildElement(),typeInfos));
-                    } else if (op == "#"){
+                    } else if (quantifier == "#"){
                         return Pred::makeExists(vec,
                                 readPredicate(dom->FirstChildElement("Body")->FirstChildElement(),typeInfos));
                     } else
                         throw PredReaderException
-                            ("Unknown type of quantified predicate '" + std::string(op) + "'.");
+                            ("Unknown type of quantified predicate '" + std::string(quantifier) + "'.");
                 }
             case Pred::PKind::Negation:
                 {
