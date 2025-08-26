@@ -223,9 +223,19 @@ std::string BType::to_string() const {
         case Kind::Struct:
             {
                 std::string accu = "STRUCT(";
-                for(auto &fd : toRecordType().m_fields)
-                    accu += fd.first + ":" + fd.second.to_string() + ", ";
-                return accu + ")";
+                bool first = true;
+                for(auto &fd : toRecordType().m_fields) {
+                    if(!first) {
+                        accu.append(", ");
+                    } else {
+                        first = false;
+                    }
+                    accu.append(fd.first);
+                    accu.append(" : ");
+                    accu.append(fd.second.to_string());
+                }
+                accu.append(")");
+                return accu;
             }
     }
     assert(false); // unreachable
