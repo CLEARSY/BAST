@@ -260,6 +260,8 @@ class Expr {
         static bool alpha_equals(Context &ctx, const Expr& e1, const Expr& e2);
         static bool alpha_equals(const Expr& e1, const Expr& e2);
 
+        bool isTypeExpression() const;
+
         // Attention il ne faut pas utiliser ces opérateurs pour comparer des expressions
         // numériques à des fins de simplification.
         //inline bool operator==(const Expr& other) const { return compare(*this,other) == 0; }
@@ -295,14 +297,10 @@ class Expr {
         std::unique_ptr<ExprDesc> desc; // the content of the expression (if any)
         BType type; // the type of the expression
         std::vector<std::string> bxmlTag; // tracability tags
+        bool m_isTypeExpression = false;
 
         // Constructor
-        Expr(EKind tag,ExprDesc *desc,const BType &ty, const std::vector<std::string> &bxmlTag):
-            tag{tag}
-        ,desc{desc}
-        ,type{ty}
-        ,bxmlTag{bxmlTag}
-        {};
+        Expr(EKind tag,ExprDesc *desc,const BType &ty, const std::vector<std::string> &bxmlTag);
 };
 
 class Expr::Visitor {

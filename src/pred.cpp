@@ -16,6 +16,25 @@
 #include "pred.h"
 #include "predDesc.h"
 
+Pred::Pred(PredDesc *desc, const std::string &gt):
+            goalTag{gt},
+            desc{desc},
+            m_isPureTypingPredicate{false}
+{
+    if (desc->tag() == PKind::ExprComparison) {
+        auto &ec = static_cast<ExprComparison&>(*desc);
+        if (ec.op == ComparisonOp::Membership || ec.op == ComparisonOp::Subset) {
+            if (ec.rhs.isTypeExpression()) {
+                m_isPureTypingPredicate = true;
+            }
+        }
+    }
+}
+
+bool Pred::isPureTypingPredicate() const {
+    return m_isPureTypingPredicate;
+}
+
 void Pred::getAllVars(std::set<VarName> &accu) const {
     desc->getAllVars(accu);
 }
@@ -181,7 +200,7 @@ int Pred::compare(const Pred &p1, const Pred& p2){
                     auto &b1 = p1.toExprComparison();
                     auto &b2 = p2.toExprComparison();
                     if(b1.op == b2.op){
-                        int res = Expr::compare(b1.lhs,b2.lhs);
+                        int res = Expr::compare(b1.lhs,b2.lhs);        // Constructor
                         if(res == 0){
                             return Expr::compare(b1.rhs,b2.rhs);
                         } else {
@@ -207,7 +226,7 @@ int Pred::compare(const Pred &p1, const Pred& p2){
                 }
             case Pred::PKind::Exists:
                 {
-                    auto &q1 = p1.toExists();
+                    auto &q1 = p1.toExists();        // Constructor
                     auto &q2 = p2.toExists();
                     int i = TypedVar::vec_compare(q1.vars,q2.vars);
                     if(i == 0){

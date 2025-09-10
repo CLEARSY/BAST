@@ -40,6 +40,15 @@ class Pred {
 
         Pred():desc{nullptr}{};
         PKind getTag() const;
+        /**
+         * @brief Tests if the predicate is of the form "x in T" or "x subseteq T" with T a type expression
+         *
+         * @details Such predicates are used to express typing constraints and only typing constraints.
+         * For instance "x: INTEGER", "x <: POW(INTEGER)" are two pure typing predicates
+         * while "x = 3" or "x <<: POW(INTEGER)" are typing predicates but not pure typing predicates
+         * as they restrict the possible interpretations of x.
+         */
+        bool isPureTypingPredicate() const;
         Pred copy() const;
 
         // Capture-avoiding substitution
@@ -151,11 +160,10 @@ class Pred {
 
         std::string goalTag; // Used to describe the source of the goal of a proof obligation
         std::unique_ptr<PredDesc> desc; // content of the predicate. Never null (except if default constructor is used)
+        bool m_isPureTypingPredicate;
+
         // Constructor
-        Pred(PredDesc *desc, const std::string &gt):
-            goalTag{gt},
-            desc{desc}
-        {};
+        Pred(PredDesc *desc, const std::string &gt);
 };
 
 class Pred::Visitor {

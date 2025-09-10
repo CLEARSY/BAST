@@ -21,6 +21,55 @@
 #include "exprDesc.h"
 #include "predDesc.h"
 
+Expr::Expr(EKind tag,ExprDesc *desc,const BType &ty, const std::vector<std::string> &bxmlTag):
+            tag{tag}
+        , desc{desc}
+        , type{ty}
+        , bxmlTag{bxmlTag}
+        , m_isTypeExpression{false}
+{
+    switch (tag) {
+        case EKind::INTEGER:
+        case EKind::STRING:
+        case EKind::BOOL:
+        case EKind::REAL:
+        case EKind::FLOAT:
+        m_isTypeExpression = true;
+        break;
+        case EKind::UnaryExpr: {
+            UnaryExpr& uexp = this->toUnaryExpr();
+            if (uexp.op == UnaryOp::Subsets && uexp.content.isTypeExpression()) {
+                m_isTypeExpression = true;
+            }
+            break;
+        }
+        case EKind::BinaryExpr: {
+            BinaryExpr& bexp = this->toBinaryExpr();
+            if ((bexp.op == BinaryOp::Cartesian_Product) &&
+                bexp.lhs.isTypeExpression() && bexp.rhs.isTypeExpression()) {
+                m_isTypeExpression = true;
+            }
+            break;
+        }
+        case EKind::Struct: {
+            StructExpr& sexp = this->toStructExpr();
+            bool allFieldsAreTypeExpr = true;
+            for (const auto& field : sexp.fields) {
+                if (!field.second.isTypeExpression()) {
+                    allFieldsAreTypeExpr = false;
+                    break;
+                }
+            }
+            m_isTypeExpression = allFieldsAreTypeExpr;
+            break;
+        }
+        default:
+            break;
+    }
+}
+
+bool Expr:: isTypeExpression() const { return m_isTypeExpression; }
+
 Expr Expr::copy() const {
     if(desc == nullptr) return Expr(tag,nullptr,type,bxmlTag);
     else return Expr(tag,desc->copy(),type,bxmlTag);
