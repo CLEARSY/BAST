@@ -16,24 +16,27 @@
 #ifndef PREDREADER_H
 #define PREDREADER_H
 
-#include "pred.h"
 #include "btype.h"
+#include "pred.h"
 #include "tinyxml2.h"
 
 namespace Xml {
-    class PredReaderException : public std::exception
-    {
-        public:
-            PredReaderException(const std::string desc):description{desc}{};
-            ~PredReaderException() throw() {};
-            const char *what() const throw(){ return description.c_str(); };
-        private:
-            std::string description;
-    };
+class PredReaderException : public std::exception {
+ public:
+  PredReaderException(const std::string desc) : description{desc} {};
+  ~PredReaderException() throw() {};
+  const char *what() const throw() { return description.c_str(); };
 
-    extern const std::map<std::string, Pred::ComparisonOp> comparisonOp; // declared and initialized in predReader.cpp - also used in gpredReader.cpp
+ private:
+  std::string description;
+};
 
-    Pred readPredicate(const tinyxml2::XMLElement *dom, const std::vector<BType> &typeInfos);
-}
+extern const std::map<std::string, Pred::ComparisonOp>
+    comparisonOp;  // declared and initialized in predReader.cpp - also used in
+                   // gpredReader.cpp
 
-#endif // PREDREADER_H
+Pred readPredicate(const tinyxml2::XMLElement *dom,
+                   const std::vector<BType> &typeInfos);
+}  // namespace Xml
+
+#endif  // PREDREADER_H

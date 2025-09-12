@@ -16,22 +16,22 @@
 #ifndef SUBSTREADER_H
 #define SUBSTREADER_H
 
+#include "subst.h"
 #include "tinyxml2.h"
 
-#include "subst.h"
-
 namespace Xml {
-    class SubstReaderException : public std::exception
-    {
-        public:
-            SubstReaderException(const std::string desc):description{desc}{};
-            ~SubstReaderException() throw() {};
-            const char *what() const throw(){ return description.c_str(); };
-        private:
-            std::string description;
-    };
+class SubstReaderException : public std::exception {
+ public:
+  SubstReaderException(const std::string desc) : description{desc} {};
+  ~SubstReaderException() throw() {};
+  const char *what() const throw() { return description.c_str(); };
 
-    Subst readSubstitution(const tinyxml2::XMLElement *dom, const std::vector<BType> &typeInfos);
-}
+ private:
+  std::string description;
+};
 
-#endif // SUBSTREADER_H
+Subst readSubstitution(const tinyxml2::XMLElement *dom,
+                       const std::vector<BType> &typeInfos);
+}  // namespace Xml
+
+#endif  // SUBSTREADER_H

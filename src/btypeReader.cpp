@@ -19,75 +19,70 @@
 
 namespace Xml {
 
-static BType readType(const tinyxml2::XMLElement *dom)
-    {
-    if(nullptr == dom)
-        throw BTypeReaderException("Null dom element.", 0);
+static BType readType(const tinyxml2::XMLElement *dom) {
+  if (nullptr == dom) throw BTypeReaderException("Null dom element.", 0);
 
-    auto tag {dom->Name()};
-    if(0 == strcmp(tag, "Id")){
-        auto value {dom->Attribute("value")};
-        if(0 == strcmp(value, "INTEGER")){
-            return BType::INT;
-        } else if(0 == strcmp(value, "FLOAT")){
-            return BType::FLOAT;
-        } else if(0 == strcmp(value, "REAL")){
-            return BType::REAL;
-        } else if(0 == strcmp(value, "STRING")){
-            return BType::STRING;
-        } else if(0 == strcmp(value, "BOOL")){
-            return BType::BOOL;
-        } else {
-            if(nullptr != dom->Attribute("suffix"))
-                throw BTypeReaderException("Abstract or Concrete Set with suffix.", dom->GetLineNum()); // this constraint could be removed
-            return BType::INT;
-        }
-    } else if(0 == strcmp(tag, "Unary_Exp")){
-        assert(0 == strcmp(dom->Attribute("op"), "POW"));
-        return BType::POW(readType(dom->FirstChildElement()));
-    } else if(0 == strcmp(tag, "Binary_Exp")){
-        assert(0 == strcmp(dom->Attribute("op"),  "*"));
-        const tinyxml2::XMLElement *fst {dom->FirstChildElement()};
-        return BType::PROD(
-                readType(fst),
-                readType(fst->NextSiblingElement()));
-    } else if(0 == strcmp(tag, "Struct")){
-        std::vector<std::pair<std::string,BType>> fields;
-        for(const tinyxml2::XMLElement *item = dom->FirstChildElement("Record_Item");
-                nullptr != item;
-                item = item->NextSiblingElement("Record_Item"))
-        {
-            fields.push_back( {
-                    std::string(item->Attribute("label")),
-                    readType(item->FirstChildElement()) });
-        }
-        return BType::STRUCT(fields);
+  auto tag{dom->Name()};
+  if (0 == strcmp(tag, "Id")) {
+    auto value{dom->Attribute("value")};
+    if (0 == strcmp(value, "INTEGER")) {
+      return BType::INT;
+    } else if (0 == strcmp(value, "FLOAT")) {
+      return BType::FLOAT;
+    } else if (0 == strcmp(value, "REAL")) {
+      return BType::REAL;
+    } else if (0 == strcmp(value, "STRING")) {
+      return BType::STRING;
+    } else if (0 == strcmp(value, "BOOL")) {
+      return BType::BOOL;
     } else {
-        throw BTypeReaderException("Unexpected Tag", dom->GetLineNum());
+      if (nullptr != dom->Attribute("suffix"))
+        throw BTypeReaderException(
+            "Abstract or Concrete Set with suffix.",
+            dom->GetLineNum());  // this constraint could be removed
+      return BType::INT;
     }
-    assert(false); // unreachable
+  } else if (0 == strcmp(tag, "Unary_Exp")) {
+    assert(0 == strcmp(dom->Attribute("op"), "POW"));
+    return BType::POW(readType(dom->FirstChildElement()));
+  } else if (0 == strcmp(tag, "Binary_Exp")) {
+    assert(0 == strcmp(dom->Attribute("op"), "*"));
+    const tinyxml2::XMLElement *fst{dom->FirstChildElement()};
+    return BType::PROD(readType(fst), readType(fst->NextSiblingElement()));
+  } else if (0 == strcmp(tag, "Struct")) {
+    std::vector<std::pair<std::string, BType>> fields;
+    for (const tinyxml2::XMLElement *item =
+             dom->FirstChildElement("Record_Item");
+         nullptr != item; item = item->NextSiblingElement("Record_Item")) {
+      fields.push_back({std::string(item->Attribute("label")),
+                        readType(item->FirstChildElement())});
+    }
+    return BType::STRUCT(fields);
+  } else {
+    throw BTypeReaderException("Unexpected Tag", dom->GetLineNum());
+  }
+  assert(false);  // unreachable
 }
 
-    void readTypeInfos(const tinyxml2::XMLElement *dom,std::vector<BType> &typeInfos)
-    {
-        assert(typeInfos.size() == 0);
-        if(nullptr == dom)
-            return;
+void readTypeInfos(const tinyxml2::XMLElement *dom,
+                   std::vector<BType> &typeInfos) {
+  assert(typeInfos.size() == 0);
+  if (nullptr == dom) return;
 
-        int cpt=0;
-        for(const tinyxml2::XMLElement *typ = dom->FirstChildElement("Type");
-                nullptr != typ;
-                typ = typ->NextSiblingElement())
-        {
-            int typref;
-            if(tinyxml2::XML_SUCCESS != typ->QueryIntAttribute("id", &typref))
-                throw BTypeReaderException("Integer expected", typ->GetLineNum());
-            if(typref != cpt)
-                throw BTypeReaderException("Unexpected typref. Expecting '" + std::to_string(cpt)
-                            + "'. Found '"+ std::to_string(typref) + "'.", typ->GetLineNum());
-            typeInfos.push_back(readType(typ->FirstChildElement()));
-            cpt++;
-        }
-    }
-
+  int cpt = 0;
+  for (const tinyxml2::XMLElement *typ = dom->FirstChildElement("Type");
+       nullptr != typ; typ = typ->NextSiblingElement()) {
+    int typref;
+    if (tinyxml2::XML_SUCCESS != typ->QueryIntAttribute("id", &typref))
+      throw BTypeReaderException("Integer expected", typ->GetLineNum());
+    if (typref != cpt)
+      throw BTypeReaderException("Unexpected typref. Expecting '" +
+                                     std::to_string(cpt) + "'. Found '" +
+                                     std::to_string(typref) + "'.",
+                                 typ->GetLineNum());
+    typeInfos.push_back(readType(typ->FirstChildElement()));
+    cpt++;
+  }
 }
+
+}  // namespace Xml

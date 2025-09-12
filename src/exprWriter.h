@@ -13,18 +13,18 @@
    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-
 #ifndef EXPRWRITER_H
 #define EXPRWRITER_H
 
+#include "expr.h"
 #include "tinyxml2.h"
 
-#include "expr.h"
-
 namespace Xml {
-    using TypeMap_t = std::map<BType, size_t>;
-    void writeTypedVar(tinyxml2::XMLPrinter &stream, TypeMap_t &typeInfos, const TypedVar &v);
-    void writeExpression(tinyxml2::XMLPrinter &stream, TypeMap_t &typeInfos, const Expr &p);
-}
+using TypeMap_t = std::map<BType, size_t>;
+void writeTypedVar(tinyxml2::XMLPrinter &stream, TypeMap_t &typeInfos,
+                   const TypedVar &v);
+void writeExpression(tinyxml2::XMLPrinter &stream, TypeMap_t &typeInfos,
+                     const Expr &p);
+}  // namespace Xml
 
-#endif // EXPRWRITER_H
+#endif  // EXPRWRITER_H

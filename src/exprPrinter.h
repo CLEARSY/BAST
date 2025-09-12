@@ -16,15 +16,15 @@
 #ifndef EXPR_PRINTER_H
 #define EXPR_PRINTER_H
 
-#include<iostream>
+#include <iostream>
 
 #include "expr.h"
 
 extern void printTypedVar(std::ostream &stream, const TypedVar &v);
 
-/// @brief pretty prints B expression 
+/// @brief pretty prints B expression
 /// @param stream the output stream where the expression is printed
 /// @param p the expression to be printed
 extern void printExpression(std::ostream &stream, const Expr &p);
 
-#endif // EXPR_PRINTER_H
+#endif  // EXPR_PRINTER_H

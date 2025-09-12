@@ -13,99 +13,97 @@
    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "exprWriter.h"
 #include "predWriter.h"
+
+#include "exprWriter.h"
 
 namespace Xml {
 
-    class PredWriterVisitor : public Pred::Visitor {
-        public:
-            void visitImplication(const Pred &lhs, const Pred &rhs){
-                stream.OpenElement("Binary_Pred");
-                stream.PushAttribute("op","=>");
-                lhs.accept(*this);
-                rhs.accept(*this);
-                stream.CloseElement(); // Binary_Pred
-            };
-            void visitEquivalence(const Pred &lhs, const Pred &rhs){
-                stream.OpenElement("Binary_Pred");
-                stream.PushAttribute("op","<=>");
-                lhs.accept(*this);
-                rhs.accept(*this);
-                stream.CloseElement(); // Binary_Pred
-            };
-            void visitExprComparison(Pred::ComparisonOp op, const Expr &lhs, const Expr &rhs){
-                stream.OpenElement("Exp_Comparison");
-                stream.PushAttribute("op", Pred::to_string(op).c_str());
-                writeExpression(stream,typeInfos,lhs);
-                writeExpression(stream,typeInfos,rhs);
-                stream.CloseElement(); // Exp_Comparison
-            };
-            void visitNegation(const Pred &p){
-                stream.OpenElement("Unary_Pred");
-                stream.PushAttribute("op","not");
-                p.accept(*this);
-                stream.CloseElement(); // Unary_Pred
-            };
-            void visitConjunction(const std::vector<Pred> &vec){
-                stream.OpenElement("Nary_Pred");
-                stream.PushAttribute("op","&");
-                for(auto &p : vec)
-                    p.accept(*this);
-                stream.CloseElement(); // Nary_Pred
-            };
-            void visitDisjunction(const std::vector<Pred> &vec){
-                stream.OpenElement("Nary_Pred");
-                stream.PushAttribute("op","or");
-                for(auto &p : vec)
-                    p.accept(*this);
-                stream.CloseElement(); // Nary_Pred
-            };
-            void visitForall(const std::vector<TypedVar> &vars, const Pred &p){
-                stream.OpenElement("Quantified_Pred");
-                stream.PushAttribute("type","!");
-                stream.OpenElement("Variables");
-                for(auto &v : vars)
-                    writeTypedVar(stream,typeInfos,v);
-                stream.CloseElement(); // Variables
-                stream.OpenElement("Body");
-                p.accept(*this);
-                stream.CloseElement(); // Body
-                stream.CloseElement(); // Quantified_Pred
-            };
-            void visitExists(const std::vector<TypedVar> &vars, const Pred &p){
-                stream.OpenElement("Quantified_Pred");
-                stream.PushAttribute("type","#");
-                stream.OpenElement("Variables");
-                for(auto &v : vars)
-                    writeTypedVar(stream,typeInfos,v);
-                stream.CloseElement(); // Variables
-                stream.OpenElement("Body");
-                p.accept(*this);
-                stream.CloseElement(); // Body
-                stream.CloseElement(); // Quantified_Pred
-            };
-            void visitTrue(){
-                stream.OpenElement("Nary_Pred");
-                stream.PushAttribute("op","&");
-                stream.CloseElement(); // Nary_Pred
-            };
-            void visitFalse(){
-                stream.OpenElement("Nary_Pred");
-                stream.PushAttribute("op","or");
-                stream.CloseElement(); // Nary_Pred
-            };
-            PredWriterVisitor(tinyxml2::XMLPrinter &s, TypeMap_t &typeInfos):
-                stream{s},
-                typeInfos{typeInfos}
-            {};
-        private:
-            tinyxml2::XMLPrinter &stream;
-            TypeMap_t &typeInfos;
-    };
+class PredWriterVisitor : public Pred::Visitor {
+ public:
+  void visitImplication(const Pred &lhs, const Pred &rhs) {
+    stream.OpenElement("Binary_Pred");
+    stream.PushAttribute("op", "=>");
+    lhs.accept(*this);
+    rhs.accept(*this);
+    stream.CloseElement();  // Binary_Pred
+  };
+  void visitEquivalence(const Pred &lhs, const Pred &rhs) {
+    stream.OpenElement("Binary_Pred");
+    stream.PushAttribute("op", "<=>");
+    lhs.accept(*this);
+    rhs.accept(*this);
+    stream.CloseElement();  // Binary_Pred
+  };
+  void visitExprComparison(Pred::ComparisonOp op, const Expr &lhs,
+                           const Expr &rhs) {
+    stream.OpenElement("Exp_Comparison");
+    stream.PushAttribute("op", Pred::to_string(op).c_str());
+    writeExpression(stream, typeInfos, lhs);
+    writeExpression(stream, typeInfos, rhs);
+    stream.CloseElement();  // Exp_Comparison
+  };
+  void visitNegation(const Pred &p) {
+    stream.OpenElement("Unary_Pred");
+    stream.PushAttribute("op", "not");
+    p.accept(*this);
+    stream.CloseElement();  // Unary_Pred
+  };
+  void visitConjunction(const std::vector<Pred> &vec) {
+    stream.OpenElement("Nary_Pred");
+    stream.PushAttribute("op", "&");
+    for (auto &p : vec) p.accept(*this);
+    stream.CloseElement();  // Nary_Pred
+  };
+  void visitDisjunction(const std::vector<Pred> &vec) {
+    stream.OpenElement("Nary_Pred");
+    stream.PushAttribute("op", "or");
+    for (auto &p : vec) p.accept(*this);
+    stream.CloseElement();  // Nary_Pred
+  };
+  void visitForall(const std::vector<TypedVar> &vars, const Pred &p) {
+    stream.OpenElement("Quantified_Pred");
+    stream.PushAttribute("type", "!");
+    stream.OpenElement("Variables");
+    for (auto &v : vars) writeTypedVar(stream, typeInfos, v);
+    stream.CloseElement();  // Variables
+    stream.OpenElement("Body");
+    p.accept(*this);
+    stream.CloseElement();  // Body
+    stream.CloseElement();  // Quantified_Pred
+  };
+  void visitExists(const std::vector<TypedVar> &vars, const Pred &p) {
+    stream.OpenElement("Quantified_Pred");
+    stream.PushAttribute("type", "#");
+    stream.OpenElement("Variables");
+    for (auto &v : vars) writeTypedVar(stream, typeInfos, v);
+    stream.CloseElement();  // Variables
+    stream.OpenElement("Body");
+    p.accept(*this);
+    stream.CloseElement();  // Body
+    stream.CloseElement();  // Quantified_Pred
+  };
+  void visitTrue() {
+    stream.OpenElement("Nary_Pred");
+    stream.PushAttribute("op", "&");
+    stream.CloseElement();  // Nary_Pred
+  };
+  void visitFalse() {
+    stream.OpenElement("Nary_Pred");
+    stream.PushAttribute("op", "or");
+    stream.CloseElement();  // Nary_Pred
+  };
+  PredWriterVisitor(tinyxml2::XMLPrinter &s, TypeMap_t &typeInfos)
+      : stream{s}, typeInfos{typeInfos} {};
 
-    void writePredicate(tinyxml2::XMLPrinter &stream, TypeMap_t &typeInfos, const Pred &p){
-        PredWriterVisitor v(stream, typeInfos);
-        p.accept(v);
-    }
+ private:
+  tinyxml2::XMLPrinter &stream;
+  TypeMap_t &typeInfos;
+};
+
+void writePredicate(tinyxml2::XMLPrinter &stream, TypeMap_t &typeInfos,
+                    const Pred &p) {
+  PredWriterVisitor v(stream, typeInfos);
+  p.accept(v);
 }
+}  // namespace Xml

@@ -16,13 +16,14 @@
 #ifndef PREDWRITER_H
 #define PREDWRITER_H
 
-#include "pred.h"
 #include "btype.h"
+#include "pred.h"
 #include "tinyxml2.h"
 
 namespace Xml {
-    using TypeMap_t = std::map<BType, size_t>;
-    void writePredicate(tinyxml2::XMLPrinter &stream, TypeMap_t &typeInfos, const Pred &p);
-}
+using TypeMap_t = std::map<BType, size_t>;
+void writePredicate(tinyxml2::XMLPrinter &stream, TypeMap_t &typeInfos,
+                    const Pred &p);
+}  // namespace Xml
 
-#endif // PREDWRITER_H
+#endif  // PREDWRITER_H

@@ -20,17 +20,18 @@
 #include "tinyxml2.h"
 
 namespace Xml {
-    class GPredReaderException : public std::exception
-    {
-        public:
-            GPredReaderException(const std::string desc):description{desc}{};
-            ~GPredReaderException() throw() {};
-            const char *what() const throw(){ return description.c_str(); };
-        private:
-            std::string description;
-    };
+class GPredReaderException : public std::exception {
+ public:
+  GPredReaderException(const std::string desc) : description{desc} {};
+  ~GPredReaderException() throw() {};
+  const char *what() const throw() { return description.c_str(); };
 
-    GPred readGPredicate(const tinyxml2::XMLElement *dom, const std::vector<BType> &typeInfos);
-}
+ private:
+  std::string description;
+};
 
-#endif // GPREDREADER_H
+GPred readGPredicate(const tinyxml2::XMLElement *dom,
+                     const std::vector<BType> &typeInfos);
+}  // namespace Xml
+
+#endif  // GPREDREADER_H

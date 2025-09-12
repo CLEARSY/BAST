@@ -20,106 +20,101 @@
 using std::ostream;
 
 class PredPrinterVisitor : public Pred::Visitor {
-        public:
-            void visitImplication(const Pred &lhs, const Pred &rhs){
-                stream << "(";
-                lhs.accept(*this);
-                stream << " => ";
-                rhs.accept(*this);
-                stream << ")";
-            };
-            void visitEquivalence(const Pred &lhs, const Pred &rhs){
-                stream << "(";
-                lhs.accept(*this);
-                stream << " <=> ";
-                rhs.accept(*this);
-                stream << ")";
-            };
-            void visitExprComparison(Pred::ComparisonOp op, const Expr &lhs, const Expr &rhs){
-                printExpression(stream,lhs);
-                stream << " " << Pred::to_string(op) << " ";
-                printExpression(stream, rhs);
-            };
-            void visitNegation(const Pred &p){
-                stream << "not( ";
-                p.accept(*this);
-                stream << " )";
-            };
-            void visitConjunction(const std::vector<Pred> &vec){
-                stream << "( ";
-                bool first {true};
-                for(auto &p : vec) {
-                    if (first) {
-                        first = false;
-                    } else {
-                        stream << tab << "& ";
-                    }
-                    p.accept(*this);
-                }
-                stream << ")";
-            };
-            void visitDisjunction(const std::vector<Pred> &vec){
-                stream << "( ";
-                bool first {true};
-                for(auto &p : vec) {
-                    if (first) {
-                        first = false;
-                    } else {
-                        stream << tab << "or ";
-                    }
-                    p.accept(*this);
-                    stream << std::endl;
-                }
-                stream << ")";
-            };
-            void visitForall(const std::vector<TypedVar> &vars, const Pred &p){
-                stream << "!(";
-                bool first {true};
-                for(auto &v : vars) {
-                    if (first) {
-                        first = false;
-                    } else {
-                        stream << ", ";
-                    }
-                    printTypedVar(stream, v);
-                }
-                stream << ").(";
-                p.accept(*this);
-                stream << ")";
-            };
-            void visitExists(const std::vector<TypedVar> &vars, const Pred &p){
-                stream << "#(";
-                bool first {true};
-                for(auto &v : vars) {
-                    if (first) {
-                        first = false;
-                    } else {
-                        stream << ", ";
-                    }
-                    printTypedVar(stream, v);
-                }
-                stream << ").(";
-                p.accept(*this);
-                stream << ")";
-            };
-            void visitTrue(){
-                stream << "btrue";
-            };
-            void visitFalse(){
-                stream << "bfalse";
-            };
-            PredPrinterVisitor(ostream &s)
-            : stream{s},
-              margin{""}
-            {};
-        private:
-            ostream &stream;
-            std::string margin;
-            static const std::string tab;
-    };
-const std::string PredPrinterVisitor::tab =  std::string("  ");
+ public:
+  void visitImplication(const Pred &lhs, const Pred &rhs) {
+    stream << "(";
+    lhs.accept(*this);
+    stream << " => ";
+    rhs.accept(*this);
+    stream << ")";
+  };
+  void visitEquivalence(const Pred &lhs, const Pred &rhs) {
+    stream << "(";
+    lhs.accept(*this);
+    stream << " <=> ";
+    rhs.accept(*this);
+    stream << ")";
+  };
+  void visitExprComparison(Pred::ComparisonOp op, const Expr &lhs,
+                           const Expr &rhs) {
+    printExpression(stream, lhs);
+    stream << " " << Pred::to_string(op) << " ";
+    printExpression(stream, rhs);
+  };
+  void visitNegation(const Pred &p) {
+    stream << "not( ";
+    p.accept(*this);
+    stream << " )";
+  };
+  void visitConjunction(const std::vector<Pred> &vec) {
+    stream << "( ";
+    bool first{true};
+    for (auto &p : vec) {
+      if (first) {
+        first = false;
+      } else {
+        stream << tab << "& ";
+      }
+      p.accept(*this);
+    }
+    stream << ")";
+  };
+  void visitDisjunction(const std::vector<Pred> &vec) {
+    stream << "( ";
+    bool first{true};
+    for (auto &p : vec) {
+      if (first) {
+        first = false;
+      } else {
+        stream << tab << "or ";
+      }
+      p.accept(*this);
+      stream << std::endl;
+    }
+    stream << ")";
+  };
+  void visitForall(const std::vector<TypedVar> &vars, const Pred &p) {
+    stream << "!(";
+    bool first{true};
+    for (auto &v : vars) {
+      if (first) {
+        first = false;
+      } else {
+        stream << ", ";
+      }
+      printTypedVar(stream, v);
+    }
+    stream << ").(";
+    p.accept(*this);
+    stream << ")";
+  };
+  void visitExists(const std::vector<TypedVar> &vars, const Pred &p) {
+    stream << "#(";
+    bool first{true};
+    for (auto &v : vars) {
+      if (first) {
+        first = false;
+      } else {
+        stream << ", ";
+      }
+      printTypedVar(stream, v);
+    }
+    stream << ").(";
+    p.accept(*this);
+    stream << ")";
+  };
+  void visitTrue() { stream << "btrue"; };
+  void visitFalse() { stream << "bfalse"; };
+  PredPrinterVisitor(ostream &s) : stream{s}, margin{""} {};
+
+ private:
+  ostream &stream;
+  std::string margin;
+  static const std::string tab;
+};
+const std::string PredPrinterVisitor::tab = std::string("  ");
 
 void printPredicate(ostream &stream, const Pred &p) {
-    PredPrinterVisitor v(stream);
-    p.accept(v);
+  PredPrinterVisitor v(stream);
+  p.accept(v);
 }

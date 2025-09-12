@@ -17,33 +17,29 @@
 
 using std::ostream;
 
-class BTypePrinterVisitor : public BType::Visitor
-{
-public:
-  BTypePrinterVisitor(ostream& s)
-    : stream{ s } {};
+class BTypePrinterVisitor : public BType::Visitor {
+ public:
+  BTypePrinterVisitor(ostream& s) : stream{s} {};
   void visitINTEGER() { stream << "INTEGER"; }
   void visitBOOLEAN() { stream << "BOOLEAN"; }
   void visitFLOAT() { stream << "FLOAT"; }
   void visitREAL() { stream << "REAL"; }
   void visitSTRING() { stream << "STRING"; }
-  void visitProductType(const BType& lhs, const BType& rhs)
-  {
+  void visitProductType(const BType& lhs, const BType& rhs) {
     stream << "(";
     lhs.accept(*this);
     stream << " * ";
     rhs.accept(*this);
     stream << ")";
   }
-  void visitPowerType(const BType& ty)
-  {
+  void visitPowerType(const BType& ty) {
     stream << "POW(";
     ty.accept(*this);
     stream << ")";
   }
-  void visitRecordType(const std::vector<std::pair<std::string, BType>>& fields)
-  {
-    bool first{ true };
+  void visitRecordType(
+      const std::vector<std::pair<std::string, BType>>& fields) {
+    bool first{true};
     stream << "rec(";
     for (const auto& f : fields) {
       if (first) {
@@ -56,22 +52,16 @@ public:
     }
     stream << ")";
   }
-  void visitAbstractSet(const BType::AbstractSet& type)
-  {
-    stream << type.name;
-  }
-  void visitEnumeratedSet(const BType::EnumeratedSet& type)
-  {
+  void visitAbstractSet(const BType::AbstractSet& type) { stream << type.name; }
+  void visitEnumeratedSet(const BType::EnumeratedSet& type) {
     stream << type.getName();
   }
 
-private:
+ private:
   ostream& stream;
 };
 
-void
-printType(ostream& stream, const BType& p)
-{
+void printType(ostream& stream, const BType& p) {
   BTypePrinterVisitor visitor(stream);
   p.accept(visitor);
 }

@@ -16,7 +16,7 @@
 #ifndef BTYPEPRINTER_H
 #define BTYPEPRINTER_H
 
-#include<iostream>
+#include <iostream>
 
 #include "btype.h"
 
@@ -25,4 +25,4 @@
 /// @param p the type to be printed
 void printType(std::ostream &stream, const BType &p);
 
-#endif // BTYPEPRINTER_H
+#endif  // BTYPEPRINTER_H

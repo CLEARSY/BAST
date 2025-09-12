@@ -16,35 +16,38 @@
 #ifndef BTYPE_READER_H
 #define BTYPE_READER_H
 
-#include<vector>
+#include <vector>
 
 #include "btype.h"
 #include "tinyxml2.h"
 
-
 namespace Xml {
 
-    /// @brief reads a TypeInfos DOM element and builds the representation of the corresponding B types
-    /// @param dom a TypeInfos DOM element, as found in BXML, IBXML, POXML and POG files
-    /// @param typeInfos a vector where the representation of each type in the TypeInfos is stored
-    /// @pre the vector @a typeInfos is empty
-    /// @post The representation of the i-th Type element child of @a dom vector is stored at the i-th
-    /// position of @a typeInfos.
-    void readTypeInfos(const tinyxml2::XMLElement *dom,std::vector<BType> &typeInfos);
+/// @brief reads a TypeInfos DOM element and builds the representation of the
+/// corresponding B types
+/// @param dom a TypeInfos DOM element, as found in BXML, IBXML, POXML and POG
+/// files
+/// @param typeInfos a vector where the representation of each type in the
+/// TypeInfos is stored
+/// @pre the vector @a typeInfos is empty
+/// @post The representation of the i-th Type element child of @a dom vector is
+/// stored at the i-th position of @a typeInfos.
+void readTypeInfos(const tinyxml2::XMLElement *dom,
+                   std::vector<BType> &typeInfos);
 
-    /// @brief exceptions that may be thrown by @a Xml::readTypeInfos on corrupt input
-    class BTypeReaderException : public std::exception
-    {
-        public:
-            BTypeReaderException(const std::string desc, int line):
-                description{desc + " (line " + std::to_string(line) + ")"}
-            {};
-            ~BTypeReaderException() throw(){};
-            const char *what() const throw(){ return description.c_str(); };
-        private:
-            std::string description;
-    };
+/// @brief exceptions that may be thrown by @a Xml::readTypeInfos on corrupt
+/// input
+class BTypeReaderException : public std::exception {
+ public:
+  BTypeReaderException(const std::string desc, int line)
+      : description{desc + " (line " + std::to_string(line) + ")"} {};
+  ~BTypeReaderException() throw() {};
+  const char *what() const throw() { return description.c_str(); };
 
-}
+ private:
+  std::string description;
+};
 
-#endif // BTYPE_READER_H
+}  // namespace Xml
+
+#endif  // BTYPE_READER_H

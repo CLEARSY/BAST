@@ -16,20 +16,20 @@
 #ifndef HASHUTIL_H
 #define HASHUTIL_H
 
-#include<string>
+#include <string>
 
 namespace hashUtil {
-    // These functions are specialisations of boost::hash_combine
-    inline size_t hash_combine_int(int i, size_t seed){
-        seed ^= i + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-        return seed;
-    }
-
-    inline size_t hash_combine_string(const std::string &s, size_t seed){
-        std::hash<std::string> h;
-        seed ^= h(s) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-        return seed;
-    }
+// These functions are specialisations of boost::hash_combine
+inline size_t hash_combine_int(int i, size_t seed) {
+  seed ^= i + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+  return seed;
 }
 
-#endif // HASHUTIL_H
+inline size_t hash_combine_string(const std::string &s, size_t seed) {
+  std::hash<std::string> h;
+  seed ^= h(s) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+  return seed;
+}
+}  // namespace hashUtil
+
+#endif  // HASHUTIL_H

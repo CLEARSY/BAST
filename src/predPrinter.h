@@ -15,11 +15,11 @@
 #ifndef PRED_PRINTER_H
 #define PRED_PRINTER_H
 
-#include<iostream>
+#include <iostream>
 
 #include "pred.h"
 
-/// @brief pretty prints B predicate 
+/// @brief pretty prints B predicate
 /// @param stream the output stream where the predicate is printed
 /// @param p the predicate to be printed
 extern void printPredicate(std::ostream &stream, const Pred &p);

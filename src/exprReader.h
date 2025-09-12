@@ -20,20 +20,21 @@
 #include "tinyxml2.h"
 
 namespace Xml {
-    TypedVar VarNameFromId(const tinyxml2::XMLElement *id, const std::vector<BType> &typeInfos);
+TypedVar VarNameFromId(const tinyxml2::XMLElement *id,
+                       const std::vector<BType> &typeInfos);
 
-    class ExprReaderException : public std::exception
-    {
-        public:
-            ExprReaderException(const std::string desc, int line):
-                description{desc + " (line " + std::to_string(line) + ")"}
-            {};
-            ~ExprReaderException() throw(){};
-            const char *what() const throw(){ return description.c_str(); };
-        private:
-            std::string description;
-    };
-    Expr readExpression(const tinyxml2::XMLElement *dom, const std::vector<BType> &typeInfos);
-}
+class ExprReaderException : public std::exception {
+ public:
+  ExprReaderException(const std::string desc, int line)
+      : description{desc + " (line " + std::to_string(line) + ")"} {};
+  ~ExprReaderException() throw() {};
+  const char *what() const throw() { return description.c_str(); };
 
-#endif // EXPRREADER_H
+ private:
+  std::string description;
+};
+Expr readExpression(const tinyxml2::XMLElement *dom,
+                    const std::vector<BType> &typeInfos);
+}  // namespace Xml
+
+#endif  // EXPRREADER_H

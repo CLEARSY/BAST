@@ -14,67 +14,68 @@
    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include <cassert>
-#include <algorithm>
-#include <memory>
 #include "btype.h"
 
+#include <algorithm>
+#include <cassert>
+#include <memory>
+
 void BType::accept(Visitor &v) const {
-    switch(kind){
-        case Kind::INTEGER:
-            v.visitINTEGER();
-            break;
-        case Kind::BOOLEAN:
-            v.visitBOOLEAN();
-            break;
-        case Kind::FLOAT:
-            v.visitFLOAT();
-            break;
-        case Kind::REAL:
-            v.visitREAL();
-            break;
-        case Kind::STRING:
-            v.visitSTRING();
-            break;
-        case Kind::AbstractSet:
-        case Kind::EnumeratedSet:
-        case Kind::ProductType:
-        case Kind::PowerType:
-        case Kind::Struct:
-            ptr->accept(v);
-    }
+  switch (kind) {
+    case Kind::INTEGER:
+      v.visitINTEGER();
+      break;
+    case Kind::BOOLEAN:
+      v.visitBOOLEAN();
+      break;
+    case Kind::FLOAT:
+      v.visitFLOAT();
+      break;
+    case Kind::REAL:
+      v.visitREAL();
+      break;
+    case Kind::STRING:
+      v.visitSTRING();
+      break;
+    case Kind::AbstractSet:
+    case Kind::EnumeratedSet:
+    case Kind::ProductType:
+    case Kind::PowerType:
+    case Kind::Struct:
+      ptr->accept(v);
+  }
 }
 
-const BType::ProductType& BType::toProductType() const{
+const BType::ProductType &BType::toProductType() const {
   assert(kind == Kind::ProductType);
-  return static_cast<ProductType&>(*ptr);
+  return static_cast<ProductType &>(*ptr);
 }
 
-const BType::PowerType& BType::toPowerType() const{
+const BType::PowerType &BType::toPowerType() const {
   assert(kind == Kind::PowerType);
-  return static_cast<PowerType&>(*ptr);
+  return static_cast<PowerType &>(*ptr);
 }
 
-const BType::RecordType& BType::toRecordType() const{
+const BType::RecordType &BType::toRecordType() const {
   assert(kind == Kind::Struct);
-  return static_cast<RecordType&>(*ptr);
+  return static_cast<RecordType &>(*ptr);
 }
 
-const BType::AbstractSet& BType::toAbstractSetType() const{
+const BType::AbstractSet &BType::toAbstractSetType() const {
   assert(kind == Kind::AbstractSet);
-  return static_cast<AbstractSet&>(*ptr);
+  return static_cast<AbstractSet &>(*ptr);
 }
 
-const BType::EnumeratedSet& BType::toEnumeratedSetType() const{
+const BType::EnumeratedSet &BType::toEnumeratedSetType() const {
   assert(kind == Kind::EnumeratedSet);
-  return static_cast<EnumeratedSet&>(*ptr);
+  return static_cast<EnumeratedSet &>(*ptr);
 }
 
-const BType BType::INT = BType(Kind::INTEGER,nullptr);
-const BType BType::BOOL = BType(Kind::BOOLEAN,nullptr);
-const BType BType::FLOAT = BType(Kind::FLOAT,nullptr);
-const BType BType::REAL = BType(Kind::REAL,nullptr);
-const BType BType::STRING = BType(Kind::STRING,nullptr);
+const BType BType::INT = BType(Kind::INTEGER, nullptr);
+const BType BType::BOOL = BType(Kind::BOOLEAN, nullptr);
+const BType BType::FLOAT = BType(Kind::FLOAT, nullptr);
+const BType BType::REAL = BType(Kind::REAL, nullptr);
+const BType BType::STRING = BType(Kind::STRING, nullptr);
 
 const BType BType::POW_INT = POW(INT);
 const BType BType::POW_BOOL = POW(BOOL);
@@ -82,162 +83,165 @@ const BType BType::POW_FLOAT = POW(FLOAT);
 const BType BType::POW_STRING = POW(STRING);
 const BType BType::POW_REAL = POW(REAL);
 
-const BType BType::RELATION_INTEGER = POW(PROD(INT, INT)); // type of functions succ and pred
+const BType BType::RELATION_INTEGER =
+    POW(PROD(INT, INT));  // type of functions succ and pred
 
-BType BType::PROD(const BType &lhs,const BType &rhs){
-    return BType(Kind::ProductType,std::make_shared<ProductType>(ProductType(lhs,rhs)));
+BType BType::PROD(const BType &lhs, const BType &rhs) {
+  return BType(Kind::ProductType,
+               std::make_shared<ProductType>(ProductType(lhs, rhs)));
 }
-BType BType::POW(const BType &content){
-    return BType(Kind::PowerType,std::make_shared<PowerType>(PowerType(content)));
+BType BType::POW(const BType &content) {
+  return BType(Kind::PowerType,
+               std::make_shared<PowerType>(PowerType(content)));
 }
 BType BType::ABSTRACT_SET(const std::string &name) {
-    return BType(Kind::AbstractSet, std::make_shared<AbstractSet>(AbstractSet(name)));
+  return BType(Kind::AbstractSet,
+               std::make_shared<AbstractSet>(AbstractSet(name)));
 }
-BType BType::ENUMERATED_SET(const std::pair<std::string, std::vector<std::string>> &values) {
-    return BType(Kind::EnumeratedSet, std::make_shared<EnumeratedSet>(EnumeratedSet(values)));
+BType BType::ENUMERATED_SET(
+    const std::pair<std::string, std::vector<std::string>> &values) {
+  return BType(Kind::EnumeratedSet,
+               std::make_shared<EnumeratedSet>(EnumeratedSet(values)));
 }
-BType BType::STRUCT(const std::vector<std::pair<std::string,BType>> &fields){
-    return BType(Kind::Struct,std::make_shared<RecordType>(RecordType(fields)));
+BType BType::STRUCT(const std::vector<std::pair<std::string, BType>> &fields) {
+  return BType(Kind::Struct, std::make_shared<RecordType>(RecordType(fields)));
 }
 
-int compare_field_vec(const std::vector<std::pair<std::string,BType>>& lhs, const std::vector<std::pair<std::string,BType>>& rhs){
-    if(lhs.size() == rhs.size()){
+int compare_field_vec(const std::vector<std::pair<std::string, BType>> &lhs,
+                      const std::vector<std::pair<std::string, BType>> &rhs) {
+  if (lhs.size() == rhs.size()) {
+    struct {
+      bool operator()(const std::pair<std::string, BType> &a,
+                      const std::pair<std::string, BType> &b) const {
+        return a.first < b.first;
+      }
+    } lessThan;
 
-        struct {
-            bool operator()(const std::pair<std::string,BType> &a, const std::pair<std::string,BType> &b) const
-            {
-                return a.first < b.first;
-            }
-        } lessThan;
+    std::vector<std::pair<std::string, BType>> sorted_lhs(lhs.size());
+    partial_sort_copy(begin(lhs), end(lhs), begin(sorted_lhs), end(sorted_lhs),
+                      lessThan);
 
-        std::vector<std::pair<std::string,BType>> sorted_lhs(lhs.size());
-        partial_sort_copy(begin(lhs), end(lhs), begin(sorted_lhs), end(sorted_lhs),lessThan);
+    std::vector<std::pair<std::string, BType>> sorted_rhs(rhs.size());
+    partial_sort_copy(begin(rhs), end(rhs), begin(sorted_rhs), end(sorted_rhs),
+                      lessThan);
 
-        std::vector<std::pair<std::string,BType>> sorted_rhs(rhs.size());
-        partial_sort_copy(begin(rhs), end(rhs), begin(sorted_rhs), end(sorted_rhs),lessThan);
-
-        size_t i = 0;
-        while(i<lhs.size()){
-            auto &p1 = sorted_lhs.at(i);
-            auto &p2 = sorted_rhs.at(i);
-            int res = p1.first.compare(p2.first);
-            if(res != 0) return res;
-            res = BType::compare(p1.second,p2.second);
-            if(res != 0) return res;
-            i++;
-        }
-        return 0;
-    } else {
-        return lhs.size() < rhs.size() ? -1 : 1;
+    size_t i = 0;
+    while (i < lhs.size()) {
+      auto &p1 = sorted_lhs.at(i);
+      auto &p2 = sorted_rhs.at(i);
+      int res = p1.first.compare(p2.first);
+      if (res != 0) return res;
+      res = BType::compare(p1.second, p2.second);
+      if (res != 0) return res;
+      i++;
     }
-}
-
-int BType::compare(const BType &ty1, const BType& ty2){
-    if(ty1.kind == ty2.kind){
-        switch(ty1.kind){
-            case Kind::INTEGER:
-            case Kind::BOOLEAN:
-            case Kind::STRING:
-            case Kind::FLOAT:
-            case Kind::REAL:
-                return 0;
-            case Kind::PowerType:
-                return compare(ty1.toPowerType().content,ty2.toPowerType().content);
-            case Kind::ProductType:
-                {
-                    auto &pr1 = ty1.toProductType();
-                    auto &pr2 = ty2.toProductType();
-                    int res = compare(pr1.lhs,pr2.lhs);
-                    if(res == 0)
-                        return compare(pr1.rhs,pr2.rhs);
-                    else
-                        return res;
-                }
-            case Kind::Struct:
-                return compare_field_vec(ty1.toRecordType().m_fields,ty2.toRecordType().m_fields);
-            case Kind::AbstractSet:
-                {
-                    return ty1.toAbstractSetType().getName().compare(ty2.toAbstractSetType().getName().c_str());
-                }
-            case Kind::EnumeratedSet:
-                {
-                    return ty1.toAbstractSetType().getName().compare(ty2.toAbstractSetType().getName().c_str());
-                }
-        }
-    }
-    else if (ty1.kind < ty2.kind){
-        return -1;
-    } else {
-        return 1;
-    }
-    assert(false); // unreachable
     return 0;
+  } else {
+    return lhs.size() < rhs.size() ? -1 : 1;
+  }
+}
+
+int BType::compare(const BType &ty1, const BType &ty2) {
+  if (ty1.kind == ty2.kind) {
+    switch (ty1.kind) {
+      case Kind::INTEGER:
+      case Kind::BOOLEAN:
+      case Kind::STRING:
+      case Kind::FLOAT:
+      case Kind::REAL:
+        return 0;
+      case Kind::PowerType:
+        return compare(ty1.toPowerType().content, ty2.toPowerType().content);
+      case Kind::ProductType: {
+        auto &pr1 = ty1.toProductType();
+        auto &pr2 = ty2.toProductType();
+        int res = compare(pr1.lhs, pr2.lhs);
+        if (res == 0)
+          return compare(pr1.rhs, pr2.rhs);
+        else
+          return res;
+      }
+      case Kind::Struct:
+        return compare_field_vec(ty1.toRecordType().m_fields,
+                                 ty2.toRecordType().m_fields);
+      case Kind::AbstractSet: {
+        return ty1.toAbstractSetType().getName().compare(
+            ty2.toAbstractSetType().getName().c_str());
+      }
+      case Kind::EnumeratedSet: {
+        return ty1.toAbstractSetType().getName().compare(
+            ty2.toAbstractSetType().getName().c_str());
+      }
+    }
+  } else if (ty1.kind < ty2.kind) {
+    return -1;
+  } else {
+    return 1;
+  }
+  assert(false);  // unreachable
+  return 0;
 }
 
 size_t BType::hash_combine(size_t seed) const {
-    if(ptr != nullptr)
-        seed = ptr->hash_combine(seed);
-    return hashUtil::hash_combine_int(static_cast<int>(kind),seed);
+  if (ptr != nullptr) seed = ptr->hash_combine(seed);
+  return hashUtil::hash_combine_int(static_cast<int>(kind), seed);
 }
 
 struct {
-    bool operator()(const std::pair<std::string,BType> &a, const std::pair<std::string,BType> &b)
-    {
-        return a.first < b.first;
-    }
+  bool operator()(const std::pair<std::string, BType> &a,
+                  const std::pair<std::string, BType> &b) {
+    return a.first < b.first;
+  }
 } BTypeRecordFieldCmp;
 
-std::vector<std::pair<std::string,BType>> BType::RecordType::sort(const std::vector<std::pair<std::string,BType>> &fields){
-    std::vector<std::pair<std::string,BType>> res { fields };
-    std::sort(res.begin(), res.end(), BTypeRecordFieldCmp);
-    return res;
+std::vector<std::pair<std::string, BType>> BType::RecordType::sort(
+    const std::vector<std::pair<std::string, BType>> &fields) {
+  std::vector<std::pair<std::string, BType>> res{fields};
+  std::sort(res.begin(), res.end(), BTypeRecordFieldCmp);
+  return res;
 }
 std::string BType::to_string() const {
-    switch(kind){
-        case Kind::INTEGER:
-            return "INT";
-        case Kind::BOOLEAN:
-            return "BOOL";
-        case Kind::REAL:
-            return "REAL";
-        case Kind::FLOAT:
-            return "FLOAT";
-        case Kind::STRING:
-            return "STRING";
-        case Kind::PowerType:
-            return "POW(" + toPowerType().content.to_string() + ")";
-        case Kind::ProductType:
-            return "PROD("
-                + toProductType().lhs.to_string() + ", "
-                + toProductType().rhs.to_string() + ")";
-        case Kind::AbstractSet:
-            {
-                auto &st = this->toAbstractSetType();
-                return "ASET(" + st.getName() + ")";
-            }
-        case Kind::EnumeratedSet:
-            {
-                auto &st2 = this->toEnumeratedSetType();
-                return "ESET(" + st2.getName() + ")";
-            }
-        case Kind::Struct:
-            {
-                std::string accu = "STRUCT(";
-                bool first = true;
-                for(auto &fd : toRecordType().m_fields) {
-                    if(!first) {
-                        accu.append(", ");
-                    } else {
-                        first = false;
-                    }
-                    accu.append(fd.first);
-                    accu.append(" : ");
-                    accu.append(fd.second.to_string());
-                }
-                accu.append(")");
-                return accu;
-            }
+  switch (kind) {
+    case Kind::INTEGER:
+      return "INT";
+    case Kind::BOOLEAN:
+      return "BOOL";
+    case Kind::REAL:
+      return "REAL";
+    case Kind::FLOAT:
+      return "FLOAT";
+    case Kind::STRING:
+      return "STRING";
+    case Kind::PowerType:
+      return "POW(" + toPowerType().content.to_string() + ")";
+    case Kind::ProductType:
+      return "PROD(" + toProductType().lhs.to_string() + ", " +
+             toProductType().rhs.to_string() + ")";
+    case Kind::AbstractSet: {
+      auto &st = this->toAbstractSetType();
+      return "ASET(" + st.getName() + ")";
     }
-    assert(false); // unreachable
-    return "";
+    case Kind::EnumeratedSet: {
+      auto &st2 = this->toEnumeratedSetType();
+      return "ESET(" + st2.getName() + ")";
+    }
+    case Kind::Struct: {
+      std::string accu = "STRUCT(";
+      bool first = true;
+      for (auto &fd : toRecordType().m_fields) {
+        if (!first) {
+          accu.append(", ");
+        } else {
+          first = false;
+        }
+        accu.append(fd.first);
+        accu.append(" : ");
+        accu.append(fd.second.to_string());
+      }
+      accu.append(")");
+      return accu;
+    }
+  }
+  assert(false);  // unreachable
+  return "";
 }
