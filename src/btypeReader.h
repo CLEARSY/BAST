@@ -35,6 +35,9 @@ namespace Xml {
 void readTypeInfos(const tinyxml2::XMLElement *dom,
                    std::vector<BType> &typeInfos);
 
+void readRichTypesInfo(const tinyxml2::XMLElement *dom,
+                       std::vector<BType> &typeInfos);
+
 /// @brief exceptions that may be thrown by @a Xml::readTypeInfos on corrupt
 /// input
 class BTypeReaderException : public std::exception {

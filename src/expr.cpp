@@ -21,83 +21,6 @@
 #include "exprDesc.h"
 #include "predDesc.h"
 
-Expr::Expr(EKind tag, ExprDesc *desc, const BType &ty,
-           const std::vector<std::string> &bxmlTag)
-    : tag{tag},
-      desc{desc},
-      type{ty},
-      bxmlTag{bxmlTag},
-      m_isTypeExpression{false} {
-  switch (tag) {
-    case EKind::INTEGER:
-    case EKind::STRING:
-    case EKind::BOOL:
-    case EKind::REAL:
-    case EKind::FLOAT:
-      m_isTypeExpression = true;
-      break;
-    case EKind::UnaryExpr: {
-      UnaryExpr &uexp = this->toUnaryExpr();
-      if (uexp.op == UnaryOp::Subsets && uexp.content.isTypeExpression()) {
-        m_isTypeExpression = true;
-      }
-      break;
-    }
-    case EKind::BinaryExpr: {
-      BinaryExpr &bexp = this->toBinaryExpr();
-      if ((bexp.op == BinaryOp::Cartesian_Product) &&
-          bexp.lhs.isTypeExpression() && bexp.rhs.isTypeExpression()) {
-        m_isTypeExpression = true;
-      }
-      break;
-    }
-    case EKind::Struct: {
-      StructExpr &sexp = this->toStructExpr();
-      bool allFieldsAreTypeExpr = true;
-      for (const auto &field : sexp.fields) {
-        if (!field.second.isTypeExpression()) {
-          allFieldsAreTypeExpr = false;
-          break;
-        }
-      }
-      m_isTypeExpression = allFieldsAreTypeExpr;
-      break;
-    }
-    default:
-      break;
-  }
-}
-
-bool Expr::isTypeExpression() const { return m_isTypeExpression; }
-
-Expr Expr::copy() const {
-  if (desc == nullptr)
-    return Expr(tag, nullptr, type, bxmlTag);
-  else
-    return Expr(tag, desc->copy(), type, bxmlTag);
-}
-
-void Expr::getFreeVars(const std::set<VarName> &boundVars,
-                       const std::set<VarName> &freeVars,
-                       std::set<VarName> &freeVarsThis) const {
-  if (desc != nullptr) desc->getFreeVars(boundVars, freeVars, freeVarsThis);
-}
-void Expr::getFreeVars(const std::set<VarName> &boundVars,
-                       std::set<VarName> &accu) const {
-  if (desc != nullptr) desc->getFreeVars(boundVars, accu);
-}
-void Expr::getFreeTVars(const std::set<VarName> &boundVars,
-                        std::set<TypedVar> &accu) const {
-  if (desc != nullptr) desc->getFreeTVars(boundVars, accu, type);
-}
-void Expr::substFreshId(const std::string &id, const VarName &v) {
-  if (desc != nullptr) desc->substFreshId(id, v);
-}
-
-void Expr::getAllVars(std::set<VarName> &accu) const {
-  if (desc != nullptr) desc->getAllVars(accu);
-}
-
 class Expr::IntegerLiteral : public ExprDesc {
  public:
   IntegerLiteral(const std::string &s) : value{s} {
@@ -239,6 +162,107 @@ int Expr::Decimal::compare(const Expr::Decimal &other) const {
   int cmp = integerPart.compare(other.integerPart);
   if (cmp != 0) return cmp;
   return fractionalPart.compare(other.fractionalPart);
+}
+
+Expr::Expr(EKind tag, ExprDesc *desc, const BType &ty,
+           const std::vector<std::string> &bxmlTag)
+    : tag{tag},
+      desc{desc},
+      type{ty},
+      bxmlTag{bxmlTag},
+      m_isTypeExpression{false} {
+  switch (tag) {
+    case EKind::INTEGER:
+    case EKind::STRING:
+    case EKind::BOOL:
+    case EKind::REAL:
+    case EKind::FLOAT:
+      m_isTypeExpression = true;
+      break;
+    case EKind::UnaryExpr: {
+      UnaryExpr &uexp = this->toUnaryExpr();
+      if (uexp.op == UnaryOp::Subsets && uexp.content.isTypeExpression()) {
+        m_isTypeExpression = true;
+      }
+      break;
+    }
+    case EKind::BinaryExpr: {
+      BinaryExpr &bexp = this->toBinaryExpr();
+      if ((bexp.op == BinaryOp::Cartesian_Product) &&
+          bexp.lhs.isTypeExpression() && bexp.rhs.isTypeExpression()) {
+        m_isTypeExpression = true;
+      }
+      break;
+    }
+    case EKind::Struct: {
+      StructExpr &sexp = this->toStructExpr();
+      bool allFieldsAreTypeExpr = true;
+      for (const auto &field : sexp.fields) {
+        if (!field.second.isTypeExpression()) {
+          allFieldsAreTypeExpr = false;
+          break;
+        }
+      }
+      m_isTypeExpression = allFieldsAreTypeExpr;
+      break;
+    }
+    case EKind::Id: {
+      // An id of type POW(AbstractSet{id}) or POW(EnumeratedSet{id, {...}}) is
+      // the type expression formed by the name of an abstract set or the name
+      // of an enumerated set.
+      if (ty.getKind() == BType::Kind::PowerType) {
+        const std::string &name = static_cast<IdentExpr &>(*desc).value.show();
+        const auto pt = ty.toPowerType();
+        const auto &ty2 = pt.content;
+        BType::Kind tkind = ty2.getKind();
+        if (tkind == BType::Kind::AbstractSet ||
+            tkind == BType::Kind::EnumeratedSet) {
+          std::string typeName;
+          if (tkind == BType::Kind::AbstractSet) {
+            typeName = ty2.toAbstractSetType().getName();
+          } else {
+            typeName = ty2.toEnumeratedSetType().getName();
+          }
+          m_isTypeExpression = (name == typeName);
+        } else {
+          m_isTypeExpression = false;
+        }
+      }
+      break;
+    }
+    default:
+      break;
+  }
+}
+
+bool Expr::isTypeExpression() const { return m_isTypeExpression; }
+
+Expr Expr::copy() const {
+  if (desc == nullptr)
+    return Expr(tag, nullptr, type, bxmlTag);
+  else
+    return Expr(tag, desc->copy(), type, bxmlTag);
+}
+
+void Expr::getFreeVars(const std::set<VarName> &boundVars,
+                       const std::set<VarName> &freeVars,
+                       std::set<VarName> &freeVarsThis) const {
+  if (desc != nullptr) desc->getFreeVars(boundVars, freeVars, freeVarsThis);
+}
+void Expr::getFreeVars(const std::set<VarName> &boundVars,
+                       std::set<VarName> &accu) const {
+  if (desc != nullptr) desc->getFreeVars(boundVars, accu);
+}
+void Expr::getFreeTVars(const std::set<VarName> &boundVars,
+                        std::set<TypedVar> &accu) const {
+  if (desc != nullptr) desc->getFreeTVars(boundVars, accu, type);
+}
+void Expr::substFreshId(const std::string &id, const VarName &v) {
+  if (desc != nullptr) desc->substFreshId(id, v);
+}
+
+void Expr::getAllVars(std::set<VarName> &accu) const {
+  if (desc != nullptr) desc->getAllVars(accu);
 }
 
 void Expr::accept(Visitor &visitor) const {

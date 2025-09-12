@@ -374,6 +374,7 @@ class Expr {
   BinaryExpr &toBinaryExpr();
   UnaryExpr &toUnaryExpr();
   NaryExpr &toNaryExpr();
+  IdentExpr &toIdentExpr();
   Pred &toBooleanExpr();
   QuantifiedSet &toQuantifiedSet();
   QuantifiedExpr &toQuantiedExpr();

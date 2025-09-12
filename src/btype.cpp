@@ -169,8 +169,8 @@ int BType::compare(const BType &ty1, const BType &ty2) {
             ty2.toAbstractSetType().getName().c_str());
       }
       case Kind::EnumeratedSet: {
-        return ty1.toAbstractSetType().getName().compare(
-            ty2.toAbstractSetType().getName().c_str());
+        return ty1.toEnumeratedSetType().getName().compare(
+            ty2.toEnumeratedSetType().getName().c_str());
       }
     }
   } else if (ty1.kind < ty2.kind) {

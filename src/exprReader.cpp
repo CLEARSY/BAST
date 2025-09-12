@@ -29,38 +29,57 @@ static void splitDecimal(const char *string, std::string *integralPart,
                          std::string *decimalPart);
 
 namespace Xml {
+
+static BType resolveTypRef(const tinyxml2::XMLElement *dom,
+                           const std::vector<BType> &typeInfos) {
+  unsigned typref;
+  auto query = dom->QueryUnsignedAttribute("richtypref", &typref);
+
+  if (tinyxml2::XML_SUCCESS != query) {
+    query = dom->QueryUnsignedAttribute("typref", &typref);
+  }
+
+  if (tinyxml2::XML_SUCCESS != query) {
+    throw ExprReaderException("type ref attribute not found.",
+                              dom->GetLineNum());
+  }
+
+  size_t index = static_cast<size_t>(typref);
+  if (typeInfos.size() <= index) {
+    throw ExprReaderException("unresolved typ ref attribute value",
+                              dom->GetLineNum());
+  }
+  return typeInfos.at(index);
+}
+
 TypedVar VarNameFromId(const tinyxml2::XMLElement *id,
                        const std::vector<BType> &typeInfos) {
   if (0 == strcmp(id->Name(), "Id")) {
     const char *prefix{nullptr};
     if (tinyxml2::XML_SUCCESS != id->QueryStringAttribute("value", &prefix))
       throw ExprReaderException("value attribute is empty.", id->GetLineNum());
-    unsigned int typref;
-    if (tinyxml2::XML_SUCCESS != id->QueryUnsignedAttribute("typref", &typref))
-      throw ExprReaderException("typref attribute error.", id->GetLineNum());
+    BType type = resolveTypRef(id, typeInfos);
 
     if (nullptr == id->Attribute("suffix")) {
-      return {VarName::makeVarWithoutSuffix(prefix), typeInfos[typref]};
+      return {VarName::makeVarWithoutSuffix(prefix), type};
     } else {
       int i;
       if (tinyxml2::XML_SUCCESS != id->QueryIntAttribute("suffix", &i))
         throw ExprReaderException("suffix attribute error.", id->GetLineNum());
       if (i == 0)
         return {VarName::makeVarWithoutSuffix(prefix),
-                typeInfos[typref]};  // xx$0 may occur in while invariant, the
-                                     // suffix '0' could be removed in the ibxml
-                                     // step
+                type};  // xx$0 may occur in while invariant, the
+                        // suffix '0' could be removed in the
+                        // ibxml step
       else
-        return {VarName::makeVar(prefix, i), typeInfos[typref]};
+        return {VarName::makeVar(prefix, i), type};
     }
   } else if (0 == strcmp(id->Name(), "Fresh_Id")) {
     const char *prefix;
     if (tinyxml2::XML_SUCCESS != id->QueryStringAttribute("ref", &prefix))
       throw ExprReaderException("ref attribute error.", id->GetLineNum());
-    unsigned int typref;
-    if (tinyxml2::XML_SUCCESS != id->QueryUnsignedAttribute("typref", &typref))
-      throw ExprReaderException("typref attribute error.", id->GetLineNum());
-    return {VarName::makeFreshId(prefix), typeInfos[typref]};
+    BType type = resolveTypRef(id, typeInfos);
+    return {VarName::makeFreshId(prefix), type};
   } else {
     throw ExprReaderException("Id element expected.", id->GetLineNum());
   }
@@ -229,10 +248,7 @@ Expr readExpression(const tinyxml2::XMLElement *dom,
   if (nullptr == dom) throw ExprReaderException("Null dom element.", -1);
 
   std::string tagName = dom->Name();
-  unsigned int typref;
-  if (tinyxml2::XML_SUCCESS != dom->QueryUnsignedAttribute("typref", &typref))
-    throw ExprReaderException("typref attribute error.", dom->GetLineNum());
-  BType type = typeInfos[typref];
+  BType type = resolveTypRef(dom, typeInfos);
   std::vector<std::string> bxmlTag;
   auto _bxmlTag{dom->Attribute("tag")};
   if (nullptr != _bxmlTag && 0 != strcmp("", _bxmlTag))
