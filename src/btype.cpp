@@ -94,6 +94,10 @@ BType BType::POW(const BType &content) {
   return BType(Kind::PowerType,
                std::make_shared<PowerType>(PowerType(content)));
 }
+BType BType::SET(const std::string &name) {
+  return BType(Kind::AbstractSet,
+               std::make_shared<AbstractSet>(AbstractSet(name)));
+}
 BType BType::ABSTRACT_SET(const std::string &name) {
   return BType(Kind::AbstractSet,
                std::make_shared<AbstractSet>(AbstractSet(name)));

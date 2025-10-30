@@ -89,6 +89,11 @@ class BType {
 
   static BType PROD(const BType &lhs, const BType &rhs);
   static BType POW(const BType &content);
+
+  /* either an abstract set or an enumerated set (from TypeInfos in
+   * bxml/ibxml/pog files) */
+  static BType SET(const std::string &name);
+
   static BType ABSTRACT_SET(const std::string &name);
   static BType ENUMERATED_SET(
       const std::pair<std::string, std::vector<std::string>> &values);
