@@ -12,14 +12,46 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
-
 #include "btypeReader.h"
 
 #include <cassert>
+#include <map>
+#include <string>
 
 namespace Xml {
 
-static BType readType(const tinyxml2::XMLElement *dom) {
+using dict_t = std::map<const std::string, const tinyxml2::XMLElement *>;
+
+static dict_t readSets(const tinyxml2::XMLElement *root) {
+  dict_t result;
+  auto build_map = [&result](const tinyxml2::XMLElement *parent) {
+    if (parent == nullptr) {
+      return;
+    }
+    for (const tinyxml2::XMLElement *set = parent->FirstChildElement("Set");
+         set != nullptr; set = set->NextSiblingElement("Set")) {
+      const tinyxml2::XMLElement *id = set->FirstChildElement("Id");
+      const std::string key = std::string(id->Attribute("value"));
+      result.insert({key, set});
+    }
+  };
+  if (root->FirstChildElement("Sets") != nullptr) {
+    // for .bxml, .ibxml
+    build_map(root->FirstChildElement("Sets"));
+  } else if (root->FirstChildElement("Define") != nullptr) {
+    // for .poxml, .pog
+    for (const tinyxml2::XMLElement *define = root->FirstChildElement("Define");
+         define != nullptr; define = define->NextSiblingElement("Define")) {
+      if (strcmp(define->Attribute("name"), "sets") == 0) {
+        build_map(define);
+        break;
+      }
+    }
+  }
+  return result;
+}
+
+static BType readType(const tinyxml2::XMLElement *dom, const dict_t &dict) {
   if (nullptr == dom) throw BTypeReaderException("Null dom element.", 0);
 
   auto tag{dom->Name()};
@@ -36,26 +68,59 @@ static BType readType(const tinyxml2::XMLElement *dom) {
     } else if (0 == strcmp(value, "BOOL")) {
       return BType::BOOL;
     } else {
-      if (nullptr != dom->Attribute("suffix"))
-        throw BTypeReaderException(
-            "Abstract or Concrete Set with suffix.",
-            dom->GetLineNum());  // this constraint could be removed
-      return BType::INT;
+      const std::string key = std::string(value);
+      const auto it = dict.find(key);
+      if (it == dict.end()) {
+        throw BTypeReaderException("Type declaration \"" + key + "\" not found",
+                                   dom->GetLineNum());
+      }
+      const tinyxml2::XMLElement *set = it->second;
+      if (set->FirstChildElement("Id") == nullptr) {
+        throw BTypeReaderException("Ill-formed type declaration \"" + key +
+                                       "\": missing 'Id' child element",
+                                   set->GetLineNum());
+      }
+      const tinyxml2::XMLElement *id = set->FirstChildElement("Id");
+      if (id->Attribute("value") == nullptr) {
+        throw BTypeReaderException("Ill-formed type declaration \"" + key +
+                                       "\": missing 'value' attribute",
+                                   id->GetLineNum());
+      }
+      std::string name = id->Attribute("value");
+      const tinyxml2::XMLElement *enumeratedValues =
+          set->FirstChildElement("Enumerated_Values");
+      if (enumeratedValues == nullptr) {
+        return BType::ABSTRACT_SET(name);
+      } else {
+        std::vector<std::string> values;
+        for (const tinyxml2::XMLElement *ide =
+                 enumeratedValues->FirstChildElement("Id");
+             ide != nullptr; ide = ide->NextSiblingElement("Id")) {
+          if (ide->Attribute("value") == nullptr) {
+            throw BTypeReaderException("Ill-formed type declaration \"" + key +
+                                           "\": missing 'value' attribute",
+                                       ide->GetLineNum());
+          }
+          values.push_back(std::string(ide->Attribute("value")));
+        }
+        return BType::ENUMERATED_SET({name, values});
+      }
     }
   } else if (0 == strcmp(tag, "Unary_Exp")) {
     assert(0 == strcmp(dom->Attribute("op"), "POW"));
-    return BType::POW(readType(dom->FirstChildElement()));
+    return BType::POW(readType(dom->FirstChildElement(), dict));
   } else if (0 == strcmp(tag, "Binary_Exp")) {
     assert(0 == strcmp(dom->Attribute("op"), "*"));
     const tinyxml2::XMLElement *fst{dom->FirstChildElement()};
-    return BType::PROD(readType(fst), readType(fst->NextSiblingElement()));
+    return BType::PROD(readType(fst, dict),
+                       readType(fst->NextSiblingElement(), dict));
   } else if (0 == strcmp(tag, "Struct")) {
     std::vector<std::pair<std::string, BType>> fields;
     for (const tinyxml2::XMLElement *item =
              dom->FirstChildElement("Record_Item");
          nullptr != item; item = item->NextSiblingElement("Record_Item")) {
       fields.push_back({std::string(item->Attribute("label")),
-                        readType(item->FirstChildElement())});
+                        readType(item->FirstChildElement(), dict)});
     }
     return BType::STRUCT(fields);
   } else {
@@ -120,6 +185,9 @@ void readTypeInfos(const tinyxml2::XMLElement *dom,
                    std::vector<BType> &typeInfos) {
   assert(typeInfos.size() == 0);
   if (nullptr == dom) return;
+  const tinyxml2::XMLDocument *doc = dom->GetDocument();
+  const tinyxml2::XMLElement *root = doc->RootElement();
+  const dict_t setDict = readSets(root);
 
   int cpt = 0;
   for (const tinyxml2::XMLElement *typ = dom->FirstChildElement("Type");
@@ -132,7 +200,7 @@ void readTypeInfos(const tinyxml2::XMLElement *dom,
                                      std::to_string(cpt) + "'. Found '" +
                                      std::to_string(typref) + "'.",
                                  typ->GetLineNum());
-    typeInfos.push_back(readType(typ->FirstChildElement()));
+    typeInfos.push_back(readType(typ->FirstChildElement(), setDict));
     cpt++;
   }
 }
