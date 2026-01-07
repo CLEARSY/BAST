@@ -206,8 +206,8 @@ Subst readSubstitution(const tinyxml2::XMLElement *dom,
         throw SubstReaderException(
             "Missing child 'Variables' in 'ANY_Sub' element.");
       std::vector<TypedVar> vec;
-      for (const tinyxml2::XMLElement *ce = vars->FirstChildElement();
-           ce != nullptr; ce = ce->NextSiblingElement()) {
+      for (const tinyxml2::XMLElement *ce = vars->FirstChildElement("Id");
+           ce != nullptr; ce = ce->NextSiblingElement("Id")) {
         vec.push_back(VarNameFromId(ce, typeInfos));
       }
       const tinyxml2::XMLElement *pred = dom->FirstChildElement("Pred");
