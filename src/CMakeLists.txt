@@ -54,22 +54,13 @@ set(BAST_SRC
     predPrinter.cpp
 )
 
-set(TINYXML2
-  tinyxml2.cpp tinyxml2.h
-)
 include_directories(
-        ${CMAKE_CURRENT_BINARY_DIR}
-        ${BAST_SOURCE_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}
+    ${BAST_SOURCE_DIR}
+    ${tinyxml2_SOURCE_DIR}
 )
 
-add_library(BAST_LIB STATIC
-    ${BAST_SRC}
-    ${BAST_HEADERS}
-    ${TINYXML2}
-)
+add_library(BAST_LIB STATIC ${BAST_SRC} ${BAST_HEADERS})
 
 target_compile_features(BAST_LIB PUBLIC cxx_std_17)
-target_include_directories(BAST_LIB
-    PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}
-)
 set_target_properties(BAST_LIB PROPERTIES PREFIX "lib" OUTPUT_NAME "BAST")

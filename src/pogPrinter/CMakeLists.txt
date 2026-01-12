@@ -8,14 +8,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 configure_file(pogPrinterConfig.h.in pogPrinterConfig.h)
 
-add_executable(pogPrinter
-    pogPrinter.cpp
-)
+include_directories(${CMAKE_CURRENT_BINARY_DIR} ${BASTLIB_SOURCE_DIR})
 
-target_include_directories(pogPrinter
-    PUBLIC "${PROJECT_BINARY_DIR}"
-)
-
-target_link_libraries(pogPrinter
-    PUBLIC BAST_LIB
-)
+add_executable(pogPrinter pogPrinter.cpp)
+target_link_libraries(pogPrinter  -Bstatic BAST_LIB tinyxml2::tinyxml2)
