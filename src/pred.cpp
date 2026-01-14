@@ -17,6 +17,9 @@
 
 #include "predDesc.h"
 
+using std::string;
+using std::vector;
+
 Pred::Pred(PredDesc *desc, const std::string &gt)
     : goalTag{gt}, desc{desc}, m_isPureTypingPredicate{false} {
   if (desc->tag() == PKind::ExprComparison) {
@@ -27,6 +30,11 @@ Pred::Pred(PredDesc *desc, const std::string &gt)
       }
     }
   }
+}
+
+Pred::Pred(PredDesc *desc, const std::string &gt, const BXmlTags &bt)
+    : Pred(desc, gt) {
+  bxmlTag = bt;
 }
 
 bool Pred::isPureTypingPredicate() const { return m_isPureTypingPredicate; }
@@ -48,49 +56,122 @@ void Pred::getFreeTVars(const std::set<VarName> &boundVars,
                         std::set<TypedVar> &accu) const {
   desc->getFreeTVars(boundVars, accu);
 }
-Pred Pred::makeImplication(Pred &&lhs, Pred &&rhs, const std::string &goalTag) {
-  return Pred(new Implication(std::move(lhs), std::move(rhs)), goalTag);
+
+Pred Pred::makeImplication(Pred &&lhs, Pred &&rhs, const string &goalTag,
+                           const BXmlTags &bxmlTag) {
+  return Pred(new Implication(std::move(lhs), std::move(rhs)), goalTag,
+              bxmlTag);
 }
-Pred Pred::makeEquivalence(Pred &&lhs, Pred &&rhs, const std::string &goalTag) {
+Pred Pred::makeEquivalence(Pred &&lhs, Pred &&rhs, const string &goalTag,
+                           const BXmlTags &bxmlTag) {
   return Pred(new Equivalence(std::move(lhs), std::move(rhs)), goalTag);
 }
 Pred Pred::makeExprComparison(Pred::ComparisonOp op, Expr &&lhs, Expr &&rhs,
-                              const std::string &goalTag) {
+                              const string &goalTag, const BXmlTags &bxmlTag) {
   if (op == ComparisonOp::Equality) {
     assert(lhs.getType() == rhs.getType());
   }
-  return Pred(new ExprComparison(op, std::move(lhs), std::move(rhs)), goalTag);
+  return Pred(new ExprComparison(op, std::move(lhs), std::move(rhs)), goalTag,
+              bxmlTag);
 }
-Pred Pred::makeNegation(Pred &&p, const std::string &goalTag) {
-  return Pred(new NegationPred(std::move(p)), goalTag);
+Pred Pred::makeNegation(Pred &&p, const string &goalTag,
+                        const BXmlTags &bxmlTag) {
+  return Pred(new NegationPred(std::move(p)), goalTag, bxmlTag);
 }
-Pred Pred::makeConjunction(std::vector<Pred> &&vec,
-                           const std::string &goalTag) {
-  return Pred(new Conjunction(std::move(vec)), goalTag);
+Pred Pred::makeConjunction(std::vector<Pred> &&vec, const string &goalTag,
+                           const BXmlTags &bxmlTag) {
+  return Pred(new Conjunction(std::move(vec)), goalTag, bxmlTag);
 }
-Pred Pred::makeDisjunction(std::vector<Pred> &&vec,
-                           const std::string &goalTag) {
-  return Pred(new Disjunction(std::move(vec)), goalTag);
+Pred Pred::makeDisjunction(std::vector<Pred> &&vec, const string &goalTag,
+                           const BXmlTags &bxmlTag) {
+  return Pred(new Disjunction(std::move(vec)), goalTag, bxmlTag);
 }
 Pred Pred::makeForall(const std::vector<TypedVar> &ids, Pred &&body,
-                      const std::string &goalTag) {
-  return Pred(new Forall(ids, std::move(body)), goalTag);
+                      const string &goalTag, const BXmlTags &bxmlTag) {
+  return Pred(new Forall(ids, std::move(body)), goalTag, bxmlTag);
 }
 Pred Pred::makeExists(const std::vector<TypedVar> &ids, Pred &&body,
-                      const std::string &goalTag) {
-  return Pred(new Exists(ids, std::move(body)), goalTag);
+                      const string &goalTag, const BXmlTags &bxmlTag) {
+  return Pred(new Exists(ids, std::move(body)), goalTag, bxmlTag);
 }
 Pred Pred::makeExistsForWitness(const std::vector<TypedVar> &ids, Pred &&body,
-                                const std::string &goalTag) {
-  return Pred(new Exists(ids, std::move(body), true), goalTag);
+                                const string &goalTag,
+                                const BXmlTags &bxmlTag) {
+  return Pred(new Exists(ids, std::move(body), true), goalTag, bxmlTag);
 }
-Pred Pred::makeTrue(const std::string &goalTag) {
-  return Pred(new True(), goalTag);
+Pred Pred::makeTrue(const string &goalTag, const BXmlTags &bxmlTag) {
+  return Pred(new True(), goalTag, bxmlTag);
 }
-Pred Pred::makeFalse(const std::string &goalTag) {
-  return Pred(new False(), goalTag);
+Pred Pred::makeFalse(const string &goalTag, const BXmlTags &bxmlTag) {
+  return Pred(new False(), goalTag, bxmlTag);
 }
+
+/**
+ * @brief Returns a default-constructed empty Pred to use as an rvalue.
+ *
+ * This method provides a void/empty Pred instance that can be used as an
+ * rvalue for move operations.
+ *
+ * @return An rvalue reference to a void Pred that can be used as an rvalue
+ * and is different from any meaningful Pred.
+ */
+Pred Pred::Void() { return Pred(); }
+
 void Pred::accept(Visitor &visitor) const { desc->accept(visitor); }
+
+void Pred::accept(VisitorWithTags &visitor) const {
+  switch (this->getTag()) {
+    case Pred::PKind::Implication: {
+      const auto &p{this->toImplication()};
+      visitor.visitImplication(p.lhs, p.rhs, bxmlTag);
+      break;
+    }
+    case Pred::PKind::Equivalence: {
+      const auto &p{this->toEquivalence()};
+      visitor.visitImplication(p.lhs, p.rhs, bxmlTag);
+      break;
+    }
+    case Pred::PKind::Conjunction: {
+      const auto &p{this->toConjunction()};
+      visitor.visitConjunction(p.operands, bxmlTag);
+      break;
+    }
+    case Pred::PKind::Disjunction: {
+      const auto &p{this->toDisjunction()};
+      visitor.visitDisjunction(p.operands, bxmlTag);
+      break;
+    }
+    case Pred::PKind::Forall: {
+      const auto &p{this->toForall()};
+      visitor.visitForall(p.vars, p.body, bxmlTag);
+      break;
+    }
+    case Pred::PKind::Exists: {
+      const auto &p{this->toExists()};
+      visitor.visitExists(p.vars, p.body, bxmlTag);
+      break;
+    }
+    case Pred::PKind::ExprComparison: {
+      const auto &p{this->toExprComparison()};
+      visitor.visitExprComparison(p.op, p.lhs, p.rhs, bxmlTag);
+      break;
+    }
+    case Pred::PKind::Negation: {
+      const auto &p{this->toNegation()};
+      visitor.visitNegation(p.operand, bxmlTag);
+      break;
+    }
+    case Pred::PKind::True: {
+      visitor.visitTrue(bxmlTag);
+      break;
+    }
+    case Pred::PKind::False: {
+      visitor.visitFalse(bxmlTag);
+      break;
+    }
+  }
+}
+
 void Pred::subst(const std::map<VarName, Expr> &map) {
   if (!map.empty()) desc->subst(map);
 }
@@ -363,48 +444,59 @@ std::string Pred::show() const {
 }
 
 Pred Pred::copy() const {
+  Pred result;
   switch (desc->tag()) {
     case Pred::PKind::Implication: {
       auto &b = toImplication();
-      return makeImplication(b.lhs.copy(), b.rhs.copy(), goalTag);
+      result = makeImplication(b.lhs.copy(), b.rhs.copy(), goalTag, bxmlTag);
+      break;
     }
     case Pred::PKind::Equivalence: {
       auto &b = toEquivalence();
-      return makeEquivalence(b.lhs.copy(), b.rhs.copy(), goalTag);
+      result = makeEquivalence(b.lhs.copy(), b.rhs.copy(), goalTag, bxmlTag);
+      break;
     }
     case Pred::PKind::ExprComparison: {
       auto &c = toExprComparison();
-      return makeExprComparison(c.op, c.lhs.copy(), c.rhs.copy(), goalTag);
+      result = makeExprComparison(c.op, c.lhs.copy(), c.rhs.copy(), goalTag,
+                                  bxmlTag);
+      break;
     }
     case Pred::PKind::Negation:
-      return makeNegation(toNegation().operand.copy(), goalTag);
+      result = makeNegation(toNegation().operand.copy(), goalTag, bxmlTag);
+      break;
     case Pred::PKind::Conjunction: {
       auto &prd = toConjunction();
       std::vector<Pred> accu;
       for (auto &p : prd.operands) accu.push_back(p.copy());
-      return makeConjunction(std::move(accu), goalTag);
+      result = makeConjunction(std::move(accu), goalTag, bxmlTag);
+      break;
     }
     case Pred::PKind::Disjunction: {
       auto &prd = toDisjunction();
       std::vector<Pred> accu;
       for (auto &p : prd.operands) accu.push_back(p.copy());
-      return makeDisjunction(std::move(accu), goalTag);
+      result = makeDisjunction(std::move(accu), goalTag, bxmlTag);
+      break;
     }
     case Pred::PKind::Forall: {
       auto &q = toForall();
-      return makeForall(q.vars, q.body.copy(), goalTag);
+      result = makeForall(q.vars, q.body.copy(), goalTag, bxmlTag);
+      break;
     }
     case Pred::PKind::Exists: {
       auto &q = toExists();
-      return makeExists(q.vars, q.body.copy(), goalTag);
+      result = makeExists(q.vars, q.body.copy(), goalTag, bxmlTag);
+      break;
     }
     case Pred::PKind::True:
-      return makeTrue(goalTag);
+      result = makeTrue(goalTag, bxmlTag);
+      break;
     case Pred::PKind::False:
-      return makeFalse(goalTag);
+      result = makeFalse(goalTag, bxmlTag);
+      break;
   };
-  assert(false);  // unreachable
-  return makeFalse(goalTag);
+  return result;
 }
 bool Pred::alpha_equals(Context &ctx, const Pred &p1, const Pred &p2) {
   if (p1.getTag() != p2.getTag()) return false;

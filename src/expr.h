@@ -286,6 +286,7 @@ class Expr {
   EKind getTag() const { return tag; };
   const BType &getType() const { return type; };
   const std::vector<std::string> &getBxmlTag() const { return bxmlTag; };
+  std::vector<std::string> &getBxmlTag() { return bxmlTag; };
 
   void addBxmlTags(const std::vector<std::string> &bxmlTag);
 

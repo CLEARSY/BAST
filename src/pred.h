@@ -60,7 +60,9 @@ class Pred {
   };
   static std::string to_string(ComparisonOp op);
 
-  Pred() : desc{nullptr} {};
+  using BXmlTags = std::set<std::string>;
+
+  Pred() : goalTag{}, bxmlTag{}, desc{nullptr} {};
   PKind getTag() const;
   /**
    * @brief Tests if the predicate is of the form "x in T" or "x subseteq T"
@@ -82,26 +84,38 @@ class Pred {
   void alpha(const std::map<VarName, VarName> &map);
 
   static Pred makeImplication(Pred &&lhs, Pred &&rhs,
-                              const std::string &goalTag = "");
+                              const std::string &goalTag = "",
+                              const BXmlTags &bxmlTag = {});
   static Pred makeEquivalence(Pred &&lhs, Pred &&rhs,
-                              const std::string &goalTag = "");
+                              const std::string &goalTag = "",
+                              const BXmlTags &bxmlTag = {});
   static Pred makeExprComparison(ComparisonOp op, Expr &&lhs, Expr &&rhs,
-                                 const std::string &goalTag = "");
-  static Pred makeNegation(Pred &&p, const std::string &goalTag = "");
+                                 const std::string &goalTag = "",
+                                 const BXmlTags &bxmlTag = {});
+  static Pred makeNegation(Pred &&p, const std::string &goalTag = "",
+                           const BXmlTags &bxmlTag = {});
   static Pred makeConjunction(std::vector<Pred> &&vec,
-                              const std::string &goalTag = "");
+                              const std::string &goalTag = "",
+                              const BXmlTags &bxmlTag = {});
   static Pred makeDisjunction(std::vector<Pred> &&vec,
-                              const std::string &goalTag = "");
+                              const std::string &goalTag = "",
+                              const BXmlTags &bxmlTag = {});
   static Pred makeForall(const std::vector<TypedVar> &ids, Pred &&body,
-                         const std::string &goalTag = "");
+                         const std::string &goalTag = "",
+                         const BXmlTags &bxmlTag = {});
   static Pred makeExists(const std::vector<TypedVar> &ids, Pred &&body,
-                         const std::string &goalTag = "");
-  static Pred makeTrue(const std::string &goalTag = "");
-  static Pred makeFalse(const std::string &goalTag = "");
+                         const std::string &goalTag = "",
+                         const BXmlTags &bxmlTag = {});
+  static Pred makeTrue(const std::string &goalTag = "",
+                       const BXmlTags &bxmlTag = {});
+  static Pred makeFalse(const std::string &goalTag = "",
+                        const BXmlTags &bxmlTag = {});
 
   static Pred makeExistsForWitness(const std::vector<TypedVar> &ids,
-                                   Pred &&body,
-                                   const std::string &goalTag = "");
+                                   Pred &&body, const std::string &goalTag = "",
+                                   const BXmlTags &bxmlTag = {});
+  /** @brief Returns an rvalue Pred */
+  static Pred Void();
 
   class Conjunction;
   class Disjunction;
@@ -134,9 +148,15 @@ class Pred {
   class Visitor;
   void accept(Visitor &v) const;
 
+  /** @brief a visitor for processing requiring bxmlTag */
+  class VisitorWithTags;
+  void accept(VisitorWithTags &v) const;
+
   size_t hash_combine(size_t seed) const;
-  const std::string &getGoalTag() const { return goalTag; };
+  const std::string &getGoalTag() const { return goalTag; }
   void setGoalTag(const std::string &s) { goalTag = s; }
+  const BXmlTags &getBxmlTag() const { return bxmlTag; }
+  BXmlTags &getBxmlTag() { return bxmlTag; }
 
   std::string show() const;  // for debug
 
@@ -208,12 +228,14 @@ class Pred {
 
   std::string
       goalTag;  // Used to describe the source of the goal of a proof obligation
+  BXmlTags bxmlTag;
   std::unique_ptr<PredDesc> desc;  // content of the predicate. Never null
                                    // (except if default constructor is used)
   bool m_isPureTypingPredicate;
 
   // Constructor
   Pred(PredDesc *desc, const std::string &gt);
+  Pred(PredDesc *desc, const std::string &gt, const BXmlTags &bt);
 };
 
 class Pred::Visitor {
@@ -231,6 +253,33 @@ class Pred::Visitor {
                            const Pred &p) = 0;
   virtual void visitTrue() = 0;
   virtual void visitFalse() = 0;
+};
+
+/**
+ * @brief VisitorWithTags is a visitor class for processing requiring bxmlTag
+ * @note This class was added to avoid breaking backward compatibility for
+ * clients using class Pred::Visitor.
+ */
+class Pred::VisitorWithTags {
+ public:
+  virtual void visitImplication(const Pred &lhs, const Pred &rhs,
+                                const BXmlTags &bxmlTags = {}) = 0;
+  virtual void visitEquivalence(const Pred &lhs, const Pred &rhs,
+                                const BXmlTags &bxmlTags = {}) = 0;
+  virtual void visitExprComparison(Pred::ComparisonOp op, const Expr &lhs,
+                                   const Expr &rhs,
+                                   const BXmlTags &bxmlTags = {}) = 0;
+  virtual void visitNegation(const Pred &p, const BXmlTags &bxmlTags = {}) = 0;
+  virtual void visitConjunction(const std::vector<Pred> &vec,
+                                const BXmlTags &bxmlTags = {}) = 0;
+  virtual void visitDisjunction(const std::vector<Pred> &vec,
+                                const BXmlTags &bxmlTags = {}) = 0;
+  virtual void visitForall(const std::vector<TypedVar> &vars, const Pred &p,
+                           const BXmlTags &bxmlTags = {}) = 0;
+  virtual void visitExists(const std::vector<TypedVar> &vars, const Pred &p,
+                           const BXmlTags &bxmlTags = {}) = 0;
+  virtual void visitTrue(const BXmlTags &bxmlTags = {}) = 0;
+  virtual void visitFalse(const BXmlTags &bxmlTags = {}) = 0;
 };
 
 namespace std {
