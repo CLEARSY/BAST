@@ -42,10 +42,7 @@ static dict_t readSets(const tinyxml2::XMLElement *root) {
     // for .poxml, .pog
     for (const tinyxml2::XMLElement *define = root->FirstChildElement("Define");
          define != nullptr; define = define->NextSiblingElement("Define")) {
-      if (strcmp(define->Attribute("name"), "sets") == 0) {
-        build_map(define);
-        break;
-      }
+      build_map(define);
     }
   }
   return result;
