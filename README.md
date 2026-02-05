@@ -29,7 +29,7 @@ cmake --build .
 
 ## Acknowledgments
 
-BAST includes TinyXML-2 source files.
+BAST uses the TinyXML-2 library.
 
 TinyXML-2 is a simple, small, efficient, C++ XML parser that can be easily integrated into other programs.
 

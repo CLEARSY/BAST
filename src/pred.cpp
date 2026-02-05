@@ -64,7 +64,8 @@ Pred Pred::makeImplication(Pred &&lhs, Pred &&rhs, const string &goalTag,
 }
 Pred Pred::makeEquivalence(Pred &&lhs, Pred &&rhs, const string &goalTag,
                            const BXmlTags &bxmlTag) {
-  return Pred(new Equivalence(std::move(lhs), std::move(rhs)), goalTag);
+  return Pred(new Equivalence(std::move(lhs), std::move(rhs)), goalTag,
+              bxmlTag);
 }
 Pred Pred::makeExprComparison(Pred::ComparisonOp op, Expr &&lhs, Expr &&rhs,
                               const string &goalTag, const BXmlTags &bxmlTag) {
