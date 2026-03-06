@@ -129,7 +129,7 @@ void Pred::accept(VisitorWithTags &visitor) const {
     }
     case Pred::PKind::Equivalence: {
       const auto &p{this->toEquivalence()};
-      visitor.visitImplication(p.lhs, p.rhs, bxmlTag);
+      visitor.visitEquivalence(p.lhs, p.rhs, bxmlTag);
       break;
     }
     case Pred::PKind::Conjunction: {
