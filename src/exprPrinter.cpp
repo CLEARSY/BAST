@@ -98,6 +98,10 @@ class ExprPrinterVisitor : public Expr::Visitor {
         stream << "{}";
         break;
       }
+      case Expr::Visitor::EConstant::EmptySeq: {
+        stream << "[]";
+        break;
+      }
       case Expr::Visitor::EConstant::Successor: {
         stream << "succ";
         break;

@@ -92,7 +92,7 @@ const std::map<std::string, Expr::EKind> etags = {
     {"Boolean_Literal", Expr::EKind::TRUE},
     {"Boolean_Exp", Expr::EKind::BooleanExpr},
     {"EmptySet", Expr::EKind::EmptySet},
-    {"EmptySeq", Expr::EKind::EmptySet},
+    {"EmptySeq", Expr::EKind::EmptySeq},
     {"Id", Expr::EKind::Id},
     {"Fresh_Id", Expr::EKind::Id},
     {"Integer_Literal", Expr::EKind::IntegerLiteral},
@@ -312,6 +312,9 @@ Expr readExpression(const tinyxml2::XMLElement *dom,
     }
     case Expr::EKind::EmptySet: {
       return Expr::makeEmptySet(type, bxmlTag);
+    }
+    case Expr::EKind::EmptySeq: {
+      return Expr::makeEmptySeq(type, bxmlTag);
     }
     case Expr::EKind::Id: {
       if (tagName == "Fresh_Id") {

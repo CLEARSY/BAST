@@ -48,6 +48,7 @@ class Expr {
     TRUE,
     FALSE,
     EmptySet,
+    EmptySeq,
     IntegerLiteral,
     StringLiteral,
     RealLiteral,
@@ -231,6 +232,8 @@ class Expr {
   static Expr makeIdent(const VarName &s, const BType &type,
                         const std::vector<std::string> &bxmlTag = {});
   static Expr makeEmptySet(const BType &ty,
+                           const std::vector<std::string> &bxmlTag = {});
+  static Expr makeEmptySeq(const BType &ty,
                            const std::vector<std::string> &bxmlTag = {});
   static Expr makePredecessor(const std::vector<std::string> &bxmlTag = {});
   static Expr makeSuccessor(const std::vector<std::string> &bxmlTag = {});
@@ -476,6 +479,7 @@ class Expr::Visitor {
     TRUE,
     FALSE,
     EmptySet,
+    EmptySeq,
     Successor,
     Predecessor
   };

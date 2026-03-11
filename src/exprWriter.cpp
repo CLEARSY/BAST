@@ -243,6 +243,12 @@ class ExprWriterVisitor : public Expr::Visitor {
         stream.CloseElement();  // EmptySet
         break;
       }
+      case Expr::Visitor::EConstant::EmptySeq: {
+        stream.OpenElement("EmptySeq");
+        writeExprAttributes(type, bxmlTag, stream, typeInfos);
+        stream.CloseElement();  // EmptySeq
+        break;
+      }
       case Expr::Visitor::EConstant::Successor: {
         stream.OpenElement("Id");
         stream.PushAttribute("value", "succ");

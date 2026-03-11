@@ -335,6 +335,10 @@ void Expr::accept(Visitor &visitor) const {
       visitor.visitConstant(type, bxmlTag, Visitor::EConstant::EmptySet);
       break;
     }
+    case EKind::EmptySeq: {
+      visitor.visitConstant(type, bxmlTag, Visitor::EConstant::EmptySeq);
+      break;
+    }
     case EKind::Id: {
       visitor.visitIdent(type, bxmlTag, static_cast<IdentExpr &>(*desc).value);
       break;
@@ -573,6 +577,10 @@ Expr Expr::makeEmptySet(const BType &type,
                         const std::vector<std::string> &bxmlTag) {
   return Expr(EKind::EmptySet, nullptr, type, bxmlTag);
 }
+Expr Expr::makeEmptySeq(const BType &type,
+                        const std::vector<std::string> &bxmlTag) {
+  return Expr(EKind::EmptySeq, nullptr, type, bxmlTag);
+}
 Expr Expr::makeMaxInt(const std::vector<std::string> &bxmlTag) {
   return Expr(EKind::MaxInt, nullptr, BType::INT, bxmlTag);
 }
@@ -734,6 +742,7 @@ int Expr::compare(const Expr &e1, const Expr &e2) {
       case Expr::EKind::Predecessor:
         return 0;
       case Expr::EKind::EmptySet:
+      case Expr::EKind::EmptySeq:
         return BType::compare(e1.type, e2.type);
       case Expr::EKind::IntegerLiteral:
         return e1.getIntegerLiteral().compare(e2.getIntegerLiteral());
@@ -1200,6 +1209,8 @@ std::string Expr::show() const {
       return "FLOAT";
     case EKind::EmptySet:
       return "{}";
+    case EKind::EmptySeq:
+      return "[]";
     case EKind::Successor:
       return "succ";
     case EKind::Predecessor:
@@ -1306,6 +1317,7 @@ void Expr::subst(const std::map<VarName, Expr> &map) {
       case EKind::TRUE:
       case EKind::FALSE:
       case EKind::EmptySet:
+      case EKind::EmptySeq:
       case EKind::IntegerLiteral:
       case EKind::StringLiteral:
       case EKind::RealLiteral:
@@ -1384,6 +1396,7 @@ bool Expr::alpha_equals(Context &ctx, const Expr &e1, const Expr &e2) {
       case Expr::EKind::REAL:
       case Expr::EKind::FLOAT:
       case Expr::EKind::EmptySet:
+      case Expr::EKind::EmptySeq:
       case Expr::EKind::Predecessor:
       case Expr::EKind::Successor:
         // case Expr::EKind::EmptySeq:
