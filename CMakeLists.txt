@@ -32,3 +32,8 @@ endif(PROJECT_IS_TOP_LEVEL)
 
 add_subdirectory(src)
 add_subdirectory(src/pogPrinter)
+
+if(PROJECT_IS_TOP_LEVEL)
+  enable_testing()
+  add_subdirectory(tests)
+endif()
